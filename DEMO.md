@@ -1,19 +1,21 @@
-# GymFlow Demo Guide
+﻿# GymFlow Demo Guide
 
 GymFlow is a product-style SaaS demo for managing gyms and fitness studios.
 
-This demo is designed to show the main product flows without requiring access to the private source repositories.
+This demo shows the main product flows without requiring access to the private source repositories.
 
-## Recommended walkthrough
+---
+
+## Recommended Walkthrough
 
 1. Open the public website.
 2. Review the landing page, pricing, and product positioning.
 3. Log in as the studio owner.
 4. Review the dashboard.
-5. Open Clients.
+5. Open the Clients module.
 6. Open a client profile.
 7. Review memberships, bookings, payments, and activity.
-8. Open Bookings.
+8. Open the Bookings module.
 9. Create or review a booking.
 10. Open Check-ins.
 11. Mark attendance.
@@ -23,45 +25,63 @@ This demo is designed to show the main product flows without requiring access to
 15. Review subscription billing and Stripe Connect demo mode.
 16. Open the client portal.
 17. Book a slot as a client.
-18. Review the mobile layout.
+18. Review the responsive mobile layout.
 
-## Demo accounts
+---
 
-Owner:
+## Demo Accounts
 
-```txt
-owner@gymflow.demo
-DemoOwner123!
+### Studio Owner
 
-Staff:
+| Field | Value |
+|---|---|
+| Email | owner@gymflow.demo |
+| Password | DemoOwner123! |
 
-staff@gymflow.demo
-DemoStaff123!
+### Staff Member
 
-Client portal access:
+| Field | Value |
+|---|---|
+| Email | staff@gymflow.demo |
+| Password | DemoStaff123! |
 
-Client portal demo link will be added before release.
-Stripe demo mode
+### Client Portal Access
+
+A dedicated client portal demo link will be added before the final showcase release.
+
+---
+
+## Stripe Demo Mode
 
 The public demo uses Stripe test mode.
 
-Stripe Connect onboarding is simulated in demo mode so reviewers can test the app without uploading identity documents.
+Stripe Connect onboarding is simulated in demo mode so reviewers can experience the payment workflow without uploading identity documents.
 
 No real payments are processed.
 
-Test card
+### Stripe Test Card
 
-Use Stripe test card:
+| Field | Value |
+|---|---|
+| Card number | 4242 4242 4242 4242 |
+| Expiry date | Any future date |
+| CVC | Any 3 digits |
+| Postal code | Any valid postal code |
 
-4242 4242 4242 4242
-Any future expiry date
-Any CVC
-Any postal code
+---
 
-## Demo limitations
+## Demo Limitations
 
-The source repositories are private.
-Demo data is fake.
-Stripe runs in test/demo mode.
-Emails may be disabled or routed through a test provider.
-Live demo access may be enabled only during review periods.
+- The source repositories are private.
+- Demo data is fictional.
+- Stripe runs in test/demo mode.
+- Emails may be disabled or routed through a test provider.
+- Live demo access may be enabled only during review periods.
+
+---
+
+## Access Note
+
+Live demo access can be enabled on request.
+
+Demo builds, screenshots, and video walkthroughs will be added before the final showcase release.
