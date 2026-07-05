@@ -316,3 +316,55 @@ GymFlow demonstrates software engineering across:
 - Automated quality gates.
 - Manual QA discipline.
 - Demo and release preparation.
+
+---
+
+## Screenshots
+
+### Public Website
+
+![Public home](screenshots/01-public-home.png)
+
+![Public pricing](screenshots/02-public-pricing.png)
+
+### Authentication
+
+![Authentication login](screenshots/03-auth-login.png)
+
+### Owner and Staff Dashboard
+
+![Owner dashboard](screenshots/04-owner-dashboard.png)
+
+![Clients list](screenshots/05-clients-list.png)
+
+![Client profile](screenshots/06-client-profile.png)
+
+![Membership plans](screenshots/07-membership-plans.png)
+
+![Staff and trainers](screenshots/08-staff-trainers.png)
+
+![Bookings](screenshots/09-bookings.png)
+
+![Check-ins](screenshots/10-check-ins.png)
+
+![Payments](screenshots/11-payments.png)
+
+![Billing and Stripe demo](screenshots/12-billing-stripe-demo.png)
+
+### Client Portal
+
+![Client portal home](screenshots/13-client-portal-home.png)
+
+![Client portal bookings](screenshots/14-client-portal-bookings.png)
+
+### Mobile and Localization
+
+![Mobile admin dashboard](screenshots/15-mobile-admin-dashboard.png)
+
+![Mobile public home](screenshots/16-mobile-public-home.jpeg)
+
+![Mobile client portal home](screenshots/17-mobile-client-portal-home.jpeg)
+
+![Mobile QR check-in pass](screenshots/18-mobile-qr-check-in-pass.jpeg)
+
+![Mobile Arabic localization](screenshots/19-mobile-arabic-localization.png)
