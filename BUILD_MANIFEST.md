@@ -11,7 +11,7 @@ It should be updated only when the canonical frontend/backend release snapshot o
 | Frontend | `anes-dev-ml/Gymflow-Frontend` / `client-dashboard-redesign` | `85fb121968bf862945debf349ce8c28df72c0fdd` | Demo-readiness merge preserving current dashboard, staff presence, messaging, and portal architecture |
 | Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `7bef6bfdf7ba1fbd3db9669b59aafa6ce6f2b9ac` | Guarded demo portal-code flow after Docker selector and reserved `.test` identity fixes |
 | Showcase baseline | `anes-dev-ml/GymFlow-Showcase` / `main` | `60f9fd3f7f4b4765668640022ad8d71a56fe47d4` | Previous visual/documentation release before case-study overhaul |
-| Showcase case-study work | `anes-dev-ml/GymFlow-Showcase` | `docs/portfolio-case-study-overhaul` | Documentation and release-system overhaul; final tag will point to the merged commit |
+| Showcase case study | `anes-dev-ml/GymFlow-Showcase` / `main` | `dfc107ce4042d6f3fd99dc991557d57dd5b0132c` | Merged engineering case study, security/operations documentation, provenance system, and showcase CI |
 
 ## Application versions
 
@@ -110,7 +110,7 @@ The final visual artifacts are intentionally pending capture after this document
 
 After screenshots and video are finalized:
 
-- [ ] Replace the showcase case-study branch entry with the merged/tagged showcase commit.
+- [x] Replace the showcase case-study branch entry with the merged showcase commit.
 - [ ] Confirm frontend branch has not moved; otherwise record the new exact commit and rerun QA.
 - [ ] Confirm backend `main` has not moved; otherwise record the new exact commit and rerun QA.
 - [ ] Record Alembic head revision from the final demo database.
