@@ -47,10 +47,10 @@ FORBIDDEN_SUFFIXES = {
 }
 
 STALE_VALUES = {
-    "owner@gymflow.demo",
-    "staff@gymflow.demo",
-    "DemoOwner123!",
-    "DemoStaff123!",
+    "owner@" + "gymflow.demo",
+    "staff@" + "gymflow.demo",
+    "Demo" + "Owner123!",
+    "Demo" + "Staff123!",
 }
 
 SECRET_PATTERNS = {
