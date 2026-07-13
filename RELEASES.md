@@ -1,294 +1,273 @@
-﻿# GymFlow Releases
+# GymFlow Releases
 
-This document explains how GymFlow demo releases are presented.
+This document defines how GymFlow showcase and review releases are versioned, built, verified, and distributed.
 
-GymFlow is a full-stack SaaS project with a Flutter frontend, FastAPI backend, PostgreSQL database, provider integrations, and multiple demo surfaces.
+## Release goals
 
-Because the frontend depends on the backend API, installable builds such as Android APK or Windows desktop builds are only fully functional when connected to a running backend environment.
+A GymFlow release should prove that:
 
----
+- the documented product exists and works;
+- screenshots and video represent a known source state;
+- downloadable artifacts are built from that same state;
+- demo data is fictional and repeatable;
+- provider and production boundaries are stated honestly;
+- no source code, credentials, or real client/payment data are exposed.
 
-## Release Strategy
+## Release types
 
-The showcase release is designed to prove the product and engineering work without exposing the private source repositories.
+| Release | Purpose | Typical assets |
+|---|---|---|
+| Showcase | Main public portfolio package | README, docs, screenshots, product video |
+| Technical walkthrough | Deeper engineering review | Architecture video, diagrams, manifest |
+| Android preview | Installable mobile evaluation | APK, checksum, backend requirement note |
+| Windows preview | Desktop evaluation | ZIP/MSIX as applicable, checksum, backend note |
+| Hosted review | Temporary interactive review | Time-limited URL and private credentials |
+| Documentation-only | Architecture/security update | Docs and diagrams without new binaries |
 
-| Release Asset | Purpose |
+## Versioning
+
+Recommended naming:
+
+```text
+v1.0.0-showcase
+v1.0.1-showcase
+v1.1.0-showcase
+```
+
+Use semantic meaning:
+
+- major: important architecture/product generation;
+- minor: significant new product capability or refreshed visual release;
+- patch: documentation, release packaging, or non-breaking fixes.
+
+Do not create separate tags for every screenshot update. Keep the release coherent.
+
+## Canonical source snapshot
+
+Every public release must identify:
+
+- showcase repository commit;
+- frontend branch and commit;
+- backend branch and commit;
+- Alembic head revision;
+- demo seed contract version/date;
+- Flutter/Dart/Python/PostgreSQL/Redis versions;
+- build date and operator;
+- CI status or run references.
+
+The source snapshot is recorded in [BUILD_MANIFEST.md](BUILD_MANIFEST.md).
+
+## Required release artifacts
+
+### Always include
+
+- product README;
+- architecture, engineering, security, quality, operations, and demo documentation;
+- refreshed screenshot set;
+- edited product walkthrough;
+- release manifest;
+- release notes;
+- known limitations and provider boundary.
+
+### Optional
+
+- engineering walkthrough video;
+- Android APK;
+- Windows build archive;
+- screenshot ZIP;
+- architecture diagram pack;
+- SBOM;
+- checksums file;
+- temporary hosted review instructions.
+
+## Artifact rules
+
+### Screenshots
+
+- must use fictional deterministic data;
+- must come from the release source snapshot;
+- must not expose browser tokens, environment files, local user directories, or real identities;
+- should use consistent viewport and naming;
+- should be reviewed for stale UI and visible errors.
+
+### Video
+
+- must state that payment operations are test/demo only;
+- must not show real secrets or card data;
+- must not claim provider verification that was not performed;
+- should include version/source information in description or closing frame;
+- should follow the capture guide in `video/README.md`.
+
+### Android and Windows builds
+
+Installable clients require a reachable backend for full functionality.
+
+Each artifact note must state:
+
+- expected API base URL behavior;
+- whether OAuth is configured for that platform;
+- whether Stripe redirects work in that release;
+- whether the build is for demonstration only;
+- checksum;
+- exact frontend source commit.
+
+### Hosted review
+
+A temporary hosted demo requires:
+
+- HTTPS frontend and API;
+- managed/isolated PostgreSQL;
+- managed Redis when production rate limits are expected;
+- fictional demo database;
+- exact CORS and trusted hosts;
+- no live payment processing unless explicitly authorized and verified;
+- credentials shared privately, never committed;
+- shutdown/cleanup date.
+
+## Release readiness matrix
+
+| Area | Required before showcase tag |
 |---|---|
-| Screenshots | Show the product visually |
-| Demo video | Walk through the full product experience |
-| Architecture docs | Explain the technical system |
-| Security docs | Explain auth, roles, workspace isolation, and demo safety |
-| APK build | Optional Android installable demo |
-| Windows build | Optional desktop installable demo |
-| Web demo | Optional hosted demo during review periods |
-| Local demo notes | Explain how the app can run locally when backend access is available |
+| Frontend CI | Green on canonical frontend commit |
+| Backend CI | Green on canonical backend commit |
+| Showcase CI | Green on release commit |
+| Demo rebuild | Completed successfully |
+| Demo validation | All target metrics pass |
+| Route rehearsal | No blocking error across recorded routes |
+| Logs | No unexplained repeated 404/422/500 during walkthrough |
+| Screenshots | Refreshed and privacy-reviewed |
+| Product video | Edited and reviewed |
+| Manifest | Exact commits and artifacts recorded |
+| Secrets | Source/showcase scans pass |
+| Provider claims | Match actual release configuration |
 
----
+## Production-oriented versus production-operated
 
-## Important Demo Boundary
+GymFlow implements:
 
-GymFlow is not a static frontend-only app.
+- strict production settings;
+- non-root container packaging;
+- separate migration execution;
+- liveness/readiness;
+- PostgreSQL and Redis expectations;
+- security middleware;
+- provider configuration validation;
+- deployment and incident runbooks.
 
-The complete product depends on:
+A live commercial release additionally requires deployment-specific verification:
 
-| Component | Required For |
+- hosting and domains;
+- managed database/Redis;
+- Stripe live/test webhooks;
+- verified email sender;
+- Google OAuth redirects;
+- monitoring and alerting;
+- backups and restore drill;
+- vulnerability scanning;
+- organization-specific legal/privacy operations.
+
+Release notes must not collapse those two states into one unsupported “production-ready” claim.
+
+## Payment release boundary
+
+The public showcase uses:
+
+- fictional payment records;
+- Stripe test mode when real provider checkout is shown;
+- simulated Connect state when identity onboarding is intentionally skipped;
+- no stored payment-card data;
+- no real charges.
+
+The well-known Stripe test card may be used only in Stripe's test environment and should not be embedded as a credential or real payment recommendation.
+
+## Email and OAuth release boundary
+
+Email and OAuth status must be declared per release:
+
+| Status | Meaning |
 |---|---|
-| Flutter frontend | User interface |
-| FastAPI backend | Authentication, business logic, API routes |
-| PostgreSQL database | Persistent app data |
-| Stripe Test Mode | Payment demonstration |
-| Email provider | Verification, reset, invitation, and portal email flows |
-| Google OAuth | Optional provider login |
-| Demo seed data | Realistic product walkthrough |
+| Disabled | UI/API behavior shown without provider delivery |
+| Demo-assisted | Reserved identities use safe code/display behavior |
+| Provider test verified | Real test account/inbox and callback verified |
+| Production verified | Target production domains/credentials verified |
 
-Without a running backend and database, the APK and Windows builds can open only the frontend shell or fail when calling API-backed features.
+Do not write “supports email/OAuth” without explaining which release status applies.
 
----
+## Supply-chain evidence
 
-## Recommended Showcase Release
+For releases containing binaries, the target process is:
 
-The recommended public showcase release includes:
+1. build from documented source commit;
+2. run source CI and release checks;
+3. generate SHA-256 checksums;
+4. generate an SBOM when tooling is available;
+5. attach build manifest and checksums;
+6. sign/provide provenance when practical;
+7. verify downloaded artifact against checksum.
 
-| Item | Status |
-|---|---|
-| Product README | Included |
-| Demo guide | Included |
-| Architecture overview | Included |
-| Security overview | Included |
-| Screenshots | To be added |
-| Demo video | To be recorded |
-| APK build notes | To be added |
-| Windows build notes | To be added |
-| Optional hosted demo | Available on request |
+Controls such as CodeQL, dependency review, image scanning, signed provenance, and SBOM publication should only be marked complete after they are enabled.
 
-This is the safest and cleanest release style because it demonstrates the product without requiring permanent hosting or public source code.
+## Release notes template
 
----
+```markdown
+# GymFlow vX.Y.Z-showcase
 
-## Web Demo
+## Summary
 
-A hosted web demo requires:
+## Source snapshot
+- Showcase:
+- Frontend:
+- Backend:
+- Alembic head:
 
-| Requirement | Description |
-|---|---|
-| Hosted frontend | Flutter web build deployed to a public URL |
-| Hosted backend | FastAPI API deployed to a public URL |
-| Hosted database | PostgreSQL instance available to the backend |
-| Environment variables | API URLs, secrets, provider keys, CORS, trusted hosts |
-| HTTPS | Required for serious public demo use |
-| Demo data | Seeded users, clients, memberships, bookings, and payments |
-| Stripe Test Mode | Safe payment testing |
-| Optional email provider | For email verification, reset, portal access, and invitations |
+## Product highlights
 
-Recommended position:
+## Engineering highlights
 
-A hosted demo can be enabled temporarily during review periods instead of running permanently.
+## Included assets
 
----
+## Demo environment
 
-## Android APK Demo
+## Verification
+- Frontend CI:
+- Backend CI:
+- Showcase CI:
+- Demo validation:
+- Manual rehearsal:
 
-The Android APK is useful to show that GymFlow can run as a mobile application.
+## Provider status
+- Stripe:
+- Email:
+- Google OAuth:
 
-| Item | Explanation |
-|---|---|
-| Build type | Android APK |
-| Main purpose | Installable mobile demo |
-| Requires backend | Yes, for full functionality |
-| API configuration | Must point to a reachable backend URL |
-| Google sign-in | Requires Android OAuth configuration if enabled |
-| Payments | Stripe test checkout requires a reachable backend |
-| Offline mode | Not intended as the main demo mode |
+## Known limitations
 
-Recommended position:
+## Security and data statement
 
-Use the APK as a proof that the Flutter app can run on Android, while the video/screenshots remain the main showcase evidence.
+## Artifact checksums
+```
 
----
+## Release publication sequence
 
-## Windows Desktop Demo
+1. Freeze canonical frontend/backend commits.
+2. Update `BUILD_MANIFEST.md`.
+3. Rebuild and validate `gymflow_demo`.
+4. Run a complete route rehearsal.
+5. Capture screenshots.
+6. Record and edit videos.
+7. Add artifact checksums.
+8. Run showcase quality workflow.
+9. Review every public claim.
+10. Create the Git tag and GitHub release.
+11. Verify links and downloads from a logged-out/private-review perspective.
 
-The Windows build is useful to show that GymFlow can run as a desktop application.
+## Rollback and correction
 
-| Item | Explanation |
-|---|---|
-| Build type | Windows desktop build |
-| Main purpose | Installable desktop demo |
-| Requires backend | Yes, for full functionality |
-| API configuration | Must point to a reachable backend URL |
-| Payments | Stripe test flows require backend and browser redirect support |
-| Offline mode | Not intended as the main demo mode |
+If a published release contains a broken link, leaked information, or misleading claim:
 
-Recommended position:
-
-Use the Windows build as an optional downloadable artifact, not as the primary way someone evaluates the project.
-
----
-
-## Local Demo
-
-A local demo requires the full stack.
-
-| Component | Local Requirement |
-|---|---|
-| Backend | FastAPI running locally |
-| Database | PostgreSQL running locally |
-| Migrations | Alembic migrations applied |
-| Frontend | Flutter web/app running with correct API base URL |
-| Demo data | Seeded or manually prepared |
-| Stripe | Test mode keys configured if payment flows are shown |
-| Email | Test provider or disabled email behavior |
-| OAuth | Local OAuth redirects configured if shown |
-
-A local demo is useful for a technical walkthrough, but it requires more setup than screenshots or video.
-
----
-
-## Demo Data
-
-The showcase should use fictional demo data only.
-
-Good demo data should include:
-
-| Data Type | Examples |
-|---|---|
-| Studio workspace | A realistic gym/studio name |
-| Owner account | Demo owner credentials |
-| Staff accounts | Manager, trainer, receptionist examples |
-| Clients | Several realistic fictional clients |
-| Membership plans | Monthly, premium, student, or class-pass examples |
-| Client memberships | Active, expiring, inactive examples |
-| Services | Personal training, group class, open gym |
-| Bookings | Upcoming and past bookings |
-| Check-ins | Attendance records |
-| Payments | Pending and paid test records |
-| Reports | Enough data to make reports look useful |
-| Notifications | Read and unread examples |
-| Activity logs | Realistic operational history |
-
-Good seed data makes the screenshots and video look like a real SaaS product instead of an empty admin panel.
-
----
-
-## Stripe Test Mode
-
-The showcase uses Stripe Test Mode.
-
-| Field | Value |
-|---|---|
-| Test card | 4242 4242 4242 4242 |
-| Expiry date | Any future date |
-| CVC | Any 3 digits |
-| Postal code | Any valid postal code |
-
-No real money is processed.
-
-Stripe Connect is demonstrated through demo mode so reviewers are not asked to upload identity documents.
-
----
-
-## Email Demo Behavior
-
-Email flows may be configured in one of three ways.
-
-| Mode | Description |
-|---|---|
-| Disabled | Email actions show safe UI behavior but no real delivery |
-| Test provider | Emails route through a test/sandbox provider |
-| Verified domain | Emails are sent through a verified sender domain |
-
-The showcase should be honest about which email mode is active for a given demo release.
-
----
-
-## OAuth Demo Behavior
-
-Google OAuth may be demonstrated when configured correctly.
-
-OAuth demo requirements include:
-
-| Requirement | Description |
-|---|---|
-| Web OAuth client | Required for browser Google login |
-| Android OAuth client | Required for native Android sign-in |
-| Correct redirect URLs | Backend and frontend callback URLs must match provider settings |
-| HTTPS in production | Required for serious hosted demo use |
-
-If OAuth is not configured for a specific demo release, the email/password demo account should be used instead.
-
----
-
-## Version Naming
-
-Recommended release names:
-
-| Version | Meaning |
-|---|---|
-| v1.0-showcase | First complete public showcase package |
-| v1.0-demo-video | Release focused on screenshots and video |
-| v1.0-apk-preview | Android build preview |
-| v1.0-windows-preview | Windows build preview |
-| v1.0-hosted-review | Temporary hosted review version |
-
----
-
-## What To Include In A GitHub Release
-
-A strong GitHub release should include:
-
-| Asset | Description |
-|---|---|
-| Demo video link | Main walkthrough |
-| Screenshots | Visual proof of product scope |
-| APK file | Optional Android build |
-| Windows ZIP | Optional desktop build |
-| Release notes | What works, what is demo-scoped |
-| Demo limitations | Honest boundaries |
-| Contact/access note | How to request live access |
-
----
-
-## Release Notes Template
-
-Use this structure for the final GitHub release:
-
-| Section | Content |
-|---|---|
-| Summary | GymFlow full-stack SaaS showcase release |
-| Included | Screenshots, video, docs, optional builds |
-| Demo scope | Public site, dashboard, client portal, payments, localization |
-| Payment note | Stripe Test Mode only |
-| Source note | Source repositories are private |
-| Hosting note | Live demo access available on request |
-| Known limitations | Emails/OAuth/hosting depending on release mode |
-
----
-
-## Known Limitations
-
-| Limitation | Explanation |
-|---|---|
-| Source repositories are private | The project is a complete product-style app |
-| APK needs backend | Mobile build requires reachable API for full functionality |
-| Windows build needs backend | Desktop build requires reachable API for full functionality |
-| Web demo needs hosting | Web demo requires frontend, backend, and database hosting |
-| Stripe is test/demo only | No real money is processed |
-| Stripe Connect is simulated | No identity verification in demo |
-| Email may be limited | Depends on provider/domain configuration |
-| OAuth may be limited | Depends on provider configuration |
-| Production is not claimed by default | Full production launch needs hosting, monitoring, backups, and provider verification |
-
----
-
-## Final Recommendation
-
-The strongest release path is:
-
-1. Keep the frontend and backend source repositories private.
-2. Publish the showcase repository after final polish.
-3. Add 10 to 15 high-quality screenshots.
-4. Add a 3 to 5 minute demo video.
-5. Add optional APK and Windows builds.
-6. Offer temporary hosted demo access on request.
-
-This approach proves the product exists, works, and demonstrates deep engineering skill without creating the extra burden of maintaining public production-grade source repositories.
+1. remove or replace the affected asset immediately;
+2. revoke any exposed credential;
+3. publish corrected release notes;
+4. create a patch release when artifacts changed;
+5. document the correction in `CHANGELOG.md`;
+6. do not silently keep a compromised binary available.
