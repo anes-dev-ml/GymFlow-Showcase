@@ -1,0 +1,42 @@
+GymFlow Showcase Content License
+
+Copyright (c) 2026 Anes. All rights reserved.
+
+This repository is made available for portfolio review, technical evaluation,
+and public viewing.
+
+Permission is granted to:
+
+1. view the repository and its rendered documentation;
+2. link to the repository or individual public pages;
+3. quote short excerpts for commentary, review, recruitment, or educational
+   discussion when GymFlow and the repository owner are clearly attributed.
+
+No permission is granted to:
+
+1. copy, reproduce, republish, sell, sublicense, or redistribute the
+   documentation, screenshots, diagrams, videos, branding, binaries, or other
+   assets as a competing product, template, course, dataset, portfolio project,
+   or commercial work;
+2. remove or alter ownership, attribution, copyright, watermark, or license
+   notices;
+3. use the GymFlow name, logo, visual identity, screenshots, or product copy to
+   imply endorsement, partnership, or authorship;
+4. reverse engineer downloadable binaries except where mandatory law grants
+   that right;
+5. use any content to train or assemble a product that falsely represents the
+   GymFlow work as the user's own.
+
+The private GymFlow frontend and backend source repositories are not licensed
+or distributed through this repository.
+
+Third-party names, libraries, services, and trademarks remain the property of
+their respective owners and are subject to their own licenses and terms.
+
+THE CONTENT AND ARTIFACTS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AVAILABILITY, OR FITNESS FOR
+PRODUCTION USE. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+DAMAGES, OR OTHER LIABILITY ARISING FROM USE OF THE CONTENT OR ARTIFACTS.
+
+For permission beyond the terms above, contact the repository owner.
