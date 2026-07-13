@@ -1,370 +1,240 @@
-﻿# GymFlow
+# GymFlow
 
-GymFlow is a full-stack SaaS gym management platform built to demonstrate end-to-end software engineering across frontend development, backend API design, relational databases, authentication, payments, role-based access control, client portals, responsive UI, localization, quality assurance, and demo release preparation.
+**A multi-tenant gym operations SaaS built with Flutter, FastAPI, PostgreSQL, Redis, Stripe, and Docker.**
 
-The project was built as a product-style application, not as a small tutorial app. It combines public marketing pages, an owner/staff dashboard, a client portal, payment flows, booking workflows, reports, settings, localization, and production-oriented backend contracts.
+GymFlow combines a public product website, a role-aware studio operations dashboard, and a separate client portal. It covers client lifecycle management, memberships, booking and attendance, payments, reporting, secure messaging, staff presence, localization, and multi-environment release engineering.
 
----
+> This repository is the public engineering case study for GymFlow. The frontend and backend source repositories remain private. The documentation, diagrams, screenshots, release evidence, and demonstration assets in this repository explain what was built and how it was engineered.
 
-## Project Purpose
+## At a glance
 
-GymFlow was created as a proof-of-capability project.
-
-The goal is to show the ability to design, build, stabilize, and present a complete SaaS-style software product across multiple engineering domains.
-
-This showcase repository contains the public presentation material for the project.
-
-The frontend and backend source repositories remain private because GymFlow is a complete product-style application.
-
----
-
-## Product Summary
-
-GymFlow helps gyms and fitness studios manage their daily operations.
-
-The application includes:
-
-| Area | Description |
+| Area | Current implementation |
 |---|---|
-| Public Website | Landing page, features, pricing, security, contact, privacy, and terms pages |
-| Authentication | Email login, Google OAuth, email verification, password reset, and invitation flows |
-| Dashboard | Studio overview, business metrics, activity, and operational summaries |
-| Clients | Client records, profiles, memberships, bookings, payments, and portal actions |
-| Memberships | Membership plans, client memberships, renewals, statuses, and plan management |
-| Staff | Owners, managers, trainers, receptionists, invitations, and trainer availability |
-| Bookings | Scheduling, trainer availability, service types, recurring bookings, cancellation flows |
-| Check-ins | Daily attendance, front-desk check-in/out, and saved attendance visibility |
-| Payments | Manual payments, Stripe test checkout flows, receipts, statuses, and payment history |
-| Billing | SaaS billing settings, Stripe test billing, and Stripe Connect demo mode |
-| Reports | Business reporting foundation with date filters, grouping, and CSV export support |
-| Notifications | User-facing notifications and status management |
-| Activity Logs | Operational audit trail and readable activity history |
-| Client Portal | Client-facing dashboard, bookings, membership, payments, receipts, profile, progress, and support |
-| Localization | English, French, and Arabic UI support |
-| QA | Automated checks and manual QA checklist for demo readiness |
+| Product surfaces | Public website, owner/staff application, client portal |
+| Roles | Owner, manager, trainer, receptionist, client |
+| Core operations | Clients, plans, memberships, services, bookings, check-ins, payments, reports |
+| Collaboration | Notifications, activity logs, secure messaging, staff presence |
+| Platforms | Flutter Web, Android, Windows |
+| Languages | English, French, Arabic with RTL support |
+| Backend | FastAPI, SQLAlchemy, Alembic, PostgreSQL, Redis |
+| Integrations | Google OAuth, Resend-compatible email, Stripe Checkout/Billing/Webhooks |
+| Environments | Development, test, guarded demo, strict production configuration |
+| Delivery | Docker, separate migration job, health checks, GitHub Actions |
 
----
+## Product problem
 
-## Technical Stack
+A gym is not only a subscription list. Daily operations connect staff, clients, memberships, schedules, attendance, payments, communications, and reporting.
 
-| Layer | Technology |
+GymFlow was designed around those connected workflows:
+
+- Owners need business visibility and workspace administration.
+- Managers need broad operational control without owning billing credentials.
+- Trainers need availability, assigned bookings, attendance, and client communication.
+- Reception staff need fast client, booking, payment, and check-in workflows.
+- Clients need self-service without access to staff or administrative data.
+
+The result is a workspace-scoped SaaS system rather than a single-user CRUD dashboard.
+
+## Strongest workflows
+
+### Studio command center
+
+The dashboard combines live operational totals, revenue and booking signals, recent activity, onboarding progress, and shortcuts into the areas that need attention.
+
+### Client lifecycle
+
+A client profile connects identity, membership history, bookings, check-ins, payments, portal access, and operational context. Memberships support active, pending, expiring, expired, cancelled, and historical states.
+
+### Scheduling and attendance
+
+Bookings connect clients, services, trainers, availability, duration, recurring series, cancellations, completion, and no-show states. Attendance supports both a daily sheet and front-desk check-in/check-out workflows.
+
+### Payments and SaaS billing
+
+GymFlow separates client-to-studio payments from the studio's GymFlow subscription. It supports manual collection records, Stripe test checkout, payment lifecycle states, receipts, billing configuration, webhook processing, and duplicate-event protection.
+
+### Secure communication
+
+Staff and client messaging supports role-scoped participants, queue assignment, priorities, internal notes, audience-safe responses, retry-safe sends, cursor pagination, and optimistic workflow updates.
+
+### Presence and real-time behavior
+
+Staff presence distinguishes secure connection heartbeats from user activity, aggregates multiple devices, and applies role-aware visibility for online, away, offline, and last-seen information.
+
+### Client portal
+
+Clients use a separate token and route surface for their own dashboard, bookings, membership, payments, receipts, progress, check-in pass, profile, preferences, support, and messaging. Portal credentials cannot be used as staff credentials.
+
+## Architecture preview
+
+```mermaid
+flowchart LR
+    Visitor[Public visitor]
+    Staff[Owner / Manager / Trainer / Reception]
+    Client[Client]
+
+    Flutter[Flutter application\nWeb · Android · Windows]
+    API[FastAPI API\nAuthentication · Authorization · Business rules]
+    DB[(PostgreSQL)]
+    Redis[(Redis)]
+    Stripe[Stripe]
+    Email[Email provider]
+    Google[Google OAuth]
+
+    Visitor --> Flutter
+    Staff --> Flutter
+    Client --> Flutter
+    Flutter -->|HTTPS / JSON / WebSocket| API
+    API --> DB
+    API --> Redis
+    API --> Stripe
+    API --> Email
+    API --> Google
+```
+
+The main design boundaries are:
+
+1. **Workspace isolation** — business records are scoped to one studio workspace.
+2. **Role authorization** — frontend permissions improve UX; backend checks remain authoritative.
+3. **Separate trust domains** — staff JWTs and client portal tokens are intentionally different.
+4. **Provider boundaries** — Stripe, email, and OAuth are configuration-dependent integrations rather than hidden assumptions.
+5. **Environment boundaries** — development, test, demo, and production have different safety contracts.
+
+Read the full [architecture case study](ARCHITECTURE.md).
+
+## Engineering evidence
+
+| Competency | Evidence in GymFlow |
 |---|---|
-| Frontend | Flutter and Dart |
-| Frontend Routing | go_router |
-| Frontend Persistence | shared_preferences |
-| Frontend Localization | Flutter AppLocalizations and ARB files |
-| Backend | Python and FastAPI |
-| Database | PostgreSQL |
-| ORM | SQLAlchemy |
-| Migrations | Alembic |
-| Authentication | JWT authentication |
-| OAuth | Google OAuth |
-| Payments | Stripe Test Mode and Stripe Connect demo mode |
-| Email | Transactional email provider support |
-| Quality | Static checks, contract checks, smoke checks, and manual QA |
+| Product engineering | Three connected user surfaces and realistic gym operations |
+| System design | Multi-tenant workspace model and explicit trust boundaries |
+| Frontend architecture | Feature-oriented Flutter modules, repositories, controllers, route guards |
+| Backend architecture | Versioned FastAPI routes, service/repository boundaries, Pydantic contracts |
+| Relational modeling | SQLAlchemy models, constraints, indexes, foreign keys, Alembic migrations |
+| Authentication | Password login, email verification, recovery, OAuth, invitations, portal access |
+| Authorization | Role permissions, workspace scoping, resource ownership, portal isolation |
+| Reliability | Idempotency, optimistic workflow versions, transactional demo rebuilds |
+| Security | Rate limits, request-size limits, CORS, trusted hosts, headers, secret scanning |
+| Observability | Request IDs, structured logs, consistent errors, liveness and readiness |
+| DevOps | Docker, separate migrations, non-root image, CI, environment contracts |
+| Internationalization | English, French, Arabic, RTL, localized enum display |
+| Release engineering | Deterministic fictional data, validation, build manifest, demo runbook |
 
----
+More detail is available in [Engineering](docs/ENGINEERING.md), [Quality](docs/QUALITY.md), and [Operations](docs/OPERATIONS.md).
 
-## Supported App Surfaces
+## Environment readiness
 
-GymFlow is designed to run across multiple user surfaces.
+| Mode | Status | Purpose |
+|---|---|---|
+| Development | Ready | Local coding, debug routes, local CORS, provider test configuration |
+| Test | Ready | Automated backend and frontend validation in CI |
+| Demo | Ready | Dedicated guarded database, deterministic scenario, safe test identities |
+| Production configuration | Implemented | Strict settings, non-root container, separate migrations, health checks |
+| Live provider verification | Release-specific | Requires real Stripe, email, and OAuth configuration |
+| Production operations | Deployment-specific | Requires managed infrastructure, monitoring, backups, and restore drills |
 
-| Surface | Status |
+GymFlow is a production-oriented system with a strict production mode. It is not presented as already operating a live commercial gym. Final provider and operational verification belongs to the deployment environment, not to the source code alone.
+
+## Deterministic professional demo
+
+The portfolio scenario represents **Northline Performance Club**, a fictional Montréal gym. A guarded rebuild creates:
+
+- 7 staff members across owner, manager, trainer, and reception roles;
+- online, away, and offline presence states;
+- 24 fictional clients;
+- 5 membership plans and 7 services;
+- 72 bookings across scheduled, completed, cancelled, and no-show states;
+- 58 recent check-ins;
+- six months of non-flat revenue history;
+- paid, pending, failed, refunded, and cancelled payments;
+- notifications, activity history, a support conversation, and two portal stories.
+
+The reset never drops schemas or tables. It requires the demo environment, an approved local database name, Stripe test mode, a reviewed table allowlist, and explicit destructive confirmation. Validation occurs before the transaction is committed.
+
+See [Demo Guide](DEMO.md).
+
+## Quality and delivery
+
+The backend pipeline runs against PostgreSQL and Redis and includes:
+
+- secret scanning;
+- migration graph and database metadata checks;
+- security, observability, deployment, API, documentation, and demo-data contracts;
+- route authorization inspection;
+- application smoke checks;
+- pytest behavior tests.
+
+The frontend pipeline includes:
+
+- secret scanning;
+- dependency installation and localization generation;
+- `flutter analyze`;
+- source and UI consistency checks;
+- frontend/backend API-sync tests;
+- portal privacy and regression tests.
+
+The showcase repository has its own quality workflow to detect missing documents, broken local links, stale credentials, unsafe files, and common secret patterns.
+
+## Technology
+
+| Layer | Main technologies |
 |---|---|
-| Flutter Web | Main showcase surface |
-| Android APK | Build/demo surface |
-| Windows Desktop | Build/demo surface |
-| Local Backend | FastAPI API server |
-| Local Database | PostgreSQL |
-| Optional Hosted Demo | Can be enabled during review periods |
+| UI | Flutter, Dart, Material, `go_router` |
+| Client data | HTTP repositories, controllers, shared preferences, WebSocket channel |
+| API | Python, FastAPI, Pydantic |
+| Data | PostgreSQL, SQLAlchemy, Alembic |
+| Runtime support | Redis |
+| Identity | JWT, Google OAuth, email verification and recovery |
+| Payments | Stripe Checkout, Billing, Connect-aware demo behavior, webhooks |
+| Delivery | Docker, Docker Compose, GitHub Actions |
+| Targets | Web, Android, Windows |
 
----
+## Visual walkthrough
 
-## Main User Roles
+The final refreshed screenshots and edited product video will be captured from the canonical seeded release after this documentation freeze.
 
-GymFlow is not a single-user app. It supports different user experiences depending on role.
+- [Screenshot capture specification](screenshots/README.md)
+- [Video recording specification](video/README.md)
+- [Release manifest](BUILD_MANIFEST.md)
 
-| Role | Purpose |
+<!--
+After final capture, place the main video thumbnail here and link it to the edited walkthrough.
+Recommended asset: video/gymflow-showcase-thumbnail.png
+-->
+
+## Documentation map
+
+| Document | Purpose |
 |---|---|
-| Owner | Full studio and workspace administration |
-| Manager | Operational management across the workspace |
-| Trainer | Booking, availability, and attendance-related workflows |
-| Receptionist | Front-desk client and check-in workflows |
-| Client | Private client portal access |
+| [Product](docs/PRODUCT.md) | Users, product areas, and connected workflows |
+| [Architecture](ARCHITECTURE.md) | Containers, trust boundaries, data model, sequences, decisions |
+| [Engineering](docs/ENGINEERING.md) | Implementation depth and design trade-offs |
+| [Security policy](SECURITY.md) | Private vulnerability reporting |
+| [Security overview](docs/SECURITY_OVERVIEW.md) | Application controls and privacy boundaries |
+| [Threat model](docs/THREAT_MODEL.md) | Main threats, mitigations, and residual risks |
+| [Quality](docs/QUALITY.md) | Test strategy, CI gates, and release evidence |
+| [Operations](docs/OPERATIONS.md) | Deployment, migrations, observability, incidents, backups |
+| [Engineering journey](docs/ENGINEERING_JOURNEY.md) | Evolution from initial idea to stabilized SaaS system |
+| [Demo guide](DEMO.md) | Deterministic environment and walkthrough |
+| [Releases](RELEASES.md) | Versioning, artifacts, and distribution boundary |
+| [Roadmap](ROADMAP.md) | Verified remaining release and operations work |
+| [Build manifest](BUILD_MANIFEST.md) | Canonical source revisions and artifact provenance |
 
-The client portal is separated from the owner/staff dashboard to protect administrative data and provide a client-safe experience.
+## Project ownership
 
----
+GymFlow was designed and implemented end to end by **Anes** as a proof of full-stack software engineering capability. The work spans product design, Flutter architecture, backend API design, relational modeling, authentication, authorization, payments, security controls, testing, containerization, observability, deterministic demo infrastructure, and release preparation.
 
-## Backend Scope
+## Public repository boundary
 
-The backend is built with FastAPI and PostgreSQL.
+This repository intentionally does not contain:
 
-Implemented backend areas include:
+- frontend or backend source code;
+- environment files or credentials;
+- real client, staff, or payment data;
+- Stripe, OAuth, email, database, or signing secrets.
 
-| Backend Area | Description |
-|---|---|
-| Auth | Login, registration, JWT access, password recovery, email verification |
-| Google OAuth | OAuth handoff and provider integration foundation |
-| Workspaces | Studio workspace model and workspace-aware access |
-| Workspace Members | Owner/staff membership inside a workspace |
-| Staff Invitations | Invitation flow for workspace team members |
-| Clients | Client records and client lifecycle management |
-| Client Portal Access | Portal access request and confirmation flows |
-| Membership Plans | Studio-level membership plan management |
-| Client Memberships | Assignment and status tracking of client memberships |
-| Staff and Trainers | Staff management and trainer-specific workflows |
-| Trainer Availability | Availability rules used by booking workflows |
-| Service Types | Services/classes that can be booked |
-| Bookings | Booking creation, editing, cancellation, and recurring booking support |
-| Check-ins | Attendance and front-desk check-in/out flows |
-| Payments | Payment records, statuses, receipts, and checkout coordination |
-| SaaS Billing | Subscription-oriented billing configuration |
-| Stripe Webhooks | Payment/billing synchronization hooks |
-| Reports | Reporting endpoints and CSV export support |
-| Notifications | User-facing notification records |
-| Activity Logs | Operational audit history |
-| Health and Readiness | Health checks for local/demo/deployment readiness |
+All demo identities are fictional. Stripe is used only in test or explicitly simulated demo modes. No real payment card data is stored. Technical walkthrough access can be arranged when appropriate.
 
----
+## License
 
-## Frontend Scope
-
-The frontend is built with Flutter and organized around public, admin/staff, and client portal experiences.
-
-Main frontend routes include:
-
-| Route Area | Examples |
-|---|---|
-| Public Website | Home, features, pricing, security, contact, privacy, terms |
-| Authentication | Auth, forgot password, reset password, verify email, Google OAuth callback |
-| Invitations | Staff invitation acceptance |
-| Studio Dashboard | Dashboard, clients, memberships, services, staff, bookings, check-ins |
-| Operations | Payments, reports, activity logs, notifications |
-| Settings | Workspace, account, billing settings |
-| Client Portal | Portal access, portal home, bookings, membership, payments, receipts, profile, progress, support |
-
-The frontend includes responsive layouts, localized UI text, role-aware navigation, portal-specific UI states, and demo-ready product flows.
-
----
-
-## Client Portal
-
-The client portal is one of the most important parts of GymFlow.
-
-It gives clients a dedicated experience separate from the studio dashboard.
-
-Client portal functionality includes:
-
-| Portal Feature | Description |
-|---|---|
-| Portal Access | Client access request and confirmation |
-| Portal Home | Client-specific summary and next actions |
-| Portal Bookings | Upcoming bookings, history, booking actions, cancellation/reschedule flows |
-| Portal Membership | Membership status, benefits, and pass information |
-| Portal Payments | Pending payments, paid payments, and checkout access |
-| Portal Receipts | Safe receipt display |
-| Portal Profile | Client profile details |
-| Portal Progress | Demo-ready progress experience |
-| Portal Support | Support path for client-facing issues |
-| QR Pass | Client check-in pass concept for front-desk workflows |
-
----
-
-## Payments and Billing
-
-GymFlow includes payment and billing flows built around Stripe test mode.
-
-For showcase safety:
-
-| Payment Area | Showcase Behavior |
-|---|---|
-| Stripe Checkout | Uses Stripe Test Mode |
-| Stripe Test Card | Supported |
-| Client Payments | Can be demonstrated without real money |
-| SaaS Billing | Demo/test billing flow supported |
-| Stripe Connect | Uses demo mode in showcase |
-| Identity Verification | Not required for the demo |
-| Real Payments | Not processed |
-
-Stripe Connect demo mode prevents reviewers from being sent into a real identity verification process while still allowing the payment-related product flow to be shown.
-
----
-
-## Localization
-
-GymFlow supports:
-
-| Language | Status |
-|---|---|
-| English | Supported |
-| French | Supported |
-| Arabic | Supported |
-
-The frontend uses Flutter localization files and display helpers so that backend values such as statuses, roles, payment methods, and billing states are not shown as raw internal enum values.
-
----
-
-## Quality and QA
-
-GymFlow includes both automated and manual quality gates.
-
-Backend quality areas include:
-
-| Area | Purpose |
-|---|---|
-| Secret checks | Avoid committed secrets |
-| Migration checks | Protect database migration integrity |
-| DB contract checks | Validate model and database expectations |
-| Security contract checks | Validate security-sensitive behavior |
-| Deployment contract checks | Validate production configuration expectations |
-| API contract checks | Validate critical route and OpenAPI behavior |
-| Route auth checks | Validate protected route expectations |
-| Portal route checks | Validate portal API availability |
-| Smoke checks | Confirm application import and route registration |
-| Pytest | Backend behavior verification |
-
-Frontend quality areas include:
-
-| Area | Purpose |
-|---|---|
-| Flutter analyze | Static Dart and Flutter validation |
-| Frontend quality checks | Source and UI consistency checks |
-| API sync tests | Frontend/backend integration expectations |
-| Portal quality checks | Client portal privacy, layout, and behavior checks |
-| Full frontend test runner | Grouped test execution with readable logs |
-| Manual QA checklist | Full product review across roles, routes, languages, and screen sizes |
-
-Manual QA covers public site, auth, onboarding, admin dashboard, clients, memberships, services, staff, bookings, check-ins, payments, reports, notifications, activity logs, settings, client portal, security behavior, provider flows, responsive layouts, localization, and final demo readiness.
-
----
-
-## Demo Strategy
-
-The recommended showcase strategy is:
-
-| Asset | Purpose |
-|---|---|
-| Screenshots | Show the product visually without exposing source code |
-| Demo Video | Walk through the main workflows and engineering scope |
-| Architecture Notes | Explain how the system is designed |
-| Security Notes | Explain authentication, authorization, workspace isolation, and demo safety |
-| APK / Windows Build | Optional installable demo artifacts |
-| Temporary Hosted Demo | Optional access during review periods |
-
-The showcase is designed to prove the application exists, works, and was engineered seriously without exposing the full private codebase.
-
----
-
-## Repository Boundary
-
-This repository is public-facing showcase material only.
-
-It does not contain:
-
-| Not Included | Reason |
-|---|---|
-| Frontend source code | Private product-style application code |
-| Backend source code | Private product-style API code |
-| Environment files | Protect secrets and credentials |
-| Database credentials | Protect local and hosted environments |
-| Stripe secret keys | Protect payment configuration |
-| OAuth secrets | Protect provider credentials |
-| Email provider keys | Protect email infrastructure |
-
-Code walkthrough or temporary read-only source access can be provided upon request.
-
----
-
-## Current Showcase Status
-
-| Item | Status |
-|---|---|
-| Product architecture | Documented |
-| Demo guide | In progress |
-| Security notes | In progress |
-| Screenshots | To be added |
-| Demo video | To be recorded |
-| APK build notes | To be added |
-| Windows build notes | To be added |
-| Optional hosted demo | Available on request after final preparation |
-
----
-
-## Final Positioning
-
-GymFlow demonstrates software engineering across:
-
-- Full-stack SaaS architecture.
-- Flutter frontend development.
-- FastAPI backend development.
-- PostgreSQL database modeling.
-- Alembic migration workflows.
-- JWT authentication.
-- Google OAuth integration.
-- Role-based access control.
-- Workspace isolation.
-- Client portal separation.
-- Stripe test payments.
-- Stripe Connect demo handling.
-- Email verification and reset flows.
-- Booking and recurring booking logic.
-- Check-in and attendance workflows.
-- Reports and CSV exports.
-- Responsive UI.
-- Localization.
-- Automated quality gates.
-- Manual QA discipline.
-- Demo and release preparation.
-
----
-
-## Screenshots
-
-### Public Website
-
-![Public home](screenshots/01-public-home.png)
-
-![Public pricing](screenshots/02-public-pricing.png)
-
-### Authentication
-
-![Authentication login](screenshots/03-auth-login.png)
-
-### Owner and Staff Dashboard
-
-![Owner dashboard](screenshots/04-owner-dashboard.png)
-
-![Clients list](screenshots/05-clients-list.png)
-
-![Client profile](screenshots/06-client-profile.png)
-
-![Membership plans](screenshots/07-membership-plans.png)
-
-![Staff and trainers](screenshots/08-staff-trainers.png)
-
-![Bookings](screenshots/09-bookings.png)
-
-![Check-ins](screenshots/10-check-ins.png)
-
-![Payments](screenshots/11-payments.png)
-
-![Billing and Stripe demo](screenshots/12-billing-stripe-demo.png)
-
-### Client Portal
-
-![Client portal home](screenshots/13-client-portal-home.png)
-
-![Client portal bookings](screenshots/14-client-portal-bookings.png)
-
-### Mobile and Localization
-
-![Mobile admin dashboard](screenshots/15-mobile-admin-dashboard.png)
-
-![Mobile public home](screenshots/16-mobile-public-home.jpeg)
-
-![Mobile client portal home](screenshots/17-mobile-client-portal-home.jpeg)
-
-![Mobile QR check-in pass](screenshots/18-mobile-qr-check-in-pass.jpeg)
-
-![Mobile Arabic localization](screenshots/19-mobile-arabic-localization.png)
+The showcase content, branding, screenshots, diagrams, video, and downloadable artifacts are protected by the repository's [license](LICENSE). Viewing and linking are permitted; reuse or redistribution requires permission unless a specific artifact states otherwise.

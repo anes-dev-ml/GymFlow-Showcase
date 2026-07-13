@@ -1,400 +1,299 @@
-﻿# GymFlow Demo Guide
+# GymFlow Demo Guide
 
-This guide explains how to review GymFlow as a complete full-stack SaaS product demo.
+This guide defines the canonical professional demo flow for GymFlow.
 
-GymFlow is not only a UI prototype. The demo is designed to show a connected product experience across public pages, authentication, owner/staff operations, client portal workflows, bookings, payments, localization, responsive layouts, and demo-safe provider integrations.
+The demo uses a dedicated, deterministic PostgreSQL database and fictional identities. It is designed for repeatable product review, screenshot capture, and video recording without touching normal development data or processing real money.
 
----
+## Demo environment
 
-## Demo Goal
-
-The goal of the demo is to show that GymFlow can operate like a real SaaS gym management platform.
-
-The walkthrough should prove:
-
-| Area | What the Demo Should Show |
+| Item | Value |
 |---|---|
-| Product thinking | The app has a clear purpose and realistic gym/studio workflows |
-| Frontend engineering | The Flutter app supports public, dashboard, and portal surfaces |
-| Backend engineering | The FastAPI backend exposes protected business APIs |
-| Database design | The app is built around real relational entities |
-| Authentication | Users can log in and access role-specific areas |
-| Authorization | Owners, staff, and clients do not share the same access model |
-| Client portal | Clients have their own private portal experience |
-| Payments | Stripe test flows work without real money |
-| Localization | English, French, and Arabic are supported |
-| Responsive design | The app works across desktop, tablet, and mobile sizes |
-| QA discipline | The app was prepared with automated and manual checks |
+| Workspace | Northline Performance Club |
+| Database | `gymflow_demo` |
+| Environment | `demo` |
+| Payments | Manual/test records; Stripe test or Connect demo mode only |
+| Email identities | Reserved `.test` addresses |
+| Real client data | None |
+| Real payment data | None |
 
----
+## Scenario summary
 
-## Recommended Demo Order
+A successful rebuild creates:
 
-Use this order for a clean 3 to 5 minute product walkthrough.
+| Data area | Expected story |
+|---|---|
+| Staff | 1 owner, 1 manager, 3 trainers, 2 reception staff |
+| Presence | Online, away, and offline examples |
+| Invitations | 1 pending trainer invitation |
+| Clients | 24 total: 20 active and 4 archived |
+| Plans | 5 total, 4 active |
+| Services | 7 total, 6 active |
+| Memberships | 18 active plus pending/expired/cancelled history |
+| Bookings | 72 total: scheduled, completed, cancelled, no-show |
+| Check-ins | 58 recent, including 4 today |
+| Revenue | Six months of non-flat history; 3,402.00 CAD current month target |
+| Pending payments | 377.00 CAD target |
+| Notifications | Staff/client examples; 6 unread for owner |
+| Messaging | One professional support workflow |
+| Client portal | Two connected client stories |
 
-| Step | Area | What to Show |
+## Safety contract
+
+The destructive rebuild refuses to execute unless all of these are true:
+
+1. `ENVIRONMENT=demo`;
+2. database name is `gymflow_demo` or an approved `_demo` name;
+3. database host is local or the Docker `postgres` service;
+4. Stripe mode is `test`;
+5. no live Stripe secret is loaded;
+6. no stored live Stripe webhook event exists;
+7. every application table belongs to the reviewed allowlist;
+8. the exact confirmation value is supplied.
+
+The rebuild never:
+
+- drops tables;
+- drops schemas;
+- rolls migrations backward;
+- runs `TRUNCATE ... CASCADE`;
+- clears unknown tables dynamically;
+- changes `alembic_version`;
+- flushes Redis globally;
+- creates a live Stripe charge.
+
+## Select the demo database
+
+In the backend `.env`:
+
+```dotenv
+GYMFLOW_DATABASE=gymflow_demo
+```
+
+Start the stack:
+
+```powershell
+docker compose up --build -d
+```
+
+The same stack can return to normal development data by changing only:
+
+```dotenv
+GYMFLOW_DATABASE=gymflow
+```
+
+and running the same Compose command.
+
+## Inspect before changing data
+
+Read-only reset inspection:
+
+```powershell
+docker compose exec backend sh scripts/run_local_command.sh python scripts/reset_demo_data.py
+```
+
+Read-only complete rebuild plan:
+
+```powershell
+docker compose exec backend sh scripts/run_local_command.sh python scripts/seed_demo_data.py --rebuild
+```
+
+Without `--execute`, these commands do not delete or create data.
+
+## Rebuild the canonical scenario
+
+Supply the confirmation and password only to the explicit command. Do not store them in `.env`.
+
+```powershell
+docker compose exec `
+  -e GYMFLOW_DEMO_RESET_CONFIRM=RESET_GYMFLOW_DEMO `
+  -e GYMFLOW_DEMO_PASSWORD=Choose-A-Local-Demo-Password `
+  backend sh scripts/run_local_command.sh `
+  python scripts/seed_demo_data.py --rebuild --execute
+```
+
+The seed performs one transaction:
+
+1. verify environment, host, database, Stripe mode, migration state, and table allowlist;
+2. acquire a PostgreSQL advisory transaction lock;
+3. delete reviewed application data in foreign-key-safe order;
+4. create the complete connected scenario;
+5. validate metrics, relationships, reports, payments, presence, and portal stories;
+6. commit only after all validation succeeds.
+
+Any failure rolls the transaction back.
+
+## Validate the environment
+
+```powershell
+docker compose exec backend sh scripts/run_local_command.sh python scripts/validate_demo_data.py
+```
+
+Machine-readable output:
+
+```powershell
+docker compose exec backend sh scripts/run_local_command.sh python scripts/validate_demo_data.py --json
+```
+
+Expected core metrics:
+
+| Metric | Expected |
+|---|---:|
+| Total clients | 24 |
+| Active clients | 20 |
+| Archived clients | 4 |
+| Staff | 7 |
+| Active memberships | 18 |
+| Active plans | 4 |
+| Active services | 6 |
+| Total bookings | 72 |
+| Today's bookings | 5 |
+| Recent check-ins | 58 |
+| Today's check-ins | 4 |
+| Current-month revenue | 340,200 cents |
+| Pending payments | 37,700 cents |
+| Owner unread notifications | 6 |
+
+## Demo identities
+
+The rebuild prints the password-independent account manifest. Stable staff emails include:
+
+```text
+owner@gymflow-demo.test
+manager@gymflow-demo.test
+sofia.trainer@gymflow-demo.test
+reception@gymflow-demo.test
+```
+
+All seeded staff accounts use the password supplied through `GYMFLOW_DEMO_PASSWORD` for that rebuild.
+
+Do not publish a permanent password in this repository. The person preparing a temporary demo should choose a local password and share it only through the intended review channel.
+
+## Client portal stories
+
+### Lena Martin
+
+```text
+lena.martin@gymflow-demo.test
+```
+
+Lena demonstrates:
+
+- valid membership;
+- recent successful payments;
+- attendance history;
+- future bookings;
+- receipts and progress;
+- complete healthy-client portal experience.
+
+### Amina Haddad
+
+```text
+amina.haddad@gymflow-demo.test
+```
+
+Amina demonstrates:
+
+- expiring membership;
+- failed payment;
+- pending renewal;
+- cancellation and no-show history;
+- meaningful staff follow-up.
+
+Portal codes expire after 15 minutes. Request fresh codes immediately before recording portal access.
+
+In guarded demo mode, codes for reserved `.test` identities are returned to the frontend and filled into the portal form. Production never exposes those codes.
+
+## Full pre-recording checklist
+
+### Backend and data
+
+- [ ] Backend branch/commit matches `BUILD_MANIFEST.md`.
+- [ ] `GYMFLOW_DATABASE=gymflow_demo`.
+- [ ] `docker compose up --build -d` completed.
+- [ ] Full guarded rebuild completed.
+- [ ] Demo validator passed.
+- [ ] Backend logs show `environment=demo` and `database=gymflow_demo`.
+- [ ] No repeated 404, 422, or 500 responses during rehearsal.
+
+### Staff application
+
+- [ ] Owner login succeeds.
+- [ ] Workspace is Northline Performance Club.
+- [ ] Dashboard values match expected targets.
+- [ ] Client list and client detail load.
+- [ ] Plans and services load.
+- [ ] Staff presence shows online, away, and offline examples.
+- [ ] Bookings include all important lifecycle states.
+- [ ] Check-ins and attendance load.
+- [ ] Payments show paid, pending, failed, refunded, and cancelled examples.
+- [ ] Reports contain non-flat charts.
+- [ ] Messages, notifications, and activity logs load.
+- [ ] Settings and billing states are credible.
+
+### Client portal
+
+- [ ] Request a fresh Lena code.
+- [ ] Development/demo code appears and auto-fills.
+- [ ] Portal opens without exposing staff navigation.
+- [ ] Home, bookings, membership, payments, receipt, progress, pass, profile, settings, support, and messages load.
+- [ ] Repeat with Amina if the video includes the at-risk client story.
+- [ ] Portal token cannot open staff routes.
+
+### Visual quality
+
+- [ ] English desktop reviewed.
+- [ ] French long-copy reviewed.
+- [ ] Arabic RTL reviewed.
+- [ ] Mobile widths reviewed.
+- [ ] No overflow stripe, clipped dialog, loading hang, or empty chart.
+- [ ] Browser console contains no serious repeated errors.
+- [ ] Screens contain only fictional data.
+
+### Provider safety
+
+- [ ] No live Stripe key loaded.
+- [ ] No real card entered.
+- [ ] No real identity verification attempted.
+- [ ] Email remains disabled or intentionally configured.
+- [ ] OAuth is shown only if configured for the exact demo environment.
+
+## Recommended product video order
+
+| Time | Area | Story |
 |---|---|---|
-| 1 | Public website | Home page, product positioning, navigation, pricing/security pages |
-| 2 | Authentication | Login page, Google login option, forgot/reset password routes if needed |
-| 3 | Owner dashboard | Metrics, operational overview, recent activity, clean SaaS layout |
-| 4 | Clients | Client list, search/filter UI, client profile |
-| 5 | Client profile | Memberships, bookings, payments, activity, portal actions |
-| 6 | Memberships | Plans and client membership assignment/status |
-| 7 | Staff | Staff roles, trainers, manager/receptionist-style access |
-| 8 | Bookings | Scheduling, trainer availability, booking states, recurring booking concept |
-| 9 | Check-ins | Daily attendance or front-desk check-in/out workflow |
-| 10 | Payments | Pending/paid payments, payment status labels, receipt concept |
-| 11 | Reports | Reports and export-ready business view |
-| 12 | Billing | SaaS billing settings and Stripe Connect demo mode |
-| 13 | Client portal | Client home, bookings, membership, payments, profile, support |
-| 14 | Localization | Switch between English, French, and Arabic |
-| 15 | Responsive UI | Resize desktop to tablet/mobile or show Android build |
-| 16 | Final summary | Show stack, architecture, and private source boundary |
-
----
-
-## Demo Accounts
-
-Use demo-only accounts and fictional data.
-
-### Studio Owner
-
-| Field | Value |
-|---|---|
-| Email | owner@gymflow.demo |
-| Password | DemoOwner123! |
-| Purpose | Full dashboard access for the main walkthrough |
-
-### Staff Member
-
-| Field | Value |
-|---|---|
-| Email | staff@gymflow.demo |
-| Password | DemoStaff123! |
-| Purpose | Staff/role-based access demonstration |
-
-### Client Portal
-
-| Field | Value |
-|---|---|
-| Access type | Client portal access link |
-| Purpose | Client-only portal experience |
-| Status | Final demo link will be added before release |
-
----
-
-## Public Website Walkthrough
-
-Start with the public website because it makes the app feel like a real product.
-
-Show:
-
-| Page | What to Highlight |
-|---|---|
-| Home | Main product positioning and SaaS-style landing page |
-| Features | Real feature areas connected to the built app |
-| Pricing | SaaS product structure and billing concept |
-| Security | Workspace isolation, roles, and client portal separation |
-| Contact | Product support or demo contact path |
-| Privacy / Terms | Product completeness and public-site polish |
-
-Important: public marketing copy should only claim features that are actually implemented or clearly demo-scoped.
-
----
-
-## Authentication Walkthrough
-
-Show that the app supports real SaaS access flows.
-
-Highlight:
-
-| Flow | Purpose |
-|---|---|
-| Email/password login | Standard access |
-| Google OAuth | Provider-based login option |
-| Forgot password | Account recovery route |
-| Reset password | Password recovery completion |
-| Email verification | Account verification concept |
-| Staff invitation acceptance | Workspace team onboarding |
-
-For the video, do not spend too long on authentication. Show enough to prove it exists, then move into the dashboard.
-
----
-
-## Owner Dashboard Walkthrough
-
-After login, show the dashboard as the first major product screen.
-
-Highlight:
-
-| Dashboard Area | What It Proves |
-|---|---|
-| Metrics cards | Business summary and backend data aggregation |
-| Recent activity | Operational audit trail concept |
-| Revenue/booking/client widgets | SaaS dashboard thinking |
-| Sidebar navigation | Complete product shell |
-| Loading/empty/ready states | Real app state handling |
-
-This should be one of the strongest screenshots/video moments.
-
----
-
-## Clients Walkthrough
-
-Open the Clients module.
-
-Show:
-
-| Feature | What It Proves |
-|---|---|
-| Client list | Real operational data model |
-| Search/filter | Usable admin workflow |
-| Client status | Localized readable statuses |
-| Client detail navigation | Connected data relationships |
-| Portal action | Client portal integration |
-
-Then open one client profile.
-
----
-
-## Client Profile Walkthrough
-
-The client profile is one of the best places to show depth.
-
-Show:
-
-| Section | What It Proves |
-|---|---|
-| Profile summary | Client identity and operational context |
-| Memberships | Relationship between clients and plans |
-| Bookings | Scheduling history and upcoming sessions |
-| Payments | Payment history and statuses |
-| Activity | Audit trail and recent operations |
-| Portal access | Client-facing access workflow |
-| QR/pass concept | Check-in and front-desk workflow thinking |
-
-A single client profile screenshot can show many domains at once.
-
----
-
-## Bookings Walkthrough
-
-Open the booking area and show scheduling logic.
-
-Highlight:
-
-| Booking Feature | What It Proves |
-|---|---|
-| Service types | Studio-configurable booking options |
-| Trainer availability | Scheduling constraints |
-| Booking creation | Operational workflow |
-| Edit/cancel states | Lifecycle handling |
-| Recurring booking concept | More advanced scheduling design |
-| Client portal booking | Client-facing booking flow |
-
-For the video, demonstrate one clean booking action if the demo data supports it.
-
----
-
-## Check-ins Walkthrough
-
-Show attendance or front-desk check-in.
-
-Highlight:
-
-| Feature | What It Proves |
-|---|---|
-| Daily attendance | Real gym workflow |
-| Saved attendance visibility | Data persistence |
-| Present/absent state | Simple operational UX |
-| Front-desk check-in/out | Reception workflow |
-| QR/pass direction | Real-world check-in concept |
-
-This section shows that the app is not only billing and dashboards. It handles physical gym operations too.
-
----
-
-## Payments Walkthrough
-
-Show the payments module and client payment flow.
-
-Highlight:
-
-| Payment Area | What It Proves |
-|---|---|
-| Pending payments | Payment lifecycle |
-| Paid payments | Status tracking |
-| Manual payment support | Offline/admin flexibility |
-| Stripe checkout | Online payment integration |
-| Receipt detail | Client-safe payment history |
-| Payment provider labels | Localization and display polish |
-
----
-
-## Billing Walkthrough
-
-Open billing/settings billing.
-
-Show:
-
-| Billing Area | What It Proves |
-|---|---|
-| Current plan | SaaS subscription concept |
-| Billing settings | Product monetization layer |
-| Stripe test mode | Safe payment demonstration |
-| Stripe Connect demo mode | Marketplace/studio payment routing concept |
-| Demo-safe onboarding | Reviewer can test without identity verification |
-
-Make it clear that the public demo uses test mode and does not process real money.
-
----
-
-## Client Portal Walkthrough
-
-The client portal should be a major part of the video.
-
-Show:
-
-| Portal Page | What to Highlight |
-|---|---|
-| Portal access | Clients use a separate access path |
-| Portal home | Client-specific summary |
-| Portal bookings | Upcoming/history/book/cancel/reschedule states |
-| Portal membership | Membership status and benefits |
-| Portal payments | Pending/paid payments and checkout |
-| Receipt detail | Safe receipt display |
-| Portal profile | Client-owned profile view |
-| Portal progress | Client-facing progress/demo page |
-| Portal support | Client-safe support path |
-
-Important point to mention:
-
-Clients do not enter the owner/staff dashboard. They have a separate portal experience.
-
----
-
-## Localization Walkthrough
-
-Show language switching.
-
-Languages:
-
-| Language | Code |
-|---|---|
-| English | en |
-| French | fr |
-| Arabic | ar |
-
-Highlight:
-
-| Localization Area | What It Proves |
-|---|---|
-| Public site | Marketing localization |
-| Dashboard labels | App-wide localization |
-| Portal copy | Client-facing localization |
-| Status labels | Backend enum values are displayed cleanly |
-| Arabic layout | RTL/demo internationalization effort |
-
-Do not spend too much time here. A quick switch is enough.
-
----
-
-## Responsive Walkthrough
-
-Show desktop first, then mobile.
-
-Recommended widths:
-
-| Device Type | Width |
-|---|---|
-| Desktop | 1440px |
-| Laptop | 1280px |
-| Tablet | 768px |
-| Mobile large | 430px |
-| Mobile common | 390px |
-| Mobile small | 360px |
-
-Show:
-
-| Area | What to Check |
-|---|---|
-| Public site | Header, hero, CTA, footer |
-| Dashboard | Sidebar/shell adapts |
-| Client portal | Mobile-first portal layout |
-| Booking dialog | Dialogs fit small screens |
-| Bottom navigation | Does not cover content |
-| Arabic/French | Text does not overflow badly |
-
----
-
-## Stripe Test Mode
-
-The demo uses Stripe Test Mode.
-
-### Test Payment Data
-
-| Field | Value |
-|---|---|
-| Card number | 4242 4242 4242 4242 |
-| Expiry date | Any future date |
-| CVC | Any 3 digits |
-| Postal code | Any valid postal code |
-
-No real money is processed.
-
----
-
-## Demo Limitations
-
-The demo is intentionally scoped.
-
-| Limitation | Explanation |
-|---|---|
-| Source code is private | The app is a complete product-style project |
-| Demo data is fictional | No real gym or client data is used |
-| Stripe is test/demo only | No real payments are processed |
-| Stripe Connect is simulated | No identity verification is required |
-| Email may be limited | Email can be disabled or provider-limited in demo |
-| Hosted demo may be temporary | Live demo access can be enabled only during review periods |
-| Production is not claimed by default | Production readiness requires provider, hosting, monitoring, and backup verification |
-
----
-
-## Suggested Video Script
-
-Use this structure for a 3 to 5 minute video.
-
-| Time | Section |
-|---|---|
-| 0:00 - 0:15 | Project title and short explanation |
-| 0:15 - 0:40 | Public website and product positioning |
-| 0:40 - 1:00 | Login/authentication |
-| 1:00 - 1:30 | Owner dashboard |
-| 1:30 - 2:00 | Clients and client profile |
-| 2:00 - 2:30 | Bookings and check-ins |
-| 2:30 - 3:00 | Payments and billing |
-| 3:00 - 3:40 | Client portal |
-| 3:40 - 4:10 | Localization and responsive layout |
-| 4:10 - 4:40 | Architecture/stack summary |
-| 4:40 - 5:00 | Closing screen |
-
----
-
-## Closing Message
-
-End the video with a simple technical summary:
-
-| Layer | Implementation |
-|---|---|
-| Frontend | Flutter Web, Android, Windows |
-| Backend | FastAPI |
-| Database | PostgreSQL |
-| Auth | JWT and Google OAuth |
-| Payments | Stripe Test Mode |
-| Portal | Separate client access model |
-| Localization | English, French, Arabic |
-| QA | Automated checks and manual QA checklist |
-
-Final message:
-
-GymFlow was built from scratch as a full-stack SaaS product showcase.
+| 0:00–0:20 | Title/public home | What GymFlow solves |
+| 0:20–0:45 | Public features/security/pricing | Product completeness |
+| 0:45–1:05 | Authentication | Staff versus client access |
+| 1:05–1:40 | Dashboard | Business and operational overview |
+| 1:40–2:20 | Clients/client detail | Connected domain depth |
+| 2:20–2:55 | Staff/presence | Roles and real-time status |
+| 2:55–3:35 | Bookings/check-ins | Scheduling and physical operations |
+| 3:35–4:10 | Payments/reports | Financial lifecycle and analytics |
+| 4:10–4:45 | Messaging/notifications | Collaboration and auditability |
+| 4:45–5:45 | Client portal | Separate trust domain and self-service |
+| 5:45–6:15 | Mobile/Arabic | Responsive and international product |
+| 6:15–6:40 | Architecture/quality close | Engineering summary |
+
+## Recommended engineering video order
+
+1. System context and trust boundaries.
+2. Workspace and role model.
+3. Staff JWT versus portal token.
+4. Domain model and migrations.
+5. Booking and recurring scheduling.
+6. Payment/webhook idempotency.
+7. Messaging audience safety and optimistic concurrency.
+8. Staff presence design.
+9. Request IDs, structured logs, liveness/readiness.
+10. CI and contract checks.
+11. Docker environment selector.
+12. Guarded demo reset and validation.
+13. Production boundary and remaining operational verification.
+
+## After recording
+
+- update screenshot and video files according to their capture guides;
+- update `BUILD_MANIFEST.md` with final artifact names and checksums;
+- update `CHANGELOG.md` and release notes;
+- run showcase quality checks;
+- create the tagged GitHub release.
