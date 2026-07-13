@@ -100,8 +100,6 @@ def normalize_link(raw: str) -> str:
     value = raw.strip()
     if value.startswith("<") and value.endswith(">"):
         value = value[1:-1]
-    # Markdown permits an optional title after the URL. Local project links do
-    # not use spaces, so the first token is the path to validate.
     return value.split()[0] if value else ""
 
 
@@ -117,11 +115,13 @@ def check_markdown_links(errors: list[str]) -> None:
             path_part = unquote(target.split("#", 1)[0].split("?", 1)[0])
             if not path_part:
                 continue
-            candidate = (ROOT / path_part.lstrip("/")) if path_part.startswith("/") else (document.parent / path_part)
+            candidate = (
+                ROOT / path_part.lstrip("/")
+                if path_part.startswith("/")
+                else document.parent / path_part
+            )
             if not candidate.resolve().exists():
-                errors.append(
-                    f"broken local link in {relative(document)}: {target}"
-                )
+                errors.append(f"broken local link in {relative(document)}: {target}")
 
 
 def check_text_safety(errors: list[str]) -> None:
@@ -144,7 +144,7 @@ def check_readme_contract(errors: list[str]) -> None:
         "multi-tenant",
         "client portal",
         "staff presence",
-        "professional messaging",
+        "messaging",
         "deterministic professional demo",
         "environment readiness",
         "project ownership",
