@@ -1,445 +1,565 @@
-﻿# GymFlow Architecture
+# GymFlow Architecture
 
-GymFlow is a full-stack SaaS gym management platform built around a multi-surface architecture:
+GymFlow is a multi-tenant gym operations SaaS with three user-facing surfaces, a versioned backend API, relational persistence, real-time collaboration, provider integrations, and explicit environment safety boundaries.
 
-- Public marketing website
-- Owner/staff SaaS dashboard
-- Client portal
-- FastAPI backend
-- PostgreSQL database
-- Stripe test payment flows
-- Email and OAuth provider integrations
-- Automated quality and contract checks
+This document describes the architecture of the current release candidate rather than listing UI pages in isolation.
 
-The architecture demonstrates how a real SaaS product can be structured across frontend, backend, database, security, payments, localization, and release readiness.
+## Architectural goals
 
----
+GymFlow was designed around these goals:
 
-## High-Level Architecture
+1. Keep every studio's business data isolated by workspace.
+2. Give owners, managers, trainers, receptionists, and clients different capabilities.
+3. Keep the client portal outside the staff trust domain.
+4. Model gym operations as connected relational workflows.
+5. Support web, Android, and Windows from one Flutter codebase.
+6. Integrate external providers without making them hidden runtime assumptions.
+7. Make local development, automated testing, portfolio demo, and production configuration explicit.
+8. Provide diagnostics that connect frontend failures to backend logs.
+9. Keep schema evolution and demo rebuilding safe and repeatable.
 
-| Layer | Technology | Responsibility |
+## 1. System context
+
+```mermaid
+flowchart TB
+    Visitor[Public visitor]
+    Owner[Gym owner]
+    Manager[Manager]
+    Trainer[Trainer]
+    Reception[Receptionist]
+    Client[Gym client]
+
+    GymFlow[GymFlow SaaS]
+    Stripe[Stripe]
+    Google[Google OAuth]
+    Email[Transactional email provider]
+
+    Visitor -->|Explore product, register, sign in| GymFlow
+    Owner -->|Administer workspace and billing| GymFlow
+    Manager -->|Operate studio| GymFlow
+    Trainer -->|Manage availability, bookings, attendance, messages| GymFlow
+    Reception -->|Manage front desk, clients, payments, check-ins| GymFlow
+    Client -->|Use private self-service portal| GymFlow
+
+    GymFlow -->|Checkout, billing, webhooks| Stripe
+    GymFlow -->|Identity handoff| Google
+    GymFlow -->|Verification, recovery, invitations, portal access| Email
+```
+
+## 2. Container architecture
+
+```mermaid
+flowchart LR
+    subgraph Clients
+        Web[Flutter Web]
+        Android[Flutter Android]
+        Windows[Flutter Windows]
+    end
+
+    subgraph GymFlow runtime
+        API[FastAPI API]
+        DB[(PostgreSQL)]
+        Cache[(Redis)]
+        Migration[Alembic migration job]
+    end
+
+    subgraph Providers
+        Stripe[Stripe]
+        Google[Google OAuth]
+        Email[Email provider]
+    end
+
+    Web -->|HTTPS JSON / WebSocket| API
+    Android -->|HTTPS JSON / native OAuth token| API
+    Windows -->|HTTPS JSON / browser redirects| API
+
+    API -->|SQLAlchemy| DB
+    API -->|Rate limits / runtime state| Cache
+    Migration -->|Schema versioning| DB
+
+    API --> Stripe
+    API --> Google
+    API --> Email
+```
+
+### Container responsibilities
+
+| Container | Responsibility |
+|---|---|
+| Flutter client | Public site, staff dashboard, client portal, local state, responsive UI, localization |
+| FastAPI API | Authentication, authorization, validation, business rules, provider coordination |
+| PostgreSQL | Durable relational state and transactional integrity |
+| Redis | Production rate-limit state and runtime coordination where configured |
+| Alembic migration job | Intentional schema upgrades separate from web process startup |
+| Stripe | Test/live payment and billing provider according to environment configuration |
+| Google OAuth | External identity provider |
+| Email provider | Verification, recovery, staff invitation, and portal access delivery |
+
+## 3. User surfaces and trust boundaries
+
+GymFlow intentionally separates three security surfaces.
+
+```mermaid
+flowchart LR
+    Public[Unauthenticated public surface]
+    Staff[Staff/admin surface]
+    Portal[Client portal surface]
+    API[FastAPI]
+
+    Public -->|Public routes and access requests| API
+    Staff -->|Staff JWT + workspace membership| API
+    Portal -->|Portal token + client scope| API
+
+    Staff -. cannot use staff JWT .-> Portal
+    Portal -. cannot use portal token .-> Staff
+```
+
+| Surface | Credential | Allowed data |
 |---|---|---|
-| Public Client | Flutter Web | Landing pages, product positioning, public navigation |
-| Admin/Staff App | Flutter Web, Android, Windows | Studio operations dashboard |
-| Client Portal | Flutter Web and mobile layouts | Client-safe booking, membership, payment, and profile experience |
-| Backend API | FastAPI | Business logic, authentication, authorization, route protection |
-| Database | PostgreSQL | Persistent relational storage |
-| ORM | SQLAlchemy | Database model mapping |
-| Migrations | Alembic | Database schema versioning |
-| Authentication | JWT | Protected dashboard and API access |
-| OAuth | Google OAuth | External identity provider login |
-| Payments | Stripe Test Mode | Checkout, billing, and demo-safe payment flows |
-| Email | Transactional email provider support | Verification, password reset, portal access, staff invitations |
-| QA | Python and Dart test/contract scripts | Demo readiness and regression protection |
+| Public | None | Marketing, public auth, neutral access responses |
+| Staff dashboard | Staff JWT | Workspace-scoped data allowed by role |
+| Client portal | Portal token | One client's portal-safe data |
 
----
+The frontend has route guards for user experience and safe navigation. The backend remains authoritative for every protected operation.
 
-## System Flow
+## 4. Multi-tenant workspace model
 
-Flutter Web, Android, and Windows clients communicate with the FastAPI backend through HTTP API calls.
+The workspace is the primary tenant boundary.
 
-The FastAPI backend applies authentication, authorization, workspace scoping, business rules, and provider logic.
+A user may belong to one or more workspaces through a workspace-member record. Role and status are attached to that membership rather than treated as a universal global permission.
 
-The backend stores persistent data in PostgreSQL through SQLAlchemy models and Alembic migrations.
+Workspace-owned data includes:
 
-External integrations include Google OAuth, Stripe Test Mode, Stripe Connect demo mode, and email provider support.
+- staff profiles;
+- clients;
+- membership plans;
+- client memberships;
+- service types;
+- trainer availability;
+- bookings;
+- check-ins;
+- payments;
+- reports;
+- notifications;
+- activity logs;
+- conversations and messages;
+- portal settings and access records.
 
----
+The expected invariant is:
 
-## Application Surfaces
+> A user authorized in Workspace A cannot read or mutate Workspace B records unless they independently hold a valid membership in Workspace B.
 
-GymFlow is separated into three major user-facing surfaces.
+## 5. Domain model
 
-| Surface | Description |
+The diagram below is intentionally simplified. It shows business relationships rather than every implementation column.
+
+```mermaid
+erDiagram
+    USER ||--o{ WORKSPACE_MEMBER : belongs_through
+    WORKSPACE ||--o{ WORKSPACE_MEMBER : contains
+    WORKSPACE_MEMBER ||--o| STAFF_PROFILE : extends
+
+    WORKSPACE ||--o{ CLIENT : owns
+    WORKSPACE ||--o{ MEMBERSHIP_PLAN : defines
+    CLIENT ||--o{ CLIENT_MEMBERSHIP : has
+    MEMBERSHIP_PLAN ||--o{ CLIENT_MEMBERSHIP : assigned_as
+
+    WORKSPACE ||--o{ SERVICE_TYPE : offers
+    STAFF_PROFILE ||--o{ TRAINER_AVAILABILITY : publishes
+    CLIENT ||--o{ BOOKING : makes
+    SERVICE_TYPE ||--o{ BOOKING : schedules
+    STAFF_PROFILE ||--o{ BOOKING : trains
+
+    CLIENT ||--o{ CHECK_IN : records
+    CLIENT ||--o{ PAYMENT : pays
+    CLIENT_MEMBERSHIP ||--o{ PAYMENT : may_reference
+
+    WORKSPACE ||--o{ ACTIVITY_LOG : records
+    USER ||--o{ NOTIFICATION : receives
+
+    WORKSPACE ||--o{ CONVERSATION : owns
+    CONVERSATION ||--o{ CONVERSATION_PARTICIPANT : includes
+    CONVERSATION ||--o{ MESSAGE : contains
+    CLIENT ||--o{ CONVERSATION : may_open
+    STAFF_PROFILE ||--o{ CONVERSATION_PARTICIPANT : may_join
+
+    CLIENT ||--o{ PORTAL_ACCESS_LINK : requests
+    CLIENT ||--o| PORTAL_CLIENT_SETTINGS : configures
+```
+
+## 6. Frontend architecture
+
+The Flutter application is organized by feature rather than as one global UI layer.
+
+Typical feature slice:
+
+```text
+feature/
+├── data/
+│   ├── models
+│   ├── repository
+│   └── display/localization helpers
+├── state/
+│   └── controller or coordinator
+└── presentation/
+    ├── pages
+    └── widgets
+```
+
+### Frontend responsibilities
+
+| Concern | Approach |
 |---|---|
-| Public Website | Marketing pages for visitors and product positioning |
-| Owner/Staff Dashboard | Authenticated workspace dashboard for gym operations |
-| Client Portal | Separate client-facing experience for bookings, membership, payments, and profile |
+| Routing | `go_router` with public, auth, staff, billing-gated, and portal routes |
+| State | Controllers expose loading, error, empty, and ready states |
+| API access | Repositories isolate HTTP and response parsing |
+| Permissions | Role-derived route/action permissions improve UX |
+| Session handling | Staff and portal sessions are stored and resolved separately |
+| Localization | ARB-generated `AppLocalizations` plus display helpers |
+| Responsiveness | Explicit desktop, tablet, and mobile layout tiers |
+| Real-time behavior | WebSocket/realtime service plus heartbeat coordination where supported |
+| Provider returns | Safe Stripe and OAuth callback/return handling |
 
-This separation is important because clients should not be treated as dashboard users.
+### Router safety decisions
 
-A client can interact with their own data through the portal without accessing owner/staff routes.
+The router:
 
----
+- rejects unsafe external-style redirect targets;
+- prevents auth redirects into portal paths;
+- keeps cached portal sessions from entering staff-only areas;
+- applies workspace permission redirects;
+- gates unusable billing states;
+- restores staff and portal sessions independently.
 
-## Frontend Architecture
+## 7. Backend architecture
 
-The frontend is built with Flutter and Dart.
+The backend is a FastAPI application grouped under `/api/v1`.
 
-It is organized around feature areas instead of one large flat UI.
+Major route groups include:
 
-| Responsibility | Description |
+- health and readiness;
+- authentication and Google OAuth;
+- email verification and password recovery;
+- workspaces and members;
+- invitations;
+- clients and memberships;
+- staff, presence, and availability;
+- services and bookings;
+- check-ins;
+- payments and SaaS billing;
+- reports and exports;
+- notifications and activity logs;
+- messaging;
+- portal access, dashboard, settings, payments, receipts, and protected portal routes.
+
+### Backend layers
+
+| Layer | Responsibility |
 |---|---|
-| Routing | Handles public, auth, dashboard, settings, billing, and portal routes |
-| State handling | Manages loading, empty, error, and ready states |
-| API integration | Calls backend endpoints through service/repository layers |
-| Localization | Uses Flutter localization and ARB files |
-| Responsive UI | Adapts layouts across desktop, tablet, and mobile |
-| Role-aware UX | Shows different navigation and actions depending on user context |
-| Portal UX | Provides a client-safe experience separate from staff/admin dashboard |
-| Payment redirects | Handles Stripe checkout and return flows |
-| Demo polish | Provides stable demo-ready UI states for showcase recording |
+| API routes | HTTP contract, dependency injection, authorization entry point |
+| Pydantic schemas | Input validation and audience-safe response shapes |
+| Services | Business rules, provider coordination, transaction-level behavior |
+| Repositories/queries | Database access and workspace-scoped retrieval |
+| SQLAlchemy models | Persistence model, relationships, constraints, indexes |
+| Core/middleware | Settings, auth, rate limits, logging, request IDs, headers |
+| Alembic | Versioned schema migration history |
 
----
+## 8. Authentication flows
 
-## Frontend Route Groups
-
-| Group | Example Routes |
-|---|---|
-| Public | Home, features, pricing, security, contact, privacy, terms |
-| Auth | Login/register, forgot password, reset password, verify email |
-| OAuth | Google OAuth callback |
-| Invitation | Staff invitation acceptance |
-| Dashboard | Dashboard, clients, client detail, membership plans, service types |
-| Staff Operations | Staff, trainer availability, invitations |
-| Scheduling | Bookings and recurring booking flows |
-| Attendance | Check-ins and attendance sheet |
-| Financial | Payments, billing settings, reports, CSV export |
-| Communication | Notifications and activity logs |
-| Settings | Account, workspace, billing, preferences |
-| Client Portal | Portal access, home, bookings, membership, payments, receipts, profile, progress, support |
-
----
-
-## Backend Architecture
-
-The backend is built with FastAPI.
-
-It provides protected REST APIs for dashboard users and separate portal APIs for clients.
-
-| Responsibility | Description |
-|---|---|
-| Authentication | Login, registration, JWT handling, password recovery |
-| Authorization | Role and workspace-aware access protection |
-| Workspace isolation | Keeps studio data scoped to the correct workspace |
-| Business logic | Clients, memberships, bookings, check-ins, payments, reports |
-| Portal access | Client-safe access flow and portal-specific APIs |
-| Provider integration | Google OAuth, Stripe, email provider support |
-| Webhooks | Stripe webhook handling for payment/billing events |
-| Health checks | Live/readiness endpoints for deployment checks |
-| Contracts | API, route, auth, migration, security, and deployment checks |
-
----
-
-## Backend Modules
-
-| Module | Purpose |
-|---|---|
-| Auth | Login, registration, JWT, password reset, email verification |
-| Google OAuth | OAuth provider handoff and login support |
-| Workspaces | Studio workspace model |
-| Workspace Members | Owner/staff membership inside a workspace |
-| Staff Invitations | Invite staff into a workspace |
-| Clients | Client records and profile data |
-| Client Portal Access | Client portal request/confirm flows |
-| Membership Plans | Studio membership plan management |
-| Client Memberships | Membership assignment and tracking |
-| Staff and Trainers | Staff records, roles, trainers |
-| Trainer Availability | Scheduling availability constraints |
-| Service Types | Bookable services/classes |
-| Bookings | Booking lifecycle and recurring booking support |
-| Check-ins | Daily attendance and front-desk check-in/out |
-| Payments | Payment records and status tracking |
-| SaaS Billing | Subscription-style billing configuration |
-| Stripe Webhooks | Payment and billing synchronization |
-| Reports | Business reporting and CSV export |
-| Notifications | User notification records |
-| Activity Logs | Operational audit history |
-| Health / Readiness | Runtime and deployment health checks |
-
----
-
-## Database Architecture
-
-GymFlow uses PostgreSQL as the main database.
-
-The schema is relational because the product has connected business entities.
-
-| Relationship | Example |
-|---|---|
-| Workspace to clients | A studio owns many client records |
-| Workspace to staff | A studio has owners, managers, trainers, receptionists |
-| Client to memberships | A client can have membership assignments |
-| Client to bookings | A client can book services or classes |
-| Trainer to availability | Trainers have availability constraints |
-| Service type to bookings | Bookings are based on services/classes |
-| Client to payments | Payments are attached to client records |
-| Payment to receipt | Client portal can show safe receipt data |
-| Workspace to reports | Reports aggregate workspace-owned business data |
-| User to activity logs | Operational changes can be recorded in audit history |
-
-Alembic is used to version schema changes and keep database evolution controlled.
-
----
-
-## Authentication Architecture
-
-GymFlow supports several authentication and access flows.
+GymFlow supports multiple identity and access paths because one mechanism is not suitable for every user.
 
 | Flow | Purpose |
 |---|---|
-| Email/password login | Standard owner/staff authentication |
-| JWT access tokens | API authorization after login |
-| Google OAuth | External identity provider login |
-| Email verification | Verify account ownership |
-| Password reset | Recover user access |
-| Staff invitation | Bring staff into a workspace |
-| Client portal access | Let clients enter the portal without becoming staff users |
+| Email/password | Standard staff authentication |
+| Email verification | Prove account email control |
+| Password recovery | Time-limited account recovery |
+| Google OAuth | External identity provider handoff |
+| Staff invitation | Add a user to a workspace with a role |
+| Client portal one-time access | Give a client portal access without making them staff |
 
-The important design choice is that client portal access is separate from staff dashboard access.
+### Staff login sequence
 
----
+```mermaid
+sequenceDiagram
+    participant F as Flutter
+    participant A as FastAPI
+    participant D as PostgreSQL
 
-## Authorization Model
+    F->>A: POST /api/v1/auth/login
+    A->>D: Find normalized user
+    D-->>A: User + credential state
+    A->>A: Verify password and account status
+    A->>D: Load workspace memberships
+    A-->>F: Staff JWT + user
+    F->>A: Load workspaces and active membership
+    A-->>F: Role-scoped workspace context
+```
 
-Authorization is based on user identity, workspace membership, role, route type, and resource ownership.
+### Portal access sequence
 
-| Token Type | Allowed Area |
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as FastAPI
+    participant D as PostgreSQL
+    participant E as Email provider
+
+    C->>A: Request code with workspace + email
+    A->>D: Resolve eligible client without enumeration leak
+    A->>D: Store hashed, expiring, one-time access record
+    alt Real configured email
+        A->>E: Send access code/link
+    else Guarded demo .test identity
+        A-->>C: Return development_code in demo response
+    end
+    A-->>C: Neutral request response
+    C->>A: Confirm one-time code
+    A->>D: Validate hash, expiry, attempts, used state
+    A->>D: Mark one-time record consumed
+    A-->>C: Portal token scoped to workspace + client
+```
+
+## 9. Authorization model
+
+Authorization combines:
+
+- authenticated identity;
+- credential type;
+- workspace membership;
+- role;
+- membership status;
+- resource ownership;
+- operation type.
+
+Examples:
+
+- A receptionist may operate front-desk workflows without managing SaaS billing.
+- A trainer may see assigned schedules and permitted clients without owning the workspace.
+- A portal client may see only portal-safe data for their own client record.
+- Internal message notes are never serialized into client-facing responses.
+
+## 10. Booking and attendance design
+
+A booking is not just a date field. It connects:
+
+- workspace;
+- client;
+- service;
+- optional trainer;
+- service duration;
+- trainer availability;
+- lifecycle state;
+- recurring-series context;
+- attendance/no-show outcome;
+- possible payment context.
+
+### Booking sequence
+
+```mermaid
+sequenceDiagram
+    participant U as Staff or portal client
+    participant A as Booking API
+    participant D as PostgreSQL
+
+    U->>A: Create booking request
+    A->>D: Load workspace, client, service, trainer
+    A->>D: Check availability and conflicting bookings
+    A->>A: Apply duration, permissions, membership rules
+    A->>D: Insert booking transactionally
+    A->>D: Record activity/notification where required
+    A-->>U: Audience-safe booking response
+```
+
+Attendance is stored separately so a booking lifecycle and a physical visit do not have to be treated as the same event.
+
+## 11. Payment and billing design
+
+GymFlow has two financial domains:
+
+1. **Client payments** — money the client owes or pays to the studio.
+2. **SaaS billing** — the studio's subscription relationship with GymFlow.
+
+They share provider infrastructure but are not represented as the same business entity.
+
+### Payment states
+
+The demo scenario includes paid, pending, failed, refunded, and cancelled records. No card number is stored by GymFlow.
+
+### Stripe webhook sequence
+
+```mermaid
+sequenceDiagram
+    participant S as Stripe
+    participant A as Webhook API
+    participant D as PostgreSQL
+    participant L as Structured logs
+
+    S->>A: Signed webhook event
+    A->>A: Verify signature and configured mode
+    A->>D: Check event ID / delivery history
+    alt Duplicate
+        A->>L: stripe_webhook_duplicate
+        A-->>S: 2xx acknowledgement
+    else New event
+        A->>D: Update payment or billing state
+        A->>D: Store event processing result
+        A->>L: stripe_webhook_processed or ignored
+        A-->>S: 2xx acknowledgement
+    end
+```
+
+## 12. Messaging architecture
+
+Messaging was designed as a workflow system rather than a simple chat table.
+
+Capabilities include:
+
+- conversation participants;
+- role-restricted access;
+- staff assignment and queue claiming;
+- priority and status;
+- client-visible messages;
+- staff-only internal notes;
+- cursor pagination;
+- idempotent/retry-safe send behavior;
+- optimistic workflow versions;
+- lifecycle cleanup and abuse limits.
+
+The API uses audience-specific response schemas so client requests cannot accidentally receive internal notes or operational metadata.
+
+## 13. Staff presence architecture
+
+Presence uses two related but different signals:
+
+- **connection heartbeat** — whether an authenticated client is connected;
+- **user activity** — whether the person has interacted recently.
+
+Multiple devices are aggregated. A person can remain online while one tab disconnects, and become away based on activity policy without losing an authenticated connection.
+
+Visibility is role-aware. Administrative users can receive more operational status detail than ordinary staff when policy permits.
+
+## 14. Observability architecture
+
+Every request receives an `X-Request-ID`.
+
+The same ID can appear in:
+
+- response headers;
+- structured access logs;
+- validation and error envelopes;
+- unhandled exception logs;
+- frontend support/debug context.
+
+Structured logs include method, path, status, duration, client context, and request ID. Provider-specific events add operational metadata without exposing secrets.
+
+Health endpoints are separated:
+
+| Endpoint | Meaning |
 |---|---|
-| Staff/admin JWT | Dashboard and workspace routes depending on role |
-| Client portal token | Client portal routes only |
-| Unauthenticated visitor | Public site and public auth flows only |
+| `/api/v1/health/live` | Process is running |
+| `/api/v1/health/ready` | Required dependencies are usable |
 
-Expected access rule:
+Readiness checks database and required Redis state and returns `503` when the service should not receive traffic.
 
-A user from Workspace A should not read or modify Workspace B data.
+## 15. Security middleware
 
-A client portal token should not access staff/admin dashboard APIs.
+The application keeps these protections at the framework boundary:
 
-A staff dashboard token should not access private client portal `/portal/me` APIs.
+- trusted-host validation;
+- exact/controlled CORS behavior;
+- request-size limits for sensitive public POST routes;
+- rate limits for auth and portal access;
+- security headers;
+- request-ID propagation;
+- generic unhandled-error responses;
+- production-only disabling of debug routes and API docs.
 
----
+See [Security Overview](docs/SECURITY_OVERVIEW.md) and [Threat Model](docs/THREAT_MODEL.md).
 
-## Role Model
+## 16. Environment architecture
 
-| Role | Main Capabilities |
+| Environment | Important behavior |
 |---|---|
-| Owner | Full workspace control, billing, staff, clients, bookings, settings |
-| Manager | Operational management across the studio |
-| Trainer | Schedule, availability, bookings, and attendance-related workflows |
-| Receptionist | Front-desk client support, bookings, and check-ins |
-| Client | Portal-only access to own bookings, membership, payments, and profile |
+| Development | Local origins, debug support, provider test configuration |
+| Test | Deterministic settings for CI and isolated databases |
+| Demo | Dedicated guarded database and fictional identities; not an alias for development |
+| Production | Strong secret, Redis, HTTPS origins, trusted hosts, disabled debug/docs, strict provider checks |
 
-This role model allows GymFlow to demonstrate real SaaS access control instead of a simple single-user dashboard.
+The local Docker selector permits only the approved `gymflow` and `gymflow_demo` database names. It does not dynamically accept arbitrary targets.
 
----
+## 17. Deployment architecture
 
-## Client Portal Architecture
+```mermaid
+flowchart TB
+    Internet[HTTPS clients]
+    Frontend[Static Flutter web hosting]
+    Ingress[HTTPS ingress / platform routing]
+    API[Non-root FastAPI container]
+    Migration[One-off migration job]
+    DB[(Managed PostgreSQL)]
+    Redis[(Managed Redis)]
+    Monitor[Uptime / log monitoring]
 
-The client portal is designed as a separate product area.
+    Internet --> Frontend
+    Frontend --> Ingress
+    Ingress --> API
+    API --> DB
+    API --> Redis
+    Migration --> DB
+    Monitor -->|live / ready| API
+```
 
-| Portal Page | Purpose |
-|---|---|
-| Portal Access | Request or confirm client access |
-| Portal Home | Client-specific summary and next actions |
-| Portal Bookings | Upcoming bookings, history, booking/cancel/reschedule flows |
-| Portal Membership | Membership status, benefits, and pass-style information |
-| Portal Payments | Pending and paid client payments |
-| Receipt Detail | Safe payment receipt view |
-| Portal Profile | Client profile data |
-| Portal Progress | Client-facing progress/demo experience |
-| Portal Support | Client-safe support path |
-| QR Check-in Pass | Client check-in pass concept for front-desk workflows |
+The production migration command is separate from the web start command. This avoids hidden schema mutations every time an application instance restarts.
 
-The portal exists so clients can use the system without entering the studio owner/staff dashboard.
+## 18. Demo data architecture
 
----
+The professional demo rebuild is transactional and deterministic.
 
-## Booking Architecture
+Before deleting data, it verifies:
 
-GymFlow booking logic connects several product areas.
+- `ENVIRONMENT=demo`;
+- a local approved `_demo` database;
+- Stripe test mode and no live Stripe state;
+- current Alembic revision expectations;
+- a reviewed table allowlist;
+- an exact confirmation value.
 
-| Entity | Booking Role |
-|---|---|
-| Client | Person booking or attending |
-| Service Type | What is being booked |
-| Trainer | Optional trainer assigned to the booking |
-| Trainer Availability | Constraint for available slots |
-| Membership | Can influence client access/status |
-| Payment | Can be connected to booking-related charges |
-| Portal | Lets clients book or manage supported bookings |
+It then:
 
-Booking flows include admin booking, client portal booking, cancellation, rescheduling, recurring booking concepts, and availability-aware slot selection.
+1. acquires a PostgreSQL advisory transaction lock;
+2. deletes allowlisted business/authentication data in dependency order;
+3. creates the complete Northline scenario;
+4. validates dashboard, reporting, payment, portal, presence, and relationship targets;
+5. commits only if every validation passes.
 
----
+It never drops tables or schemas and never modifies `alembic_version`.
 
-## Check-in Architecture
+## 19. Important architectural decisions
 
-GymFlow includes gym-specific attendance workflows.
+| Decision | Reason | Trade-off |
+|---|---|---|
+| Flutter for all client targets | Shared product logic and consistent design across web/mobile/desktop | Platform-specific integrations still require adapters |
+| FastAPI + Pydantic | Typed API contracts, rapid iteration, clear validation | Requires discipline to keep route/service boundaries clean |
+| PostgreSQL relational model | Business entities have strong relationships and transactional rules | Schema changes require migrations |
+| Workspace membership as tenant/role boundary | Supports multi-workspace users and scoped roles | Every business query must preserve workspace scope |
+| Separate client portal token | Least privilege and safer client UX | Two session models must be maintained |
+| Separate migration job | Predictable deployment and explicit schema changes | Deployment orchestration has an extra step |
+| Redis-required production rate limits | Shared state across API instances | Production requires another managed dependency |
+| Deterministic demo rebuild | Repeatable screenshots, video, and QA | Seed contracts must evolve with the product |
+| Internal-note/client-message separation | Prevents audience data leaks | Messaging schemas and tests are more complex |
+| Connection/activity presence split | More accurate online/away behavior | Requires lifecycle and multi-device logic |
 
-| Feature | Purpose |
-|---|---|
-| Daily attendance sheet | Mark attendance for the day |
-| Present/absent state | Quick operational tracking |
-| Saved attendance records | Persist daily attendance decisions |
-| Front-desk check-in/out | Reception workflow |
-| QR check-in pass concept | Client-friendly check-in direction |
+## 20. Known architecture boundaries
 
-This shows that the app covers real physical gym operations, not only online subscription pages.
+The system is production-oriented, but a real production launch still requires environment-specific verification of:
 
----
+- hosted frontend and backend;
+- managed PostgreSQL and Redis;
+- verified Stripe live/test separation and webhooks;
+- verified email sender domain;
+- production Google OAuth redirects;
+- monitoring and alert thresholds;
+- backup schedule and restore drill;
+- dependency and container vulnerability scanning.
 
-## Payment and Billing Architecture
-
-GymFlow includes two payment-related layers.
-
-| Layer | Purpose |
-|---|---|
-| Client payments | Payments between clients and the studio |
-| SaaS billing | Billing/subscription concept for the studio using GymFlow |
-
-Payment-related architecture includes:
-
-| Feature | Description |
-|---|---|
-| Manual payment records | Admin/staff can track offline payments |
-| Stripe checkout | Online payment test flow |
-| Stripe webhook | Backend can receive payment events |
-| Receipt display | Client-safe receipt information |
-| Billing settings | Studio subscription and billing state |
-| Stripe Connect demo mode | Demo-safe marketplace/studio payment routing concept |
-
-For the showcase, Stripe runs in test/demo mode and does not process real money.
-
----
-
-## Stripe Connect Demo Mode
-
-Stripe Connect normally requires account onboarding and identity verification.
-
-For a public showcase, that would create a bad demo experience.
-
-GymFlow includes a demo-safe Connect mode so reviewers can see the billing/payment UI without uploading official identity documents.
-
-| Production Concept | Showcase Behavior |
-|---|---|
-| Real connected account | Demo connected-account state |
-| Identity verification | Skipped in demo mode |
-| Real transfers | Not performed in demo mode |
-| Platform fee | Demo-safe configuration only |
-| Checkout | Stripe Test Mode checkout |
-
-This keeps the demo realistic while avoiding real financial onboarding.
-
----
-
-## Localization Architecture
-
-The frontend supports English, French, and Arabic.
-
-| Language | Code |
-|---|---|
-| English | en |
-| French | fr |
-| Arabic | ar |
-
-Localization responsibilities include public copy, dashboard labels, portal copy, status display, RTL support, and long text handling.
-
-The frontend avoids showing raw backend values such as `active`, `paid`, `manual`, `monthly`, or `trainer` directly in user-facing UI.
-
----
-
-## API Contract and Quality Architecture
-
-GymFlow uses quality gates to protect the project from regressions.
-
-Backend quality checks cover:
-
-| Check | Purpose |
-|---|---|
-| Secret scanner | Prevent accidental secret commits |
-| Migration checks | Validate Alembic migration health |
-| DB contract checks | Validate model/table expectations |
-| Security contract checks | Validate security-sensitive rules |
-| Observability contract checks | Validate request/debug behavior expectations |
-| Deployment contract checks | Validate production configuration assumptions |
-| API contract checks | Validate critical route and OpenAPI behavior |
-| Route auth checks | Inspect protected route behavior |
-| Portal route checks | Validate client portal route surface |
-| Smoke check | Confirm app imports and routes register |
-| Pytest | Backend behavior tests |
-
-Frontend quality checks cover:
-
-| Check | Purpose |
-|---|---|
-| Flutter analyze | Dart/Flutter static analysis |
-| Frontend quality runner | Source and UI consistency checks |
-| API sync tests | Frontend/backend contract alignment |
-| Portal quality runner | Portal privacy, layout, and safety checks |
-| Frontend full test runner | Grouped frontend test execution |
-| Manual QA checklist | End-to-end product verification |
-
----
-
-## Manual QA Scope
-
-The manual QA checklist covers public site, auth, onboarding, admin dashboard, clients, memberships, services, staff, bookings, check-ins, payments, reports, notifications, activity logs, settings, client portal, security behavior, provider flows, responsive layouts, localization, and final demo readiness.
-
----
-
-## Deployment Model
-
-GymFlow can be demonstrated in several modes.
-
-| Mode | Description |
-|---|---|
-| Local Demo | Backend, database, and frontend run locally |
-| Temporary Hosted Demo | Backend/frontend can be hosted for a review window |
-| Recorded Demo | Video walkthrough demonstrates main workflows |
-| Screenshot Showcase | Static visuals show the product clearly |
-| APK Build | Android installable demo artifact |
-| Windows Build | Windows desktop demo artifact |
-
-For the final portfolio-style release, the recommended strategy is screenshots plus video plus optional temporary hosted access.
-
----
-
-## Production Readiness Boundary
-
-GymFlow is strong as a showcase/demo project.
-
-A production launch would require final verification of:
-
-| Area | Required Before Production Claim |
-|---|---|
-| Hosting | Backend and frontend hosted with HTTPS |
-| Database | Managed PostgreSQL with backups |
-| Redis/rate limits | Production rate limiting configured |
-| Stripe | Real Stripe mode and webhooks verified |
-| Email | Verified sender domain and real inbox tests |
-| OAuth | Production Google OAuth redirects verified |
-| Monitoring | Logs, errors, uptime checks |
-| Backups | Backup schedule and restore drill |
-| Security | Final isolation and provider configuration tests |
-
-The showcase should be honest: it proves engineering capability and product depth, while production deployment is a separate final operations phase.
-
----
-
-## Engineering Summary
-
-GymFlow demonstrates architecture across:
-
-- Flutter multi-surface frontend
-- FastAPI backend
-- PostgreSQL relational database design
-- Alembic migrations
-- JWT authentication
-- Google OAuth
-- Role-based authorization
-- Workspace isolation
-- Client portal separation
-- Booking and recurring booking workflows
-- Trainer availability
-- Check-in and attendance workflows
-- Payments and receipts
-- Stripe Test Mode
-- Stripe Connect demo mode
-- Email verification and invitations
-- Reports and CSV exports
-- Notifications and activity logs
-- Localization across English, French, and Arabic
-- Responsive web/mobile UI
-- Automated backend and frontend quality gates
-- Manual QA and demo release preparation
+Those are release and operations responsibilities, not reasons to weaken the architecture description.
