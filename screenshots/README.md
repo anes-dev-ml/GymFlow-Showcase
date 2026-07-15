@@ -1,6 +1,10 @@
-# GymFlow Screenshot Capture Specification
+# GymFlow Screenshot Release Procedure
 
-The existing screenshots represent an older product generation. Replace them with a consistent set captured from the final seeded release.
+## Current inventory
+
+The `v1.0.0-showcase` engineering case-study candidate includes no current application screenshots. The former 19-image root gallery was removed because it represented an older product generation and could not be tied to the audited source snapshot.
+
+The tables below define the approved filenames and capture state for a later media-bearing release. Adding only part of the set is acceptable when the manifest lists exactly what is included; no image may be described as current without provenance.
 
 ## Canonical capture state
 
@@ -131,4 +135,4 @@ Capture at one consistent mobile resolution such as 390×844.
 8. Capture engineering evidence.
 9. Review every image for privacy and consistency.
 
-After capture, remove obsolete legacy files, update the README gallery, update `../BUILD_MANIFEST.md`, and run showcase quality checks.
+After capture, update the README gallery, record the exact inventory and source revisions in `../BUILD_MANIFEST.md`, add checksums for any downloadable pack, and run showcase quality checks.

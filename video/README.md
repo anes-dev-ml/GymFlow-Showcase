@@ -1,6 +1,10 @@
-# GymFlow Video Specification
+# GymFlow Video Release Procedure
 
-GymFlow should be presented through two complementary videos:
+## Current inventory
+
+The `v1.0.0-showcase` engineering case-study candidate includes no public video URL, video binary, duration, thumbnail, captions file, or checksum. A local edited master is not public release evidence until those fields are recorded in `../BUILD_MANIFEST.md`.
+
+For a later media-bearing release, GymFlow should be presented through two complementary videos:
 
 1. a concise product walkthrough for recruiters, hiring managers, and general reviewers;
 2. an optional technical walkthrough for engineers who want deeper architecture evidence.

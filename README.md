@@ -189,18 +189,16 @@ The showcase repository has its own quality workflow to detect missing documents
 | Delivery | Docker, Docker Compose, GitHub Actions |
 | Targets | Web, Android, Windows |
 
-## Visual walkthrough
+## Release media
 
-The final refreshed screenshots and edited product video will be captured from the canonical seeded release after this documentation freeze.
+This engineering case-study release does not claim a current screenshot set or
+public walkthrough video. The earlier 19-image gallery was removed because it
+predates the canonical frontend/backend snapshot. Publishing no visual evidence
+is more accurate than presenting polished but stale UI as current.
 
-- [Screenshot capture specification](screenshots/README.md)
-- [Video recording specification](video/README.md)
-- [Release manifest](BUILD_MANIFEST.md)
-
-<!--
-After final capture, place the main video thumbnail here and link it to the edited walkthrough.
-Recommended asset: video/gymflow-showcase-thumbnail.png
--->
+The repository retains the [screenshot capture procedure](screenshots/README.md)
+and [video release procedure](video/README.md) for a later media-bearing release.
+The exact current inventory is recorded in the [build manifest](BUILD_MANIFEST.md).
 
 ## Documentation map
 
