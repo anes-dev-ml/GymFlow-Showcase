@@ -1,0 +1,17 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.tmp
+
+# Local exports and generated archives
+downloads/
+exports/
+*.zip
