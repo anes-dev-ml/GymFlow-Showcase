@@ -53,9 +53,9 @@ STALE_VALUES = {
     "staff@" + "gymflow.demo",
     "Demo" + "Owner123!",
     "Demo" + "Staff123!",
-    "85fb121968bf862945debf349ce8c28df72c0fdd",
-    "7bef6bfdf7ba1fbd3db9669b59aafa6ce6f2b9ac",
-    "client-dashboard-redesign",
+    "85fb121968bf862945de" + "bf349ce8c28df72c0fdd",
+    "7bef6bfdf7ba1fbd3db" + "9669b59aafa6ce6f2b9ac",
+    "client-dashboard-" + "redesign",
 }
 
 SECRET_PATTERNS = {
