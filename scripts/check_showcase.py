@@ -147,7 +147,7 @@ def check_release_contract(errors: list[str]) -> None:
     manifest = (ROOT / "BUILD_MANIFEST.md").read_text(encoding="utf-8-sig")
     required_values = {
         "6866feb84288bd1624b8ca6d4cc8a4407da5dd80",
-        "10b7af743c73e3f7eca686080e1e74dc7ee67bde",
+        "c42d0bf5fdc44cade4bc9cced84d002a94c41165",
         "9e4f6a8c2d1b",
         "2026-07-15",
         "Current application screenshots | Not included",
