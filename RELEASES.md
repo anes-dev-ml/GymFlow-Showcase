@@ -63,11 +63,15 @@ The source snapshot is recorded in [BUILD_MANIFEST.md](BUILD_MANIFEST.md).
 
 - product README;
 - architecture, engineering, security, quality, operations, and demo documentation;
-- refreshed screenshot set;
-- edited product walkthrough;
 - release manifest;
-- release notes;
-- known limitations and provider boundary.
+- release notes or changelog;
+- known limitations and provider boundary;
+- an explicit artifact inventory.
+
+A documentation-only engineering case-study release may omit screenshots and
+video when the manifest states that clearly and no stale media remains. A
+media-bearing showcase release must include the refreshed screenshot set and
+edited product walkthrough.
 
 ### Optional
 
@@ -135,8 +139,9 @@ A temporary hosted demo requires:
 | Demo validation | All target metrics pass |
 | Route rehearsal | No blocking error across recorded routes |
 | Logs | No unexplained repeated 404/422/500 during walkthrough |
-| Screenshots | Refreshed and privacy-reviewed |
-| Product video | Edited and reviewed |
+| Media inventory | Exact included/omitted status recorded |
+| Screenshots | Required only for a media-bearing release; then refreshed and privacy-reviewed |
+| Product video | Required only for a media-bearing release; then edited and reviewed |
 | Manifest | Exact commits and artifacts recorded |
 | Secrets | Source/showcase scans pass |
 | Provider claims | Match actual release configuration |
