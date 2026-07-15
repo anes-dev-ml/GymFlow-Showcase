@@ -4,7 +4,7 @@ All notable changes to the public GymFlow showcase are documented here.
 
 The application source repositories have their own histories. This changelog tracks the public case study, documentation, diagrams, screenshots, videos, manifests, and release artifacts.
 
-## Unreleased
+## 1.0.0-showcase — 2026-07-15
 
 ### Added
 
@@ -38,13 +38,12 @@ The application source repositories have their own histories. This changelog tra
 - Repetitive feature lists that did not explain implementation decisions or evidence.
 - Claims that could be interpreted as live provider or production-operation verification without environment evidence.
 
-### Pending visual release work
+### Release media boundary
 
-- Replace legacy screenshots with the canonical final capture set.
-- Add edited product walkthrough.
-- Optionally add technical architecture walkthrough.
-- Add social preview and release thumbnail.
-- Finalize tagged release manifest and artifact checksums.
+- Removed the 19-image legacy gallery because it predates the audited source snapshot.
+- Declared that this release contains no current screenshots, public video, thumbnail, or installable binary.
+- Retained the capture procedures for a later media-bearing release.
+- Replaced open-ended artifact promises with an exact public inventory and provenance rules.
 
 ## 0.1.0 — 2026-07-05
 
