@@ -17,6 +17,8 @@ REQUIRED_FILES = {
     "CHANGELOG.md",
     "BUILD_MANIFEST.md",
     "LICENSE",
+    ".gitignore",
+    ".gitattributes",
     "docs/PRODUCT.md",
     "docs/ENGINEERING.md",
     "docs/SECURITY_OVERVIEW.md",
@@ -51,6 +53,9 @@ STALE_VALUES = {
     "staff@" + "gymflow.demo",
     "Demo" + "Owner123!",
     "Demo" + "Staff123!",
+    "85fb121968bf862945debf349ce8c28df72c0fdd",
+    "7bef6bfdf7ba1fbd3db9669b59aafa6ce6f2b9ac",
+    "client-dashboard-redesign",
 }
 
 SECRET_PATTERNS = {
@@ -138,6 +143,39 @@ def check_text_safety(errors: list[str]) -> None:
                 errors.append(f"possible {name} in {relative(path)}")
 
 
+def check_release_contract(errors: list[str]) -> None:
+    manifest = (ROOT / "BUILD_MANIFEST.md").read_text(encoding="utf-8-sig")
+    required_values = {
+        "6866feb84288bd1624b8ca6d4cc8a4407da5dd80",
+        "10b7af743c73e3f7eca686080e1e74dc7ee67bde",
+        "9e4f6a8c2d1b",
+        "2026-07-15",
+        "Current application screenshots | Not included",
+        "Product walkthrough video | Not included",
+    }
+    for value in sorted(required_values):
+        if value not in manifest:
+            errors.append(f"build manifest is missing release evidence: {value}")
+
+    forbidden_phrases = {
+        "capture pending",
+        "will be captured later",
+        "will be captured from",
+        "after screenshots and video are finalized",
+    }
+    for document_name in ("README.md", "BUILD_MANIFEST.md", "CHANGELOG.md"):
+        content = (ROOT / document_name).read_text(encoding="utf-8-sig").lower()
+        for phrase in sorted(forbidden_phrases):
+            if phrase in content:
+                errors.append(f"unfinished release wording in {document_name}: {phrase}")
+
+    legacy = sorted(
+        path for path in (ROOT / "screenshots").glob("*.*") if path.name != "README.md"
+    )
+    for path in legacy:
+        errors.append(f"legacy root screenshot remains: {relative(path)}")
+
+
 def check_readme_contract(errors: list[str]) -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8-sig")
     required_phrases = {
@@ -161,6 +199,7 @@ def main() -> int:
     check_unsafe_files(errors)
     check_markdown_links(errors)
     check_text_safety(errors)
+    check_release_contract(errors)
     check_readme_contract(errors)
 
     if errors:
