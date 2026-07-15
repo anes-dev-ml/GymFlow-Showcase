@@ -24,7 +24,7 @@ create a self-referential manifest.
 | Component | Repository/ref | Revision | Release evidence |
 |---|---|---|---|
 | Frontend | `anes-dev-ml/Gymflow-Frontend` / `agent/final-release-audit` | `6866feb84288bd1624b8ca6d4cc8a4407da5dd80` | Runtime release at 1.0.0 plus final documentation, licensing, localization-tool retirement, and regression-contract audit |
-| Backend | `anes-dev-ml/Gymflow-Backend` / `agent/final-release-audit` | `10b7af743c73e3f7eca686080e1e74dc7ee67bde` | API release at 1.0.0 plus final documentation, licensing, dependency separation, container-build CI, and regression-contract audit |
+| Backend | `anes-dev-ml/Gymflow-Backend` / `agent/final-release-audit` | `c42d0bf5fdc44cade4bc9cced84d002a94c41165` | API release at 1.0.0 plus final documentation, licensing, dependency separation, container-build CI, and regression-contract audit |
 | Showcase | `anes-dev-ml/GymFlow-Showcase` / `agent/final-release-audit` | Release tag target | This manifest, engineering case study, media inventory, and showcase quality contract |
 
 The application audit branches are release candidates based directly on
