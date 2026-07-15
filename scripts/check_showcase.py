@@ -146,8 +146,8 @@ def check_text_safety(errors: list[str]) -> None:
 def check_release_contract(errors: list[str]) -> None:
     manifest = (ROOT / "BUILD_MANIFEST.md").read_text(encoding="utf-8-sig")
     required_values = {
-        "6866feb84288bd1624b8ca6d4cc8a4407da5dd80",
-        "c42d0bf5fdc44cade4bc9cced84d002a94c41165",
+        "489a82e03059465755c74b1be39ae7c05f98fb9b",
+        "2234af20d1d9dd143bcac22edc699d3ee7fe515f",
         "9e4f6a8c2d1b",
         "2026-07-15",
         "Current application screenshots | Not included",
