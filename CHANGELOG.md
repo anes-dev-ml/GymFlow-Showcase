@@ -2,7 +2,9 @@
 
 All notable changes to the public GymFlow showcase are documented here.
 
-The application source repositories have their own histories. This changelog tracks the public case study, documentation, diagrams, screenshots, videos, manifests, and release artifacts.
+The application source repositories have their own histories. This changelog
+tracks the public case study, documentation, diagrams, screenshots, videos,
+manifests, validation contracts, and release artifacts.
 
 ## 1.0.0-showcase — 2026-07-15
 
@@ -17,9 +19,9 @@ The application source repositories have their own histories. This changelog tra
 - Operations runbook for Docker, deployment, migrations, observability, incidents, backups, and scaling.
 - Day-zero engineering journey and lessons learned.
 - Evidence-based production and showcase roadmap.
-- Canonical build/release manifest.
-- Screenshot and video capture specifications.
-- Showcase repository quality checks and GitHub Actions workflow.
+- Canonical build and release manifest.
+- Screenshot and video release procedures.
+- Showcase repository validation and GitHub Actions workflow.
 - Explicit showcase content license.
 
 ### Changed
@@ -27,9 +29,13 @@ The application source repositories have their own histories. This changelog tra
 - Rebuilt the README as a concise engineering landing page rather than a repeated feature inventory.
 - Replaced stale demo credentials with password-at-rebuild guidance.
 - Updated the demo scenario to Northline Performance Club and the current deterministic data contract.
-- Updated release guidance to include exact source revisions, checksums, CI evidence, and provider status.
+- Updated release guidance to include exact source revisions, checksums, validation evidence, and provider status.
 - Reframed production claims as production-oriented architecture plus deployment-specific operational verification.
 - Added current professional messaging, staff presence, portal settings, real-time behavior, and guarded demo infrastructure to the public system description.
+- Recorded the account-level hosted-runner restriction without claiming green CI that did not execute.
+- Defined the narrow local-validation exception and kept real code or test failures non-bypassable.
+- Aligned the manifest, roadmap, release policy, quality strategy, README, and media procedures with the documentation-only release boundary.
+- Strengthened the validator against contradictory release wording, undeclared media, accidental editor files, stale source values, and incomplete manifest state.
 
 ### Removed
 
@@ -37,12 +43,13 @@ The application source repositories have their own histories. This changelog tra
 - Obsolete demo account values from the older application generation.
 - Repetitive feature lists that did not explain implementation decisions or evidence.
 - Claims that could be interpreted as live provider or production-operation verification without environment evidence.
+- The accidental editor-specific `.vscode` configuration.
 
 ### Release media boundary
 
 - Removed the 19-image legacy gallery because it predates the audited source snapshot.
 - Declared that this release contains no current screenshots, public video, thumbnail, or installable binary.
-- Retained the capture procedures for a later media-bearing release.
+- Retained release procedures for a later media-bearing version.
 - Replaced open-ended artifact promises with an exact public inventory and provenance rules.
 
 ## 0.1.0 — 2026-07-05
@@ -59,4 +66,7 @@ The application source repositories have their own histories. This changelog tra
 
 ### Known limitation
 
-This release represented an earlier GymFlow generation and did not include the later dashboard redesign, secure professional messaging, hardened staff presence, deterministic guarded demo environment, or current portal architecture.
+This release represented an earlier GymFlow generation and did not include the
+later dashboard redesign, secure professional messaging, hardened staff
+presence, deterministic guarded demo environment, or current portal
+architecture.
