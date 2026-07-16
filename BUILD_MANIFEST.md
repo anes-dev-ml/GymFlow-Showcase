@@ -8,16 +8,16 @@ what is not included.
 
 | Field | Value |
 |---|---|
-| Release candidate | `v1.0.0-showcase` |
+| Release tag | `v1.0.0-showcase` |
 | Evidence date | 2026-07-15 |
 | Demo workspace | Northline Performance Club |
 | Data boundary | Fictional deterministic demo data only |
 | Payment boundary | Manual/test/demo state; no real charges |
 | Public source boundary | Showcase content only; application source remains private |
 
-The final showcase tag target is authoritative for the showcase commit. Its SHA
-is intentionally not duplicated inside the commit it identifies, which would
-create a self-referential manifest.
+The showcase tag target is authoritative for the showcase commit. Its SHA is
+intentionally not duplicated inside the commit it identifies, which would create
+a self-referential manifest.
 
 ## Canonical source snapshot
 
@@ -27,8 +27,8 @@ create a self-referential manifest.
 | Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | API release at 1.0.0 plus final documentation, licensing, dependency separation, container-build CI, and regression-contract audit |
 | Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Release tag target | This manifest, engineering case study, media inventory, and showcase quality contract |
 
-The application audit branches are release candidates based directly on
-frontend `a0ab421b45c447dd710ce8c53cf97edcb7c85e1a` and backend
+The merged application audit work was based directly on frontend
+`a0ab421b45c447dd710ce8c53cf97edcb7c85e1a` and backend
 `9d131982a161d22a56efeda8ef47805ee7e9dca6`.
 
 ## Application and schema versions
@@ -37,9 +37,9 @@ frontend `a0ab421b45c447dd710ce8c53cf97edcb7c85e1a` and backend
 |---|---|
 | Frontend application | `1.0.0+1` |
 | Backend API | `1.0.0` |
-| Flutter | Stable channel in CI |
+| Flutter | Stable channel used for release validation |
 | Dart SDK | `^3.9.0` |
-| Python | 3.10 runtime and CI |
+| Python | 3.10 application runtime; Python 3.12 showcase validation |
 | FastAPI | 0.136.3 |
 | Pydantic | 2.13.4 |
 | SQLAlchemy | 2.0.50 |
@@ -93,7 +93,7 @@ frontend `a0ab421b45c447dd710ce8c53cf97edcb7c85e1a` and backend
 
 ## Public artifact inventory
 
-| Artifact | Status in this release candidate | Integrity statement |
+| Artifact | Status in this release | Integrity statement |
 |---|---|---|
 | Engineering case study | Included | Versioned in this repository |
 | Architecture and threat-model documentation | Included | Versioned in this repository |
@@ -101,21 +101,26 @@ frontend `a0ab421b45c447dd710ce8c53cf97edcb7c85e1a` and backend
 | Product walkthrough video | Not included | No public URL, binary, duration, or checksum is claimed |
 | Video thumbnail | Not included | No thumbnail is presented as release evidence |
 | Android or Windows binary | Not included | No installable artifact or checksum is claimed |
-| Social preview | Repository-setting task | Must be configured after merge from an approved current-release design |
+| Social preview | Repository-setting task | Must be configured from an approved current-release design before public promotion |
 
 Screenshot and video specifications remain as release procedures for a later
-media-bearing release. They do not imply that the artifacts exist today.
+media-bearing release. They do not imply that the artifacts exist in this tag.
 
 ## Verification evidence
 
 | Gate | Command or evidence | Release rule |
 |---|---|---|
-| Frontend | Local release validation completed | Required before the frontend audit merge |
-| Backend | Local release validation completed | Required before the backend audit merge |
-| Showcase | `python scripts/check_showcase.py` completed locally | Required before tagging |merge |
-| Demo rebuild | Guarded rebuild and `validate_demo_data.py` | Required again before any new screenshots/video |
-| Route rehearsal | `DEMO.md` walkthrough | Required again before any new screenshots/video |
-| Release tag | `v1.0.0-showcase` | Create only after all three PRs are merged and checks are green |
+| Frontend | Equivalent release validation completed locally | Completed before the frontend audit merge |
+| Backend | Equivalent release validation completed locally | Completed before the backend audit merge |
+| Showcase | `python scripts/check_showcase.py` completed locally | Completed before tagging |
+| Hosted Actions | Jobs were blocked before checkout by the account spending policy | No green hosted-CI claim is made for this release |
+| Demo rebuild | Guarded rebuild and `validate_demo_data.py` | Required again before any new screenshots or video |
+| Route rehearsal | `DEMO.md` walkthrough | Required again before any new screenshots or video |
+| Release tag | `v1.0.0-showcase` | Created after the final snapshot reached `main` and local release validation passed |
+
+The account-level GitHub Actions restriction prevented hosted jobs from starting.
+The workflows remain defined, but this tag relies on the documented equivalent
+local validation rather than claiming successful hosted CI runs.
 
 ## Release completion checklist
 
@@ -132,11 +137,12 @@ media-bearing release. They do not imply that the artifacts exist today.
 - [x] Run the showcase release validation locally.
 - [x] Merge the frontend and backend audit pull requests.
 - [x] Publish the finalized showcase snapshot to `main`.
-- [ ] Create `v1.0.0-showcase` on the finalized showcase commit.
+- [x] Close the superseded showcase audit pull request without merging its obsolete history.
+- [x] Create `v1.0.0-showcase` on the finalized showcase commit.
 - [ ] Configure the GitHub social preview from an approved release design.
 
 ## Integrity note
 
 A filename containing “final” is not release evidence. The tag, exact source
-revisions, CI results, artifact inventory, and checksums for any future
+revisions, validation record, artifact inventory, and checksums for any future
 downloadable files are authoritative.
