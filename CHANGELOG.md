@@ -23,19 +23,20 @@ manifests, validation contracts, and release artifacts.
 - Screenshot and video release procedures.
 - Showcase repository validation and GitHub Actions workflow.
 - Explicit showcase content license.
+- A provenance-backed 53-image screenshot gallery covering desktop, portal, mobile, localization, and engineering evidence.
 
 ### Changed
 
-- Rebuilt the README as a concise engineering landing page rather than a repeated feature inventory.
+- Rebuilt the README as an engineering landing page rather than a repeated feature inventory.
 - Replaced stale demo credentials with password-at-rebuild guidance.
 - Updated the demo scenario to Northline Performance Club and the current deterministic data contract.
-- Updated release guidance to include exact source revisions, checksums, validation evidence, and provider status.
+- Updated release guidance to include exact source revisions, validation evidence, provider status, and artifact boundaries.
 - Reframed production claims as production-oriented architecture plus deployment-specific operational verification.
-- Added current professional messaging, staff presence, portal settings, real-time behavior, and guarded demo infrastructure to the public system description.
+- Added professional messaging, staff presence, portal settings, real-time behavior, and guarded demo infrastructure to the public system description.
 - Recorded the account-level hosted-runner restriction without claiming green CI that did not execute.
 - Defined the narrow local-validation exception and kept real code or test failures non-bypassable.
-- Aligned the manifest, roadmap, release policy, quality strategy, README, and media procedures with the documentation-only release boundary.
-- Strengthened the validator against contradictory release wording, undeclared media, accidental editor files, stale source values, and incomplete manifest state.
+- Replaced the obsolete 19-image root gallery with the structured 53-image current gallery.
+- Strengthened the validator to enforce exact gallery counts, approved directories, supported image types, release revisions, video boundaries, and public wording.
 
 ### Removed
 
@@ -44,13 +45,13 @@ manifests, validation contracts, and release artifacts.
 - Repetitive feature lists that did not explain implementation decisions or evidence.
 - Claims that could be interpreted as live provider or production-operation verification without environment evidence.
 - The accidental editor-specific `.vscode` configuration.
+- The older 19-image gallery that predated the audited source snapshot.
 
 ### Release media boundary
 
-- Removed the 19-image legacy gallery because it predates the audited source snapshot.
-- Declared that this release contains no current screenshots, public video, thumbnail, or installable binary.
-- Retained release procedures for a later media-bearing version.
-- Replaced open-ended artifact promises with an exact public inventory and provenance rules.
+- Includes 53 current tracked screenshots across five approved galleries.
+- Includes no public walkthrough video, video thumbnail, Android package, Windows archive, or installable binary.
+- Requires future video or replacement media to use an updated source snapshot, manifest, validation run, and semantic release tag.
 
 ## 0.1.0 — 2026-07-05
 
