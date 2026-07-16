@@ -1,22 +1,24 @@
 # GymFlow Roadmap
 
 GymFlow is complete as a controlled professional demonstration and is presented
-as a production-oriented SaaS architecture. The roadmap below separates future
-product evolution from the deployment, provider, and operational work required
-for a live commercial service.
+as a production-oriented SaaS architecture. The roadmap separates product
+evolution from provider, infrastructure, and operating work required for a live
+commercial service.
 
-## Current showcase release
+## Current release candidate
 
-The `v1.0.0-showcase` release includes:
+`main` is preparing `v1.0.1-showcase`. The candidate includes:
 
-- the public product, architecture, engineering, security, quality, operations,
-  and demo case studies;
+- public product, architecture, engineering, security, quality, operations, and demo case studies;
 - exact frontend and backend source provenance;
-- a deterministic Northline Performance Club demo contract;
-- 53 screenshots across desktop, client portal, mobile, localization, and
-  engineering galleries;
-- documented local release validation and the hosted-runner limitation;
+- the guarded Northline Performance Club deterministic demo contract;
+- 53 stable screenshot paths across desktop, portal, mobile, localization, and engineering galleries;
+- documented local validation and the hosted-runner limitation;
+- stricter duplicate, dimension, rejected-media, and release-evidence checks;
 - no public walkthrough video or installable binary.
+
+The final tag is blocked until every reviewed replacement image is committed and
+the showcase validator passes on that exact commit.
 
 ## Implemented product scope
 
@@ -27,21 +29,33 @@ The `v1.0.0-showcase` release includes:
 | Workspaces and roles | Owner, manager, trainer, receptionist |
 | Clients and memberships | Connected lifecycle, history, and detail views |
 | Services and availability | Trainer-aware scheduling inputs |
-| Bookings | Duration, availability, recurrence, cancellation, completion, and no-show states |
+| Bookings | Duration, availability, recurrence, cancellation, completion, no-show states |
 | Attendance | Daily sheet plus front-desk check-in and check-out |
-| Client payments | Manual and Stripe-oriented demo/test lifecycle |
+| Client payments | Manual and Stripe-oriented test/demo lifecycle |
 | SaaS billing | Subscription and provider-boundary architecture |
 | Reports | Seeded revenue, client, booking, and attendance trends |
 | Notifications and audit | Read state, grouping, and operational history |
 | Professional messaging | Assignment, priorities, internal notes, idempotency, pagination |
 | Staff presence | Connection, activity, multi-device aggregation, visibility |
 | Client portal | Separate access, bookings, membership, payments, progress, messages, settings |
-| Internationalization | English, French, Arabic, and RTL presentation |
-| Platforms | Flutter Web, Android, and Windows targets |
+| Internationalization | English, French, Arabic, RTL presentation |
+| Platforms | Flutter Web, Android, Windows targets |
+
+## Immediate evidence gate
+
+Before `v1.0.1-showcase` is tagged:
+
+- replace every duplicate engineering image with distinct evidence;
+- replace any QR capture that contains a generated credential;
+- remove browser overlays, local paths, failed-CI captures, and misleading empty states;
+- recapture the remaining mobile and portal views identified by the validator;
+- run `python scripts/check_showcase.py` on the final commit;
+- review the same commit for privacy, localization, and release wording;
+- create the tag only after those checks pass.
 
 ## Product evolution
 
-Future product development may extend GymFlow in several directions:
+Possible future product work includes:
 
 - structured workout programs and coach-assigned plans;
 - client goals, measurements, and richer progress history;
@@ -54,19 +68,18 @@ Future product development may extend GymFlow in several directions:
 - audit retention, export, and archival policies.
 
 These ideas are not required to demonstrate the current system. They represent
-possible product growth after the release baseline is preserved.
+possible growth after the release baseline is preserved.
 
 ## Provider verification
 
-A live deployment would require target-environment verification for:
+A live deployment requires target-environment verification for:
 
 ### Stripe
 
-- account mode and credentials;
+- account mode, credentials, prices, and Connect model;
 - checkout success and cancellation;
-- webhook delivery, signatures, and duplicate-event handling;
-- refund lifecycle and SaaS billing portal;
-- the intended Stripe Connect and KYC model.
+- webhook delivery, signatures, duplicate handling, and refunds;
+- billing portal and KYC behavior where applicable.
 
 ### Email
 
@@ -76,10 +89,9 @@ A live deployment would require target-environment verification for:
 
 ### Google OAuth
 
-- production web client and redirect configuration;
+- production clients and redirect configuration;
 - Android package and signing fingerprints;
-- account linking, first-time access, expiry, invalid handoffs, and replay
-  behavior.
+- account linking, expiry, invalid handoffs, and replay behavior.
 
 ## Production infrastructure
 
@@ -90,17 +102,17 @@ Commercial operation would add:
 - domains, TLS, networking, and secret management;
 - staging migrations and deployed isolation testing;
 - centralized logs, uptime checks, latency and error alerts;
-- database backup retention, recovery objectives, and restore drills;
+- backup retention, recovery objectives, and restore drills;
 - dependency automation, static analysis, image scanning, SBOM, and provenance;
-- accessibility, browser, device, and performance verification;
+- accessibility, browser, device, load, and performance verification;
 - privacy, terms, retention, support, and commercial operating policies.
 
 ## Visual and review experience
 
-The current release is screenshot-bearing and self-contained. A future release
-may add an edited product walkthrough or a deeper engineering walkthrough. Any
-such media would be tied to its own source snapshot and semantic release rather
-than silently changing the evidence attached to `v1.0.0-showcase`.
+A future release may add an edited product or engineering walkthrough. Any media
+release will use a new semantic identifier and record its exact source snapshot,
+duration, captions status, and integrity metadata rather than silently changing
+an existing evidence set.
 
 ## Production claim boundary
 
