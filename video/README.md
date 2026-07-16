@@ -1,7 +1,6 @@
 # GymFlow Walkthrough Status
 
-The current `v1.0.1-showcase` candidate does not include a public walkthrough
-video, thumbnail, captions file, or downloadable video asset.
+The current `v1.0.1-showcase` candidate does not include a public walkthrough video, thumbnail, captions file, or downloadable video asset.
 
 The current evidence is provided through the
 [53-image visual gallery](../screenshots/README.md), the engineering case study,
