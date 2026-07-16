@@ -1,98 +1,82 @@
 # Changelog
 
-All notable changes to the public GymFlow showcase are documented here.
+All notable changes to the GymFlow showcase are documented here. The application
+source repositories maintain their own histories; this changelog tracks the case
+study, diagrams, screenshots, manifests, validation contracts, and release
+artifacts.
 
-The application source repositories have their own histories. This changelog
-tracks the public case study, documentation, diagrams, screenshots, media
-status, manifests, validation contracts, and release artifacts.
+## Unreleased — `v1.0.1-showcase` candidate
+
+### Changed
+
+- Updated the evidence date to 2026-07-16 and separated the historical
+  `v1.0.0-showcase` tag from the current release candidate.
+- Defined distinct replacement evidence for the duplicate client, messaging, and
+  payment engineering images.
+- Prepared curated replacements for raw IDE, Docker, and source-history captures.
+- Added a safe static-QR requirement that rejects the previously published
+  token-bearing check-in image.
+- Strengthened the screenshot validator to enforce exact filenames, unique image
+  hashes, valid dimensions, rejected-media hashes, and release-candidate values.
+- Clarified that deterministic validator output is authoritative for exact counts;
+  screenshots provide representative fictional product evidence.
+- Added a concrete GitHub private-vulnerability-reporting path to the security policy.
+
+### Remaining release gate
+
+The final tag remains blocked until the prepared image replacements and the final
+mobile and portal recaptures are committed, and the complete validator passes on
+the same commit.
 
 ## 1.0.0-showcase — 2026-07-15
 
 ### Added
 
 - Product case study covering users, product surfaces, and connected workflows.
-- Architecture case study with system context, containers, trust boundaries,
-  domain model, deployment, and sequence diagrams.
+- Architecture case study with system context, trust boundaries, domain model,
+  deployment, and sequence diagrams.
 - Engineering document covering frontend, backend, database, security,
   reliability, messaging, presence, testing, and environment decisions.
-- Root vulnerability disclosure policy.
-- Application security overview and explicit threat model.
+- Root vulnerability disclosure policy, security overview, and threat model.
 - Quality strategy with risk-to-evidence mapping.
 - Operations runbook for Docker, deployment, migrations, observability,
   incidents, backups, and scaling.
-- Engineering journey and lessons learned.
-- Product and production roadmap.
-- Canonical build and release manifest.
-- Public walkthrough status and media boundary.
-- Showcase repository validation and GitHub Actions workflow.
-- Explicit showcase content license.
-- A provenance-backed 53-image gallery covering desktop, portal, mobile,
-  localization, and engineering evidence.
+- Engineering journey, product roadmap, build manifest, and release policy.
+- Showcase validation workflow and protected-content license.
+- A structured 53-file gallery covering desktop, portal, mobile, localization,
+  and engineering evidence.
 
 ### Changed
 
-- Rebuilt the README as a visual engineering landing page rather than a repeated
-  feature inventory.
+- Rebuilt the README as a visual engineering landing page.
 - Replaced stale demo credentials with password-at-rebuild guidance.
-- Updated the demo scenario to Northline Performance Club and the current
-  deterministic data contract.
-- Updated release evidence to include exact source revisions, validation scope,
-  provider status, and artifact boundaries.
+- Updated the demo scenario to Northline Performance Club.
+- Recorded exact source revisions, validation scope, provider status, and
+  artifact boundaries.
 - Reframed production claims as production-oriented architecture plus
   deployment-specific operational verification.
 - Added professional messaging, staff presence, portal settings, real-time
   behavior, and guarded demo infrastructure to the public system description.
-- Recorded the account-level hosted-runner restriction without claiming green CI
-  that did not execute.
-- Defined a narrow local-validation exception while keeping real source, test,
-  dependency, and configuration failures non-bypassable.
-- Replaced the obsolete 19-image root gallery with the structured 53-image
-  current gallery.
-- Reframed screenshot, video, demo, roadmap, release, and manifest pages as
-  reader-facing evidence rather than internal authoring instructions.
-- Strengthened the validator to enforce gallery counts, approved directories,
-  supported image types, release revisions, video boundaries, public wording,
-  and the absence of internal production templates.
+- Recorded the hosted-runner restriction without claiming green CI that did not execute.
+- Replaced the obsolete 19-image gallery with the structured 53-file gallery.
 
 ### Removed
 
-- Stale status tables claiming screenshots or security documentation were still
-  missing.
-- Obsolete demo account values from the older application generation.
-- Repetitive feature lists that did not explain implementation decisions or
-  evidence.
-- Claims that could be interpreted as live provider or production-operation
-  verification without environment evidence.
-- The accidental editor-specific `.vscode` configuration.
-- The older 19-image gallery that predated the audited source snapshot.
-- Private recording briefs, capture checklists, placeholder templates, and
-  repository-owner task lists from the public documentation.
-- The obsolete empty video placeholder file.
-
-### Release media boundary
-
-- Includes 53 current screenshots across five validated galleries.
-- Includes no public walkthrough video, video thumbnail, Android package,
-  Windows archive, or installable binary.
-- Associates any future media release with its own source snapshot, manifest,
-  validation record, and semantic release identifier.
+- Stale status tables and old demo account values.
+- Repetitive feature inventories that did not explain decisions or evidence.
+- Unsupported live-provider and production-operation claims.
+- Editor-specific configuration and internal capture instructions.
+- The obsolete empty video placeholder.
 
 ## 0.1.0 — 2026-07-05
 
 ### Added
 
 - Initial public showcase structure.
-- Product README.
-- Architecture overview.
-- Security overview.
-- Demo guide.
-- Release strategy.
-- Nineteen screenshots covering the older public, staff, portal, mobile, QR, and
-  Arabic product surfaces.
+- Product, architecture, security, demo, and release documentation.
+- Nineteen screenshots representing the earlier product generation.
 
 ### Known limitation
 
-This release represented an earlier GymFlow generation and did not include the
-later dashboard redesign, secure professional messaging, hardened staff
-presence, deterministic guarded demo environment, or current portal
-architecture.
+This release predated the dashboard redesign, professional messaging, hardened
+staff presence, guarded deterministic demo environment, and current portal architecture.
