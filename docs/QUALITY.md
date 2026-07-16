@@ -1,8 +1,8 @@
 # GymFlow Quality Strategy
 
-GymFlow uses layered automated checks and manual product QA. The goal is not to
-maximize a test-count number. The goal is to protect the risks that can make a
-multi-surface SaaS unreliable, unsafe, or embarrassing during release.
+GymFlow uses layered automated checks and manual product review. The goal is not
+to maximize a test-count number; it is to protect the risks that could make a
+multi-surface SaaS unreliable, unsafe, or difficult to trust.
 
 ## Quality objectives
 
@@ -12,9 +12,10 @@ multi-surface SaaS unreliable, unsafe, or embarrassing during release.
 - Detect unsafe environment configuration.
 - Keep demo data repeatable and internally consistent.
 - Prevent localization and responsive-layout regressions.
-- Make failures diagnosable through compact logs and request IDs.
+- Make failures diagnosable through request IDs and structured logs.
 - Verify negative and edge states, not only happy paths.
 - Record release evidence without claiming checks that did not execute.
+- Keep public screenshots and documentation tied to exact source revisions.
 
 ## Quality layers
 
@@ -27,146 +28,118 @@ multi-surface SaaS unreliable, unsafe, or embarrassing during release.
 | Contract scripts | Enforce architectural requirements without full runtime setup |
 | Integration checks | Exercise PostgreSQL, Redis, migrations, and route registration |
 | Frontend and backend sync | Detect route and payload drift |
-| Manual QA | Validate visuals, responsiveness, localization, and provider workflows |
+| Manual product review | Validate visuals, responsiveness, localization, and provider workflows |
 | Demo validation | Verify deterministic counts, relationships, trends, and identities |
-| Showcase validation | Prevent broken documentation and unsafe release assets |
+| Showcase validation | Protect public documentation, provenance, and release assets |
 
 ## Risk-to-evidence matrix
 
 | Risk | Protection |
 |---|---|
 | Frontend calls a removed or renamed endpoint | API-sync tests and route-contract checks |
-| Raw enum appears in UI | Localization and display checks plus manual language QA |
+| Raw enum appears in the UI | Localization and display checks plus manual language review |
 | Workspace A accesses Workspace B | Backend scope and authorization tests |
 | Portal token accesses staff data | Credential-isolation tests |
 | Staff token accesses portal-only data | Portal dependency tests |
-| Role sees a forbidden route or action | Backend permission tests and frontend permission guards |
+| A role sees a forbidden route or action | Backend permission tests and frontend permission guards |
 | Migration graph becomes inconsistent | Alembic graph audit and one-head checks |
 | Model metadata diverges from migrations | Database contract checks |
 | Production starts with weak settings | Production configuration tests |
-| Debug or docs endpoints are exposed in production | Deployment and security contract tests |
-| Public route accepts an oversized abuse payload | Request-size middleware tests |
-| Public authentication or access is brute-forced | Rate-limit tests |
+| Debug or API docs remain exposed in production | Deployment and security contracts |
+| Public route accepts an oversized request | Request-size middleware tests |
+| Public authentication is brute-forced | Rate-limit tests |
 | Stripe webhook is delivered twice | Event-idempotency tests |
 | Message retry creates a duplicate | Retry-safe message tests |
 | Internal note appears in the portal | Audience-schema and participant tests |
 | Two staff overwrite workflow state | Optimistic-version conflict tests |
 | Staff presence is wrong across devices | Presence aggregation and lifecycle tests |
-| Demo reset targets an unsafe database | Reset-safety tests and static contract |
-| Demo dashboard or report is empty or flat | Seed-validation targets |
-| French or Arabic layout overflows | Responsive and localization manual QA |
-| README references a missing file | Showcase repository validation |
+| Demo reset targets an unsafe database | Reset-safety tests and static contracts |
+| Demo reports are empty or flat | Seed-validation targets |
+| French or Arabic layout overflows | Responsive and localization review |
+| README references a missing file | Showcase link validation |
 | Release contains a secret | Source and showcase secret scanners |
-| Release claims evidence that did not run | Manifest contract and wording checks |
+| Screenshot inventory drifts | Exact gallery directory and count checks |
+| Public release claims evidence that did not run | Manifest and wording contracts |
 
-## Backend quality pipeline
+## Backend validation
 
-The backend GitHub Actions workflow is designed to start PostgreSQL 16 and Redis
-7 services, install dependencies, validate dependency consistency, build the
-production Docker image, and run the unified backend quality bundle.
+The backend validation workflow is designed to start PostgreSQL 16 and Redis 7,
+install the development dependency layer, verify dependency consistency, build
+the production Docker image, and execute the unified backend quality bundle.
 
 The bundle covers:
 
 - secret scanning;
-- Alembic migration audit;
-- database metadata contract;
+- Alembic migration graph and one-head validation;
+- database metadata contracts;
 - Stripe environment smoke checks;
 - security and observability contracts;
 - deployment and API contracts;
-- demo-seed and documentation contracts;
-- route-authorization inspection;
-- portal-route inspection;
-- smoke import and registration checks;
+- deterministic demo-seed contracts;
+- route-authorization and portal-route inspection;
+- application import and registration smoke checks;
 - pytest behavior tests.
 
-### Why static contracts exist
+Static contracts complement behavioral tests. They provide fast, explicit
+failure messages when required middleware, migrations, routes, production
+artifacts, or demo guards disappear.
 
-Some architectural failures are faster and clearer to detect statically than
-through a full runtime scenario. Examples include:
+## Frontend validation
 
-- a required middleware is removed;
-- debug routes are no longer guarded;
-- a migration creates multiple heads;
-- a production Compose artifact disappears;
-- a required portal route is not registered;
-- the demo reset introduces a forbidden destructive operation.
-
-Static contracts complement behavioral tests. They do not replace them.
-
-## Frontend quality pipeline
-
-The frontend GitHub Actions workflow is designed to cover:
+The frontend validation workflow is designed to cover:
 
 - secret scanning;
 - dependency installation;
 - localization generation and parity;
 - `flutter analyze`;
 - source and UI consistency checks;
-- frontend and backend API-sync tests;
+- frontend and backend API synchronization;
 - portal privacy and regression tests;
 - the full Flutter test suite;
 - a release web build.
 
-Additional local runners group portal and full frontend checks so terminal output
-remains readable and raw logs can be preserved under `build/test_logs`.
+Local runners group targeted portal and full frontend checks so failure output
+remains readable and raw logs can be retained under `build/test_logs`.
 
-## Frontend test categories
+## Frontend test areas
 
 ### Models and repositories
 
-Protect:
-
-- response parsing;
-- null and default handling;
-- API error envelopes;
-- payment and membership lifecycle mapping;
-- report calculations;
-- receipt and booking reconstruction.
+Coverage includes response parsing, null and default handling, API error
+envelopes, payment and membership lifecycle mapping, report calculations,
+receipts, and booking reconstruction.
 
 ### Controllers
 
-Protect:
+Coverage includes loading and refresh lifecycle, optimistic updates, rollback,
+pagination, notification grouping, messaging state, and conflict handling.
 
-- loading and refresh lifecycle;
-- optimistic UI updates;
-- mutation rollback;
-- pagination;
-- notification grouping;
-- messaging workflow changes.
+### UI and source regressions
 
-### Widget and source regressions
+Coverage includes route presence, portal privacy, mobile navigation, Material
+composition, localization usage, dashboard setup behavior, messaging viewport
+constraints, and staff presence wiring.
 
-Protect:
+Source-level contracts are used where stable headless rendering would be
+disproportionately expensive. Broader widget, golden, and integration coverage
+remain valuable future additions.
 
-- route presence;
-- portal privacy rules;
-- mobile navigation;
-- Material composition requirements;
-- localization key usage;
-- dashboard setup behavior;
-- messaging viewport constraints;
-- staff presence wiring.
+## Authorization strategy
 
-Source-level tests are used where a stable headless rendering environment would
-be disproportionately expensive. They should be complemented over time by
-broader widget, golden, and integration coverage.
-
-## Authorization test strategy
-
-Authorization tests should cover both positive and negative access.
+Authorization evidence includes both successful and denied access.
 
 | Actor | Allowed | Denied |
 |---|---|---|
 | Owner | Full workspace operations | Another workspace without membership |
-| Manager | Broad operations | Owner-only billing or configuration where restricted |
-| Trainer | Assigned or permitted schedule and clients | Unrelated conversations and administrative controls |
-| Receptionist | Front desk, supported bookings, check-ins, and payments | Sensitive owner-only operations |
+| Manager | Broad operations | Restricted owner-only billing and configuration |
+| Trainer | Assigned or permitted schedules and clients | Unrelated conversations and administrative controls |
+| Receptionist | Front desk, bookings, check-ins, and supported payments | Sensitive owner-only operations |
 | Portal client | Own portal data | Other clients and all staff routes |
-| Unauthenticated | Public routes | Staff and protected portal data |
+| Unauthenticated visitor | Public routes | Staff and protected portal data |
 
-## Demo-data validation
+## Deterministic demo validation
 
-The deterministic demo validator checks more than row counts. It validates:
+The demo validator verifies more than row counts. It checks:
 
 - workspace identity;
 - user and role relationships;
@@ -177,28 +150,26 @@ The deterministic demo validator checks more than row counts. It validates:
 - monthly revenue and pending-payment totals;
 - notification counts;
 - presence sessions;
-- portal settings and valid access links;
-- external payment-ID safety;
+- portal settings and valid access records;
+- external payment identifier safety;
 - report history and non-flat trends.
 
-The rebuild is one transaction and commits only after validation.
+The rebuild executes as one transaction and commits only after validation.
 
-## Manual QA matrix
+## Manual product review
+
+The release review covers:
 
 ### Product workflows
 
-- register, verify, log in, log out, and recover password;
-- create and select workspace;
-- client create, edit, archive, and detail;
-- plan and membership lifecycle;
-- staff, invitation, and availability;
-- booking create, edit, cancel, recurrence, and no-show;
+- registration, verification, login, logout, and password recovery;
+- workspace creation and selection;
+- client, membership, plan, and service lifecycle;
+- staff invitations and trainer availability;
+- booking creation, recurrence, cancellation, completion, and no-show states;
 - attendance and front-desk check-in and check-out;
-- payment collection, cancellation, refund, and display;
-- reports and CSV export;
-- notifications and activity logs;
-- messaging assignment, notes, replies, retries, and conflicts;
-- client-portal access and isolation.
+- payment collection, cancellation, refund, receipt, and reporting;
+- notifications, activity logs, messaging, and portal access.
 
 ### Screen sizes
 
@@ -211,7 +182,7 @@ The rebuild is one transaction and commits only after validation.
 ### Languages
 
 - English;
-- French with long copy;
+- French with long-copy expansion;
 - Arabic with RTL direction and alignment.
 
 ### Failure states
@@ -219,93 +190,85 @@ The rebuild is one transaction and commits only after validation.
 - backend unavailable;
 - unauthorized or forbidden;
 - expired session;
-- empty workspace;
-- no data;
-- invalid form;
-- rate limit;
+- empty workspace or no data;
+- invalid forms;
+- rate limiting;
 - provider cancellation or error;
 - stale messaging workflow version;
 - invalid or expired portal code.
 
-## Release evidence
+## Release evidence model
 
-A final showcase release should record:
+A showcase release records:
 
-- frontend commit and branch;
-- backend commit and branch;
-- showcase tag or commit;
+- frontend, backend, and showcase revisions;
 - Alembic head;
-- demo-validation scope and result;
+- deterministic demo targets;
+- validation scope and result;
 - hosted CI status or the documented reason equivalent local validation was used;
 - relevant runtime and dependency versions;
 - evidence date;
-- included and omitted artifact inventory;
-- checksums for any downloadable artifacts;
-- known limitations.
+- included and omitted artifacts;
+- integrity metadata for downloadable files;
+- known provider and production limitations.
 
-See the [Build Manifest](../BUILD_MANIFEST.md).
+The authoritative record is the [Build Manifest](../BUILD_MANIFEST.md).
 
 ### Hosted-runner exception
 
 Green hosted CI is preferred. Equivalent local validation is acceptable only
-when the hosted job fails before checkout or code execution for a documented
-account-level or platform reason. The release must record the limitation and
-must not claim green hosted CI.
+when a hosted job fails before checkout or code execution for a documented
+account-level or platform reason. The limitation is recorded explicitly, and
+the release does not claim green hosted CI.
 
-A running job that reaches source checkout and then fails is a real quality
+A job that reaches source checkout and then fails represents a real quality
 failure and cannot use this exception.
 
 ## Quality gates by environment
 
 | Environment | Minimum gate |
 |---|---|
-| Development | Targeted tests, Flutter analysis, relevant contract checks |
-| Pull request | Full repository CI when hosted execution is available |
-| Documentation-only showcase tag | Exact source snapshot, applicable source validation, showcase validator, honest artifact inventory |
-| Media-bearing showcase tag | Source validation, fresh demo rebuild, demo validator, route rehearsal, media privacy review, showcase validator |
+| Development | Targeted tests, Flutter analysis, relevant contracts |
+| Pull request | Full repository validation when hosted execution is available |
+| Screenshot-bearing showcase | Exact source snapshot, source validation, demo evidence, gallery privacy review, showcase validator |
+| Media-bearing showcase | Source validation, fresh demo rebuild, route review, media privacy review, integrity metadata |
 | Production package | Green CI, production-setting tests, image build, migration check, supply-chain evidence |
-| Production launch | Provider E2E, deployed isolation tests, monitoring, backup and restore drill |
+| Production launch | Provider end-to-end validation, deployed isolation, monitoring, backup and restore drill |
 
 ## Current `v1.0.0-showcase` evidence
 
-The tagged documentation-only release records:
+The current release records:
 
 - exact merged frontend and backend `main` commits;
 - the single Alembic head;
 - equivalent frontend and backend release validation completed locally;
-- showcase validation completed locally;
-- an account-level GitHub Actions restriction that prevented jobs from starting before checkout;
+- showcase validation completed locally before release publication;
+- the account-level GitHub Actions restriction that prevented jobs from reaching checkout;
 - no claim that hosted CI was green;
-- removal of the stale 19-image screenshot set;
+- 53 screenshots across five validated galleries;
 - explicit omission of video, thumbnails, binaries, and checksums;
 - private-source, fictional-data, and provider boundaries.
 
-Areas that would strengthen a commercial production program include:
+Commercial production assurance would be strengthened further by automated
+accessibility audits, browser and device matrix automation, performance budgets,
+load testing, database query-plan review, dependency and container scanning,
+SBOM and signed provenance, backup restore drills, and hosted synthetic
+monitoring.
 
-- automated accessibility audits;
-- browser and device matrix automation;
-- performance budgets and load tests;
-- database query-plan regression review;
-- container and dependency vulnerability scanning;
-- signed provenance and SBOM attachment;
-- scheduled backup restore drills;
-- hosted synthetic monitoring.
+## Showcase repository validation
 
-These are tracked as future deployment or release work rather than presented as
-already complete.
+The public showcase validator checks:
 
-## Showcase repository quality
+- required documentation;
+- local Markdown links;
+- unsafe files and accidental editor state;
+- stale credentials and source values;
+- common secret patterns;
+- canonical frontend and backend revisions;
+- exact screenshot gallery counts and directories;
+- absence of undeclared video assets;
+- reader-facing public documentation tone;
+- release and artifact boundary consistency.
 
-The showcase validator checks:
-
-- required documentation exists;
-- local Markdown links resolve;
-- unsafe file names and artifact types are absent;
-- stale credentials and source values are not reintroduced;
-- common API-key and private-key patterns are absent;
-- exact frontend and backend revisions remain recorded;
-- release wording does not claim pending or unexecuted evidence;
-- no undeclared screenshot or video asset remains;
-- README positioning and artifact boundaries remain explicit.
-
-This protects the portfolio surface itself, not only the application code.
+This protects the public portfolio surface as well as the application evidence
+it represents.
