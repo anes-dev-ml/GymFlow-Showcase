@@ -2,9 +2,15 @@
 
 ## Current inventory
 
-The `v1.0.0-showcase` engineering case-study candidate includes no current application screenshots. The former 19-image root gallery was removed because it represented an older product generation and could not be tied to the audited source snapshot.
+The `v1.0.0-showcase` engineering case-study release includes no current
+application screenshots. The former 19-image root gallery was removed because it
+represented an older product generation and could not be tied to the audited
+source snapshot.
 
-The tables below define the approved filenames and capture state for a later media-bearing release. Adding only part of the set is acceptable when the manifest lists exactly what is included; no image may be described as current without provenance.
+The tables below define approved filenames and capture requirements for a later
+media-bearing release. A partial set is acceptable only when the build manifest
+lists exactly what is included. No image may be described as current without
+source provenance and privacy review.
 
 ## Canonical capture state
 
@@ -14,7 +20,8 @@ Before capture:
 2. select the `gymflow_demo` database;
 3. rebuild and validate Northline Performance Club;
 4. complete one uninterrupted route rehearsal;
-5. confirm there are no repeated serious API or browser errors.
+5. confirm there are no repeated serious API or browser errors;
+6. create a new release version rather than silently changing the existing tag.
 
 ## Privacy and quality rules
 
@@ -23,14 +30,16 @@ Every image must:
 - contain only fictional seeded identities;
 - exclude credentials, access codes, environment values, local file paths, and private browser data;
 - avoid error banners, loading hangs, overflow markers, debug overlays, and unfinished dialogs;
-- use test/demo payment state only;
-- use a clear, consistent browser frame and viewport.
+- use test or demo payment state only;
+- use a clear, consistent browser frame and viewport;
+- be reviewed at full resolution before publication.
 
-Prefer PNG, lowercase kebab-case names, and 1440×900 or 1600×900 desktop captures. Use 100% browser zoom unless demonstrating responsive behavior.
+Prefer PNG, lowercase kebab-case names, and 1440×900 or 1600×900 desktop
+captures. Use 100% browser zoom unless demonstrating responsive behavior.
 
 ## Root README set
 
-Capture these first:
+Capture these first for a later media release:
 
 | File | Route | Story |
 |---|---|---|
@@ -43,7 +52,7 @@ Capture these first:
 | `desktop/07-professional-messaging.png` | `/messages` | Assignment and conversation workflow |
 | `portal/01-portal-home.png` | `/portal` | Client-safe dashboard |
 | `mobile/01-portal-home.png` | Mobile `/portal` | Mobile member experience |
-| `localization/01-arabic-rtl.png` | Arabic public/portal page | RTL quality |
+| `localization/01-arabic-rtl.png` | Arabic public or portal page | RTL quality |
 
 ## Complete desktop gallery
 
@@ -88,7 +97,8 @@ Capture these first:
 | `portal/09-profile-settings.png` | `/portal/profile` |
 | `portal/10-amina-risk-story.png` | Relevant Amina page |
 
-Use Lena Martin for the healthy member story and Amina Haddad for the expiring-membership/payment-risk story.
+Use Lena Martin for the healthy-member story and Amina Haddad for the
+expiring-membership and payment-risk story.
 
 ## Mobile gallery
 
@@ -116,12 +126,15 @@ Capture at one consistent mobile resolution such as 390×844.
 
 | File | Evidence |
 |---|---|
-| `engineering/01-backend-ci.png` | Backend CI summary |
-| `engineering/02-frontend-ci.png` | Frontend CI summary |
+| `engineering/01-backend-validation.png` | Backend release-validation summary |
+| `engineering/02-frontend-validation.png` | Frontend release-validation summary |
 | `engineering/03-demo-validation.png` | Deterministic validation output |
 | `engineering/04-docker-selector.png` | Demo environment selector |
 | `engineering/05-readiness.png` | Safe readiness response |
 | `engineering/06-architecture.png` | Rendered architecture overview |
+
+Do not label a validation screenshot as hosted CI unless it came from an
+executed hosted run. Local evidence must be described as local validation.
 
 ## Capture order
 
@@ -133,6 +146,8 @@ Capture at one consistent mobile resolution such as 390×844.
 6. Capture the Amina risk story if used.
 7. Capture mobile and localized states.
 8. Capture engineering evidence.
-9. Review every image for privacy and consistency.
+9. Review every image for privacy, consistency, and release accuracy.
 
-After capture, update the README gallery, record the exact inventory and source revisions in `../BUILD_MANIFEST.md`, add checksums for any downloadable pack, and run showcase quality checks.
+After capture, update the README gallery, record the exact inventory and source
+revisions in `../BUILD_MANIFEST.md`, add checksums for any downloadable pack,
+run the showcase validator, and create a new semantic release tag.
