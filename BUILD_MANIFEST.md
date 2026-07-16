@@ -122,7 +122,7 @@ Every release screenshot must still satisfy all of these rules:
 | Engineering case study | Included | Versioned in this repository |
 | Architecture and threat-model documentation | Included | Versioned in this repository |
 | Screenshot gallery | Included in candidate | 53 tracked files across five galleries; final tag requires unique hashes and all media gates |
-| Current-candidate walkthrough video | Not included | No walkthrough is claimed as evidence for `v1.0.1-showcase` without matching source provenance, duration, captions status, and checksum |
+| Product walkthrough video | Not included | No walkthrough is claimed as evidence for `v1.0.1-showcase` without matching source provenance, duration, captions status, and checksum |
 | Android or Windows binary | Not included | No installable artifact or checksum is claimed |
 | Social preview | External repository metadata | Not part of the source or artifact provenance record |
 
