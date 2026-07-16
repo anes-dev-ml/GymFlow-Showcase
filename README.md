@@ -2,9 +2,9 @@
 
 **A multi-tenant gym operations SaaS built with Flutter, FastAPI, PostgreSQL, Redis, Stripe, and Docker.**
 
-GymFlow combines a public product website, a role-aware studio operations dashboard, and a separate client portal. It covers client lifecycle management, memberships, bookings and attendance, payments, reporting, secure messaging, staff presence, localization, and multi-environment release engineering.
+GymFlow combines a public product website, a role-aware studio operations application, and a separate client portal. It covers client lifecycle management, memberships, bookings and attendance, payments, reporting, secure messaging, staff presence, localization, and multi-environment release engineering.
 
-> This repository is the public engineering case study for GymFlow. The frontend and backend source repositories remain private. The documentation, diagrams, release evidence, and artifact procedures in this repository explain what was built and how it was engineered.
+> This repository is the public engineering case study for GymFlow. The frontend and backend source repositories remain private. The documentation, diagrams, 53 tracked screenshots, release evidence, and artifact procedures explain what was built and how it was engineered.
 
 ## At a glance
 
@@ -23,64 +23,47 @@ GymFlow combines a public product website, a role-aware studio operations dashbo
 
 ## Product problem
 
-A gym is not only a subscription list. Daily operations connect staff, clients,
-memberships, schedules, attendance, payments, communications, and reporting.
+A gym is not only a subscription list. Daily operations connect staff, clients, memberships, schedules, attendance, payments, communications, and reporting.
 
 GymFlow was designed around those connected workflows:
 
-- Owners need business visibility and workspace administration.
-- Managers need broad operational control without owning billing credentials.
-- Trainers need availability, assigned bookings, attendance, and client communication.
-- Reception staff need fast client, booking, payment, and check-in workflows.
-- Clients need self-service without access to staff or administrative data.
+- owners need business visibility and workspace administration;
+- managers need broad operational control without owning billing credentials;
+- trainers need availability, assigned bookings, attendance, and client communication;
+- reception staff need fast client, booking, payment, and check-in workflows;
+- clients need self-service without access to staff or administrative data.
 
-The result is a workspace-scoped SaaS system rather than a single-user CRUD
-dashboard.
+The result is a workspace-scoped SaaS system rather than a single-user CRUD dashboard.
 
 ## Strongest workflows
 
 ### Studio command center
 
-The dashboard combines live operational totals, revenue and booking signals,
-recent activity, onboarding progress, and shortcuts into the areas that need
-attention.
+The dashboard combines operational totals, revenue and booking signals, recent activity, onboarding progress, and shortcuts into the areas that need attention.
 
 ### Client lifecycle
 
-A client profile connects identity, membership history, bookings, check-ins,
-payments, portal access, and operational context. Memberships support active,
-pending, expiring, expired, cancelled, and historical states.
+A client profile connects identity, membership history, bookings, check-ins, payments, portal access, and operational context.
 
 ### Scheduling and attendance
 
-Bookings connect clients, services, trainers, availability, duration, recurring
-series, cancellations, completion, and no-show states. Attendance supports both
-a daily sheet and front-desk check-in and check-out workflows.
+Bookings connect clients, services, trainers, availability, duration, recurring series, cancellations, completion, and no-show states. Attendance supports both a daily sheet and front-desk check-in/check-out workflows.
 
 ### Payments and SaaS billing
 
-GymFlow separates client-to-studio payments from the studio's GymFlow
-subscription. It supports manual collection records, Stripe test checkout,
-payment lifecycle states, receipts, billing configuration, webhook processing,
-and duplicate-event protection.
+GymFlow separates client-to-studio payments from the studio's GymFlow subscription. It supports manual collection records, Stripe test checkout, payment lifecycle states, receipts, billing configuration, webhook processing, and duplicate-event protection.
 
 ### Secure communication
 
-Staff and client messaging supports role-scoped participants, queue assignment,
-priorities, internal notes, audience-safe responses, retry-safe sends, cursor
-pagination, and optimistic workflow updates.
+Staff and client messaging supports role-scoped participants, queue assignment, priorities, internal notes, audience-safe responses, retry-safe sends, cursor pagination, and optimistic workflow updates.
 
 ### Presence and real-time behavior
 
-Staff presence distinguishes secure connection heartbeats from user activity,
-aggregates multiple devices, and applies role-aware visibility for online, away,
-offline, and last-seen information.
+Staff presence distinguishes secure connection heartbeats from user activity, aggregates multiple devices, and applies role-aware visibility for online, away, offline, and last-seen information.
 
 ### Client portal
 
-Clients use a separate token and route surface for their own dashboard, bookings,
-membership, payments, receipts, progress, check-in pass, profile, preferences,
-support, and messaging. Portal credentials cannot be used as staff credentials.
+Clients use a separate token and route surface for their own dashboard, bookings, membership, payments, receipts, progress, check-in pass, profile, preferences, support, and messaging. Portal credentials cannot be used as staff credentials.
 
 ## Architecture preview
 
@@ -114,7 +97,7 @@ The main design boundaries are:
 1. **Workspace isolation** — business records are scoped to one studio workspace.
 2. **Role authorization** — frontend permissions improve UX; backend checks remain authoritative.
 3. **Separate trust domains** — staff JWTs and client portal tokens are intentionally different.
-4. **Provider boundaries** — Stripe, email, and OAuth are configuration-dependent integrations rather than hidden assumptions.
+4. **Provider boundaries** — Stripe, email, and OAuth are configuration-dependent integrations.
 5. **Environment boundaries** — development, test, demo, and production have different safety contracts.
 
 Read the full [architecture case study](ARCHITECTURE.md).
@@ -135,10 +118,9 @@ Read the full [architecture case study](ARCHITECTURE.md).
 | Observability | Request IDs, structured logs, consistent errors, liveness and readiness |
 | DevOps | Docker, separate migrations, non-root image, CI workflows, environment contracts |
 | Internationalization | English, French, Arabic, RTL, localized enum display |
-| Release engineering | Deterministic fictional data, validation, build manifest, demo runbook |
+| Release engineering | Deterministic fictional data, validation, build manifest, screenshot provenance |
 
-More detail is available in [Engineering](docs/ENGINEERING.md),
-[Quality](docs/QUALITY.md), and [Operations](docs/OPERATIONS.md).
+More detail is available in [Engineering](docs/ENGINEERING.md), [Quality](docs/QUALITY.md), and [Operations](docs/OPERATIONS.md).
 
 ## Environment readiness
 
@@ -151,74 +133,49 @@ More detail is available in [Engineering](docs/ENGINEERING.md),
 | Live provider verification | Release-specific | Requires real Stripe, email, and OAuth configuration |
 | Production operations | Deployment-specific | Requires managed infrastructure, monitoring, backups, and restore drills |
 
-GymFlow is a production-oriented system with a strict production mode. It is not
-presented as already operating a live commercial gym. Final provider and
-operational verification belongs to the deployment environment, not to source
-code alone.
+GymFlow is production-oriented. It is not presented as already operating a live commercial gym.
 
 ## Deterministic professional demo
 
-The portfolio scenario represents **Northline Performance Club**, a fictional
-Montréal gym. A guarded rebuild creates:
+The portfolio scenario represents **Northline Performance Club**, a fictional Montréal gym. A guarded rebuild creates:
 
-- seven staff members across owner, manager, trainer, and reception roles;
+- 7 staff members across owner, manager, trainer, and reception roles;
 - online, away, and offline presence states;
 - 24 fictional clients;
-- five membership plans and seven services;
+- 5 membership plans and 7 services;
 - 72 bookings across scheduled, completed, cancelled, and no-show states;
 - 58 recent check-ins;
 - six months of non-flat revenue history;
 - paid, pending, failed, refunded, and cancelled payments;
 - notifications, activity history, a support conversation, and two portal stories.
 
-The reset never drops schemas or tables. It requires the demo environment, an
-approved local database name, Stripe test mode, a reviewed table allowlist, and
-explicit destructive confirmation. Validation occurs before the transaction is
-committed.
+The reset never drops schemas or tables. It requires the demo environment, an approved local database name, Stripe test mode, a reviewed table allowlist, and explicit destructive confirmation. Validation occurs before the transaction is committed.
 
 See the [Demo Guide](DEMO.md).
 
 ## Quality and release evidence
 
-The source repositories define comprehensive frontend and backend workflows,
-including PostgreSQL and Redis integration, static and behavioral contracts,
-authorization checks, localization checks, route synchronization, application
-smoke checks, and release builds.
+The source repositories define comprehensive frontend and backend workflows, including PostgreSQL and Redis integration, static and behavioral contracts, authorization checks, localization checks, route synchronization, application smoke checks, and release builds.
 
-For `v1.0.0-showcase`, GitHub-hosted jobs were blocked before checkout by an
-account-level spending policy. Equivalent release validation was completed
-locally, and the build manifest records that limitation explicitly. This
-repository does not claim green hosted CI for checks that did not execute.
+For `v1.0.0-showcase`, GitHub-hosted jobs were blocked before checkout by an account-level spending policy. Equivalent release validation was completed locally, and the build manifest records that limitation explicitly. This repository does not claim green hosted CI for checks that did not execute.
 
-The showcase validator checks required documentation, local links, unsafe file
-types, stale credentials and source values, common secret patterns, exact release
-revisions, media inventory, and release wording.
+The showcase validator checks required documentation, local links, unsafe file types, stale credentials and source values, common secret patterns, exact release revisions, the 53-screenshot inventory, video boundaries, and release wording.
 
-## Technology
+## Screenshot gallery
 
-| Layer | Main technologies |
-|---|---|
-| UI | Flutter, Dart, Material, `go_router` |
-| Client data | HTTP repositories, controllers, shared preferences, WebSocket channel |
-| API | Python, FastAPI, Pydantic |
-| Data | PostgreSQL, SQLAlchemy, Alembic |
-| Runtime support | Redis |
-| Identity | JWT, Google OAuth, email verification and recovery |
-| Payments | Stripe Checkout, Billing, Connect-aware demo behavior, webhooks |
-| Delivery | Docker, Docker Compose, GitHub Actions workflows |
-| Targets | Web, Android, Windows |
+This release includes **53 tracked screenshots** across five approved galleries:
 
-## Release media
+- [Desktop application](screenshots/desktop/01-public-home.png) — 22 images;
+- [Client portal](screenshots/portal/00-access.png) — 10 images;
+- [Mobile experience](screenshots/mobile/01-portal-home.png) — 7 images;
+- [Localization and RTL](screenshots/localization/01-arabic-rtl.png) — 4 images;
+- [Engineering evidence](screenshots/engineering/07-frontend-project-structure.png) — 10 images.
 
-This engineering case-study release does not claim a current screenshot set or
-public walkthrough video. The earlier 19-image gallery was removed because it
-predates the canonical frontend and backend snapshot. Publishing no visual
-evidence is more accurate than presenting polished but stale UI as current.
+The complete inventory, naming rules, and provenance requirements are documented in [screenshots/README.md](screenshots/README.md).
 
-The repository retains the [screenshot release procedure](screenshots/README.md)
-and [video release procedure](video/README.md) for a later media-bearing release.
-The exact current inventory is recorded in the
-[build manifest](BUILD_MANIFEST.md).
+## Release media boundary
+
+This release contains the screenshot gallery above. It does **not** include a public walkthrough video, video thumbnail, Android package, Windows archive, or downloadable binary. Future media must be tied to an updated source snapshot and release manifest.
 
 ## Documentation map
 
@@ -240,11 +197,7 @@ The exact current inventory is recorded in the
 
 ## Project ownership
 
-GymFlow was designed and implemented end to end by **Anes** as a proof of
-full-stack software engineering capability. The work spans product design,
-Flutter architecture, backend API design, relational modeling, authentication,
-authorization, payments, security controls, testing, containerization,
-observability, deterministic demo infrastructure, and release preparation.
+GymFlow was designed and implemented end to end by **Anes** as a proof of full-stack software engineering capability.
 
 ## Public repository boundary
 
@@ -254,15 +207,10 @@ This repository intentionally does not contain:
 - environment files or credentials;
 - real client, staff, or payment data;
 - Stripe, OAuth, email, database, or signing secrets;
-- current screenshots, public video, or installable binaries in this release.
+- public video or installable binaries in this release.
 
-All demo identities are fictional. Stripe is used only in test or explicitly
-simulated demo modes. No real payment card data is stored. Technical walkthrough
-access can be arranged when appropriate.
+All demo identities are fictional. Stripe is used only in test or explicitly simulated demo modes. No real payment card data is stored.
 
 ## License
 
-The showcase content, branding, diagrams, documentation, and any future approved
-media or downloadable artifacts are protected by the repository's
-[license](LICENSE). Viewing and linking are permitted; reuse or redistribution
-requires permission unless a specific artifact states otherwise.
+The showcase content, branding, screenshots, diagrams, documentation, and any future approved media or downloadable artifacts are protected by the repository's [license](LICENSE). Viewing and linking are permitted; reuse or redistribution requires permission unless a specific artifact states otherwise.
