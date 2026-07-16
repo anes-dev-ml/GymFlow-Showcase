@@ -49,9 +49,9 @@ The gallery intentionally distinguishes three kinds of evidence:
 
 ![GymFlow client command center](desktop/03-client-command-center.png)
 
-### Professional messaging
+### Scheduling and member self-service
 
-![GymFlow professional messaging](desktop/07-professional-messaging.png)
+![GymFlow client portal bookings](portal/02-bookings.png)
 
 ### Client portal
 
