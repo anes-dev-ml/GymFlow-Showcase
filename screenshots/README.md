@@ -1,110 +1,97 @@
-# GymFlow Screenshot Inventory
+# GymFlow Visual Gallery
 
-## Current release inventory
+The `v1.0.0-showcase` release includes **53 screenshots** tied to the exact
+frontend and backend revisions recorded in the
+[build manifest](../BUILD_MANIFEST.md).
 
-The `v1.0.0-showcase` release includes **53 tracked screenshots** tied to the
-canonical frontend and backend revisions in `../BUILD_MANIFEST.md`.
+The gallery documents the product across desktop, client portal, mobile,
+localization, and engineering perspectives. All identities and business records
+shown are fictional, and payment states are limited to test or demo behavior.
 
-| Gallery | Directory | Count | Purpose |
+## Gallery overview
+
+| Gallery | Directory | Count | Evidence represented |
 |---|---|---:|---|
-| Desktop | `desktop/` | 22 | Public site and staff application workflows |
-| Client portal | `portal/` | 10 | Member access and self-service experience |
-| Mobile | `mobile/` | 7 | Responsive staff, public, and portal surfaces |
-| Localization | `localization/` | 4 | French and Arabic/RTL review |
-| Engineering evidence | `engineering/` | 10 | Project structure, schema, API, Docker, demo data, and commit history |
+| Desktop | [`desktop/`](desktop/) | 22 | Public site and staff operations |
+| Client portal | [`portal/`](portal/) | 10 | Member access and self-service |
+| Mobile | [`mobile/`](mobile/) | 7 | Responsive public, staff, and portal surfaces |
+| Localization | [`localization/`](localization/) | 4 | French and Arabic/RTL presentation |
+| Engineering | [`engineering/`](engineering/) | 10 | Architecture, schema, API, runtime, data, and source history |
 | **Total** |  | **53** |  |
 
-The inventory is enforced by `../scripts/check_showcase.py`. Adding, deleting,
-or moving an image requires an intentional inventory and manifest update.
+## Selected product views
 
-## Provenance
+### Public experience
 
-The gallery represents the application snapshot recorded in
-`../BUILD_MANIFEST.md`:
+![GymFlow public home](desktop/01-public-home.png)
+
+### Owner dashboard
+
+![GymFlow owner dashboard](desktop/02-owner-dashboard.png)
+
+### Connected client lifecycle
+
+![GymFlow client command center](desktop/03-client-command-center.png)
+
+### Professional messaging
+
+![GymFlow professional messaging](desktop/07-professional-messaging.png)
+
+### Client portal
+
+![GymFlow client portal home](portal/01-portal-home.png)
+
+### Mobile member experience
+
+![GymFlow mobile portal](mobile/01-portal-home.png)
+
+### Arabic and RTL presentation
+
+![GymFlow Arabic RTL interface](localization/01-arabic-rtl.png)
+
+## What the gallery demonstrates
+
+### Desktop application
+
+The desktop gallery covers the public website, authentication, owner dashboard,
+clients, memberships, services, staff presence, invitations, scheduling,
+attendance, payments, reports, messaging, notifications, audit history,
+settings, and billing.
+
+### Client portal
+
+The portal gallery covers access, the member dashboard, bookings, membership,
+payments, receipts, progress, check-in pass, messages, and profile settings. It
+also demonstrates the separation between client-facing data and staff-only
+operations.
+
+### Mobile experience
+
+The mobile gallery shows responsive behavior across the public site, staff
+dashboard, client detail, portal home, bookings, payments, and the check-in
+pass.
+
+### Localization
+
+The localization gallery demonstrates French text expansion and Arabic RTL
+layout across desktop and mobile surfaces.
+
+### Engineering evidence
+
+The engineering gallery presents the frontend and backend project structures,
+PostgreSQL schema, OpenAPI surface, Docker runtime, deterministic demo records,
+and source-history evidence.
+
+## Provenance and integrity
+
+The gallery represents:
 
 - frontend `main` at `489a82e03059465755c74b1be39ae7c05f98fb9b`;
 - backend `main` at `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
-- fictional Northline Performance Club demo data only;
-- manual/test/demo payment state only.
+- the Northline Performance Club deterministic demo scenario;
+- fictional `.test` identities;
+- manual, simulated, or Stripe test-mode payment states only.
 
-## Desktop gallery
-
-The 22 desktop images cover:
-
-- public home, features, pricing, and security;
-- authentication;
-- owner dashboard;
-- clients and client detail;
-- plans and services;
-- staff presence, availability, and invitations;
-- bookings and check-ins;
-- payments and reports;
-- professional messaging;
-- notifications, activity logs, settings, and billing.
-
-Representative entry: [`desktop/01-public-home.png`](desktop/01-public-home.png)
-
-## Client portal gallery
-
-The 10 portal images cover:
-
-- access;
-- portal home;
-- bookings;
-- membership;
-- payments and receipt;
-- progress;
-- check-in pass;
-- messages;
-- profile settings.
-
-Representative entry: [`portal/00-access.png`](portal/00-access.png)
-
-## Mobile gallery
-
-The 7 mobile images cover portal home, bookings, payments, check-in pass, the
-public home page, the staff dashboard, and client detail.
-
-Representative entry: [`mobile/01-portal-home.png`](mobile/01-portal-home.png)
-
-## Localization gallery
-
-The 4 localization images demonstrate Arabic RTL and French presentation on
-public, dashboard, portal desktop, and portal mobile surfaces.
-
-Representative entry: [`localization/01-arabic-rtl.png`](localization/01-arabic-rtl.png)
-
-## Engineering evidence gallery
-
-The 10 engineering images cover frontend and backend project structure,
-PostgreSQL schema, OpenAPI, Docker runtime, deterministic client/message/payment
-data, and frontend/backend commit history.
-
-Representative entry:
-[`engineering/07-frontend-project-structure.png`](engineering/07-frontend-project-structure.png)
-
-## Privacy and quality rules
-
-Every release image must:
-
-- contain only fictional seeded identities;
-- exclude credentials, access codes, environment values, local user paths, and private browser data;
-- avoid error banners, loading hangs, overflow markers, debug overlays, and unfinished dialogs;
-- use test/demo payment state only;
-- be tied to the exact release source snapshot;
-- use a clear and consistent viewport and filename.
-
-## Replacement procedure
-
-Before replacing or expanding the gallery:
-
-1. use the source revisions recorded in `../BUILD_MANIFEST.md`;
-2. select and rebuild `gymflow_demo`;
-3. run `validate_demo_data.py`;
-4. complete the full route rehearsal in `../DEMO.md`;
-5. review browser and API logs for repeated serious errors;
-6. capture only fictional demo state;
-7. review every image for privacy, visual quality, and source accuracy;
-8. update this inventory and the build manifest;
-9. run `python scripts/check_showcase.py` from the repository root;
-10. publish the change under a new semantic release when the public artifact set materially changes.
+No screenshot is treated as authoritative merely because of its filename. The
+release tag, source revisions, build manifest, and validated gallery inventory
+form the provenance record for this visual evidence.
