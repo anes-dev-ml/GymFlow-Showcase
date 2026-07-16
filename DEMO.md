@@ -1,9 +1,9 @@
 # GymFlow Demo Environment
 
 GymFlow includes a deterministic professional demo built around **Northline
-Performance Club**, a fictional Montréal gym. The environment exists to make
-product review repeatable while keeping development data, production data, and
-real payment activity outside the demonstration boundary.
+Performance Club**, a fictional Montréal gym. The environment makes product
+review repeatable while keeping development data, production data, and real
+payment activity outside the demonstration boundary.
 
 ## Environment profile
 
@@ -13,7 +13,7 @@ real payment activity outside the demonstration boundary.
 | Database | `gymflow_demo` |
 | Runtime environment | `demo` |
 | Payments | Manual, simulated, or Stripe test-mode records only |
-| Identities | Reserved `.test` addresses |
+| Identities | Reserved `.test` and IANA example-domain addresses |
 | Real client data | None |
 | Real payment data | None |
 
@@ -31,20 +31,20 @@ A validated rebuild produces the same connected business story:
 | Services | 7 total, 6 active |
 | Memberships | 18 active plus pending, expired, and cancelled history |
 | Bookings | 72 total across scheduled, completed, cancelled, and no-show states |
-| Check-ins | 58 recent, including 4 today |
+| Check-ins | 58 recent, including 4 today immediately after validation |
 | Revenue | Six months of non-flat history; 3,402.00 CAD current-month target |
 | Pending payments | 377.00 CAD target |
-| Notifications | Staff and client examples; 6 unread for the owner |
+| Notifications | Staff and client examples; 6 unread for the owner immediately after validation |
 | Messaging | One professional support workflow |
-| Client portal | Two connected client stories |
+| Canonical portal stories | Lena Martin and Amina Haddad |
+| Visual-review account | Noah Tremblay for neutral command-center and portal captures |
 
 ## Safety contract
 
 The destructive rebuild is intentionally narrow. Execution is refused unless:
 
 1. `ENVIRONMENT=demo`;
-2. the database name is `gymflow_demo` or another explicitly approved `_demo`
-   name;
+2. the database name is `gymflow_demo` or another explicitly approved `_demo` name;
 3. the database host is local or the Docker `postgres` service;
 4. Stripe is in test mode;
 5. no live Stripe secret is loaded;
@@ -58,8 +58,7 @@ The rebuild does not drop schemas or tables, roll migrations backward, run
 
 ## Reproducible local execution
 
-The standard Docker stack supports both the normal development database and the
-dedicated demo database through one approved selector.
+Select the dedicated database and start the normal stack:
 
 ```dotenv
 GYMFLOW_DATABASE=gymflow_demo
@@ -76,7 +75,7 @@ docker compose exec backend sh scripts/run_local_command.sh \
   python scripts/seed_demo_data.py --rebuild
 ```
 
-The confirmed rebuild uses values supplied only to the command invocation:
+The confirmed rebuild supplies values only to the command invocation:
 
 ```powershell
 docker compose exec `
@@ -88,13 +87,11 @@ docker compose exec `
 
 The operation runs as one transaction:
 
-1. verify environment, host, database, Stripe mode, migration state, and table
-   allowlist;
+1. verify environment, host, database, Stripe mode, migration state, and table allowlist;
 2. acquire a PostgreSQL advisory transaction lock;
-3. delete reviewed application data in foreign-key-safe order;
-4. create the complete connected scenario;
-5. validate metrics, relationships, reports, payments, presence, and portal
-   stories;
+3. delete reviewed data in foreign-key-safe order;
+4. create the connected Northline scenario;
+5. validate metrics, relationships, reports, payments, presence, and portal stories;
 6. commit only after every validation succeeds.
 
 Any failure rolls the transaction back.
@@ -136,8 +133,7 @@ Core targets include:
 
 ## Fictional identities
 
-The rebuild prints a password-independent account manifest. Stable staff
-identities include:
+Stable staff examples include:
 
 ```text
 owner@gymflow-demo.test
@@ -147,48 +143,55 @@ reception@gymflow-demo.test
 ```
 
 All seeded staff accounts use the password supplied for that rebuild. No
-permanent demo password is published in this repository.
-
-## Client portal stories
+permanent demo password is published.
 
 ### Lena Martin
 
-```text
-lena.martin@gymflow-demo.test
-```
-
-Lena represents a healthy member relationship with a valid membership,
-successful payments, attendance history, future bookings, receipts, progress,
-and a complete portal experience.
+`lena.martin@gymflow-demo.test` represents a healthy member relationship with a
+valid membership, successful payments, attendance history, future bookings,
+receipts, progress, and a complete portal experience.
 
 ### Amina Haddad
 
-```text
-amina.haddad@gymflow-demo.test
-```
-
-Amina represents a member who needs operational attention: an expiring
+`amina.haddad@gymflow-demo.test` represents operational attention: an expiring
 membership, failed payment, pending renewal, cancellation and no-show history,
-and meaningful staff follow-up.
+and staff follow-up.
 
-Portal codes expire after 15 minutes. In guarded demo mode, codes for reserved
-`.test` identities can be returned to the frontend and filled into the access
-form. Production never exposes those codes.
+### Noah Tremblay
+
+`noah.tremblay@gymflow-demo.test` is a neutral visual-review account used in
+selected client-command-center and portal screenshots. It does not replace the
+two canonical behavioral stories validated by the seed contract.
+
+Portal codes expire after 15 minutes. Guarded demo mode can return codes for
+reserved fictional identities. Production never exposes those codes.
+
+## Visual-capture semantics
+
+Machine-readable validation is authoritative for exact counts at the end of the
+rebuild transaction. Screenshots demonstrate representative product states.
+Date-relative records, live presence, temporary notification counts, and actions
+taken during review can change after validation. A release must not describe a
+capture-time number as a new canonical target unless the validator and manifest
+are updated together.
+
+No screenshot may publish a real generated token or QR credential. Portfolio QR
+images must use an intentionally invalid static payload.
 
 ## Product review coverage
 
-The deterministic environment supports review of:
+The environment supports review of:
 
 - owner dashboard totals and activity;
 - client lifecycle, memberships, payments, and portal access;
-- staff roles, trainer availability, invitations, and presence;
-- booking lifecycle, recurrence, cancellation, and no-show behavior;
-- daily attendance and front-desk check-in workflows;
+- staff roles, availability, invitations, and presence;
+- booking recurrence, cancellation, completion, and no-show behavior;
+- attendance and front-desk check-in workflows;
 - reports with non-flat historical data;
 - professional messaging, notifications, and audit history;
-- client portal isolation and self-service;
+- client-portal isolation and self-service;
 - desktop, mobile, French, and Arabic/RTL presentation.
 
-The current visual evidence is available in the
-[GymFlow Visual Gallery](screenshots/README.md). The exact source revisions and
-release boundaries are recorded in the [Build Manifest](BUILD_MANIFEST.md).
+The visual evidence is in the [GymFlow Visual Gallery](screenshots/README.md).
+Exact source revisions and release boundaries are recorded in the
+[Build Manifest](BUILD_MANIFEST.md).
