@@ -9,11 +9,20 @@ artifacts.
 
 ### Changed
 
+- Updated the canonical frontend provenance to
+  `8242f24fb05f0918393e439b5e0f1cc2e5f3086d`, which includes the final mobile
+  dashboard, professional messaging, zoom-responsive, payment-copy, and
+  attendance hardening.
 - Updated the evidence date to 2026-07-16 and separated the historical
   `v1.0.0-showcase` tag from the current release candidate.
-- Defined distinct replacement evidence for the duplicate client, messaging, and
+- Replaced the rejected mobile dashboard with the compact four-metric layout and
+  workspace-readiness evidence.
+- Replaced the empty desktop portal-bookings capture with populated upcoming
+  sessions and schedule evidence.
+- Defined distinct replacement evidence for duplicate client, messaging, and
   payment engineering images.
-- Prepared curated replacements for raw IDE, Docker, and source-history captures.
+- Replaced raw IDE, Docker, and source-history captures with curated engineering
+  summaries that are explicitly distinguished from raw command output.
 - Added a safe static-QR requirement that rejects the previously published
   token-bearing check-in image.
 - Strengthened the screenshot validator to enforce exact filenames, unique image
@@ -21,23 +30,29 @@ artifacts.
 - Clarified that deterministic validator output is authoritative for exact counts;
   screenshots provide representative fictional product evidence.
 - Added a concrete GitHub private-vulnerability-reporting path to the security policy.
+- Clarified that an older standalone walkthrough release is historical media and
+  is not evidence for the current provenance-bound candidate.
 
-### Remaining release gate
+### Remaining release gates
 
-The prepared replacement package covers the rejected desktop, engineering,
-portal-QR, and portal-messaging evidence. Three fresh application captures remain
-before the candidate can be tagged:
+The candidate must not be tagged until the following evidence is aligned with the
+canonical frontend revision:
 
-- `screenshots/mobile/04-check-in-pass.png` — show the complete mobile pass with a
-  deliberately invalid static QR, no raw token, no clipped action, and no
-  navigation overlap;
-- `screenshots/mobile/06-dashboard.png` — show one non-duplicated metric summary
-  followed by a different useful dashboard section;
-- `screenshots/portal/02-bookings.png` — show at least one upcoming booking and
-  at least one available fictional service.
+- `screenshots/desktop/07-professional-messaging.png` — recapture the final
+  dedicated communication workspace rather than the previous metric-heavy page;
+- `screenshots/engineering/15-frontend-commit-history.png` — regenerate the
+  curated provenance image with frontend revision
+  `8242f24fb05f0918393e439b5e0f1cc2e5f3086d`;
+- `screenshots/mobile/04-check-in-pass.png` — commit the reviewed full-height pass
+  containing only a deliberately invalid static demo QR payload and no raw token;
+- `screenshots/mobile/02-portal-bookings.png` — commit the refreshed populated
+  mobile bookings capture;
+- run the full frontend release-quality commands on the canonical frontend SHA;
+- run `python scripts/check_showcase.py` on the exact final showcase commit;
+- complete a final privacy and visual review, then create `v1.0.1-showcase` on
+  that exact commit.
 
-The final tag remains blocked until all prepared and manually recaptured images
-are committed and the complete validator passes on the same commit.
+The existing `v1.0.0-showcase` tag remains historical and must not be moved.
 
 ## 1.0.0-showcase — 2026-07-15
 
