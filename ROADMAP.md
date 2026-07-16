@@ -1,124 +1,114 @@
 # GymFlow Roadmap
 
-This roadmap separates the completed `v1.0.0-showcase` release from later media
-work and from the work required to operate GymFlow as a real commercial service.
+GymFlow is complete as a controlled professional demonstration and is presented
+as a production-oriented SaaS architecture. The roadmap below separates future
+product evolution from the deployment, provider, and operational work required
+for a live commercial service.
 
-## `v1.0.0-showcase` release state
+## Current showcase release
 
-| Item | Status | Completion evidence |
-|---|---|---|
-| Product documentation | Complete | README and product case study |
-| Architecture documentation | Complete | Context, containers, trust boundaries, ERD, sequences, decisions |
-| Engineering case study | Complete | Design choices, reliability, messaging, presence, demo system |
-| Security policy | Complete | Private disclosure process |
-| Security overview and threat model | Complete | Controls, threat register, residual risks |
-| Quality documentation | Complete | Test strategy and evidence matrix |
-| Operations documentation | Complete | Deployment, migration, observability, backup plan |
-| Deterministic demo guide | Complete | Guarded rebuild and validation runbook |
-| Release strategy | Complete | Versioning, provenance, artifact rules |
-| Showcase validator | Complete | Required-file, local-link, unsafe-file, stale-value, secret-pattern, and release-contract checks |
-| Frontend release validation | Complete locally | Equivalent local validation completed before merge because hosted jobs could not start |
-| Backend release validation | Complete locally | Equivalent local validation completed before merge because hosted jobs could not start |
-| Showcase release validation | Complete locally | `python scripts/check_showcase.py` must pass before tagging |
-| Screenshot gallery | Complete | 53 tracked screenshots across 5 approved galleries |
-| Product video | Not included | No public URL, binary, duration, thumbnail, or checksum is claimed |
-| Engineering video | Optional future release | Not included in `v1.0.0-showcase` |
-| Installable artifacts | Not included | No APK, Windows archive, or checksum is claimed |
-| Git tag | Pending final validation | Create `v1.0.0-showcase` after final validator success |
-| GitHub release page | Manual repository task | Create or verify after tag publication |
-| Social preview image | Manual repository setting | Configure from an approved current-release design |
-| Repository topics | Manual repository setting | Add after public visibility is enabled |
+The `v1.0.0-showcase` release includes:
 
-## Screenshot inventory
+- the public product, architecture, engineering, security, quality, operations,
+  and demo case studies;
+- exact frontend and backend source provenance;
+- a deterministic Northline Performance Club demo contract;
+- 53 screenshots across desktop, client portal, mobile, localization, and
+  engineering galleries;
+- documented local release validation and the hosted-runner limitation;
+- no public walkthrough video or installable binary.
 
-| Gallery | Count |
-|---|---:|
-| Desktop | 22 |
-| Client portal | 10 |
-| Mobile | 7 |
-| Localization | 4 |
-| Engineering evidence | 10 |
-| **Total** | **53** |
+## Implemented product scope
 
-Any replacement screenshot set must come from the canonical source snapshot,
-use fictional demo data, pass privacy review, and update the build manifest.
+| Area | Current state |
+|---|---|
+| Public product site | Localized product, pricing, security, contact, and legal surfaces |
+| Authentication | Password, verification, recovery, OAuth foundation, invitations |
+| Workspaces and roles | Owner, manager, trainer, receptionist |
+| Clients and memberships | Connected lifecycle, history, and detail views |
+| Services and availability | Trainer-aware scheduling inputs |
+| Bookings | Duration, availability, recurrence, cancellation, completion, and no-show states |
+| Attendance | Daily sheet plus front-desk check-in and check-out |
+| Client payments | Manual and Stripe-oriented demo/test lifecycle |
+| SaaS billing | Subscription and provider-boundary architecture |
+| Reports | Seeded revenue, client, booking, and attendance trends |
+| Notifications and audit | Read state, grouping, and operational history |
+| Professional messaging | Assignment, priorities, internal notes, idempotency, pagination |
+| Staff presence | Connection, activity, multi-device aggregation, visibility |
+| Client portal | Separate access, bookings, membership, payments, progress, messages, settings |
+| Internationalization | English, French, Arabic, and RTL presentation |
+| Platforms | Flutter Web, Android, and Windows targets |
 
-## Application release state
+## Product evolution
 
-| Area | Status | Notes |
-|---|---|---|
-| Public product site | Complete | Localized product and legal surfaces |
-| Staff authentication | Complete | Password, verification, recovery, OAuth foundation |
-| Workspaces and roles | Complete | Owner, manager, trainer, receptionist |
-| Clients and memberships | Complete | Connected lifecycle and detail views |
-| Services and availability | Complete | Trainer-aware scheduling inputs |
-| Bookings and recurrence | Complete | Lifecycle, no-show, recurring and future cancellation |
-| Check-ins and attendance | Complete | Daily and front-desk workflows |
-| Client payments | Complete for demo/test | Manual and Stripe-oriented lifecycle |
-| SaaS billing | Complete for demo/test | Provider verification depends on the release environment |
-| Reports and export | Complete for seeded demo | Non-flat deterministic history |
-| Notifications and activity | Complete | Read, archive, and audit history |
-| Professional messaging | Complete | Assignment, priorities, internal notes, idempotency, pagination |
-| Staff presence | Complete | Multi-device connection and activity model |
-| Client portal | Complete for demo | Separate access, bookings, membership, payments, messages, settings |
-| English, French, and Arabic | Complete for demo | Manual visual review remains part of each media release |
-| Web, Android, and Windows targets | Implemented | Installable artifacts require a reachable backend |
+Future product development may extend GymFlow in several directions:
 
-## Future media-bearing release
+- structured workout programs and coach-assigned plans;
+- client goals, measurements, and richer progress history;
+- class capacity, waitlists, and automated promotion;
+- recurring membership renewals and dunning workflows;
+- staff shifts and schedule planning;
+- deeper report drill-downs and saved report views;
+- multi-location organization management;
+- controlled file and media storage;
+- audit retention, export, and archival policies.
 
-A later release may add an edited product walkthrough or technical video. Before
-that release:
+These ideas are not required to demonstrate the current system. They represent
+possible product growth after the release baseline is preserved.
 
-- [ ] Rebuild and validate `gymflow_demo`.
-- [ ] Complete the route rehearsal in `DEMO.md`.
-- [ ] Confirm screenshots still match the canonical source snapshot.
-- [ ] Review every frame for credentials, personal paths, errors, and stale UI.
-- [ ] Record the video URL, duration, source snapshot, and captions status.
-- [ ] Add checksums for downloadable packs or binaries.
-- [ ] Update the changelog and build manifest.
-- [ ] Run the showcase validator.
-- [ ] Create a new semantic release tag rather than replacing public assets silently.
+## Provider verification
 
-## Production provider verification
-
-These are environment-specific release tasks, not missing architecture.
+A live deployment would require target-environment verification for:
 
 ### Stripe
 
-- [ ] Configure target account and correct live/test keys.
-- [ ] Verify successful and cancelled checkout.
-- [ ] Verify webhook delivery, signature, and duplicate-event idempotency.
-- [ ] Verify refund lifecycle and SaaS billing portal.
-- [ ] Confirm the intended Connect model and KYC boundary.
+- account mode and credentials;
+- checkout success and cancellation;
+- webhook delivery, signatures, and duplicate-event handling;
+- refund lifecycle and SaaS billing portal;
+- the intended Stripe Connect and KYC model.
 
 ### Email
 
-- [ ] Configure a verified sender domain.
-- [ ] Verify verification, recovery, invitation, and portal-access delivery.
-- [ ] Define bounce, complaint, and sender-reputation handling.
+- verified sender domain;
+- verification, recovery, invitation, and portal-access delivery;
+- bounce, complaint, and sender-reputation handling.
 
 ### Google OAuth
 
-- [ ] Configure production web client and redirects.
-- [ ] Configure Android package and signing fingerprints.
-- [ ] Verify existing-account, first-time, invalid, expired, and replay behavior.
-- [ ] Confirm account-linking policy.
+- production web client and redirect configuration;
+- Android package and signing fingerprints;
+- account linking, first-time access, expiry, invalid handoffs, and replay
+  behavior.
 
-## Production infrastructure and operations
+## Production infrastructure
 
-- [ ] Select frontend and backend hosting.
-- [ ] Provision managed PostgreSQL and Redis.
-- [ ] Configure domains, TLS, networking, secrets, and rotation.
-- [ ] Run staging migrations, smoke tests, and deployed isolation tests.
-- [ ] Centralize logs and define uptime, latency, 5xx, database, Redis, and webhook alerts.
-- [ ] Configure backups, retention, RPO/RTO, and restore drills.
-- [ ] Add dependency automation, SAST, image scanning, SBOM, and provenance where practical.
-- [ ] Complete accessibility, browser, device, and performance review.
-- [ ] Finalize privacy, terms, retention, support, and commercial operating policies.
+Commercial operation would add:
 
-## Production claim rule
+- managed frontend and backend hosting;
+- managed PostgreSQL and Redis;
+- domains, TLS, networking, and secret management;
+- staging migrations and deployed isolation testing;
+- centralized logs, uptime checks, latency and error alerts;
+- database backup retention, recovery objectives, and restore drills;
+- dependency automation, static analysis, image scanning, SBOM, and provenance;
+- accessibility, browser, device, and performance verification;
+- privacy, terms, retention, support, and commercial operating policies.
 
-GymFlow may be described as **production-oriented** now. It should be described
-as **production-operated** only after provider flows, deployed isolation,
-managed infrastructure, monitoring, backup and restore, security checks, and
-legal/operational responsibilities are verified in the target environment.
+## Visual and review experience
+
+The current release is screenshot-bearing and self-contained. A future release
+may add an edited product walkthrough or a deeper engineering walkthrough. Any
+such media would be tied to its own source snapshot and semantic release rather
+than silently changing the evidence attached to `v1.0.0-showcase`.
+
+## Production claim boundary
+
+GymFlow may be described as **production-oriented** because it implements strict
+configuration, tenant and credential boundaries, migrations, Docker packaging,
+health checks, observability foundations, and release validation.
+
+It should be described as **production-operated** only after provider flows,
+deployed isolation, managed infrastructure, monitoring, backup and restore,
+security controls, and legal and operational responsibilities are verified in
+the target environment.
