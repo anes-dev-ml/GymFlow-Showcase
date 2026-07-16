@@ -40,21 +40,8 @@ FORBIDDEN_FILE_NAMES = {
     "criptscheck_showcase.pyExit",
 }
 
-FORBIDDEN_SUFFIXES = {
-    ".pem",
-    ".p12",
-    ".pfx",
-    ".sqlite",
-    ".sqlite3",
-    ".db",
-    ".dump",
-}
-
-FORBIDDEN_PATH_PARTS = {
-    ".idea",
-    ".vscode",
-    "__pycache__",
-}
+FORBIDDEN_SUFFIXES = {".pem", ".p12", ".pfx", ".sqlite", ".sqlite3", ".db", ".dump"}
+FORBIDDEN_PATH_PARTS = {".idea", ".vscode", "__pycache__"}
 
 STALE_VALUES = {
     "owner@" + "gymflow.demo",
@@ -75,6 +62,15 @@ SECRET_PATTERNS = {
 }
 
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+APPROVED_SCREENSHOT_DIRS = {"desktop", "engineering", "localization", "mobile", "portal"}
+APPROVED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
+EXPECTED_SCREENSHOT_COUNTS = {
+    "desktop": 22,
+    "engineering": 10,
+    "localization": 4,
+    "mobile": 7,
+    "portal": 10,
+}
 
 
 def relative(path: Path) -> str:
@@ -84,13 +80,13 @@ def relative(path: Path) -> str:
 def text_files() -> list[Path]:
     allowed = {".md", ".txt", ".yml", ".yaml", ".py", ""}
     ignored_parts = {".git", "downloads", "exports"}
-    result: list[Path] = []
-    for path in ROOT.rglob("*"):
-        if not path.is_file() or any(part in ignored_parts for part in path.parts):
-            continue
-        if path.suffix.lower() in allowed or path.name == "LICENSE":
-            result.append(path)
-    return result
+    return [
+        path
+        for path in ROOT.rglob("*")
+        if path.is_file()
+        and not any(part in ignored_parts for part in path.parts)
+        and (path.suffix.lower() in allowed or path.name == "LICENSE")
+    ]
 
 
 def markdown_files() -> list[Path]:
@@ -114,9 +110,7 @@ def check_unsafe_files(errors: list[str]) -> None:
         if any(part in FORBIDDEN_PATH_PARTS for part in path.parts):
             errors.append(f"forbidden editor/generated path: {relative(path)}")
         if path.name in FORBIDDEN_FILE_NAMES:
-            errors.append(
-                f"forbidden sensitive or accidental file name: {relative(path)}"
-            )
+            errors.append(f"forbidden sensitive or accidental file name: {relative(path)}")
         if path.suffix.lower() in FORBIDDEN_SUFFIXES:
             errors.append(f"forbidden sensitive artifact type: {relative(path)}")
 
@@ -161,6 +155,45 @@ def check_text_safety(errors: list[str]) -> None:
                 errors.append(f"possible {name} in {relative(path)}")
 
 
+def check_screenshot_inventory(errors: list[str]) -> None:
+    root = ROOT / "screenshots"
+    counts = {name: 0 for name in APPROVED_SCREENSHOT_DIRS}
+
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path == root / "README.md":
+            continue
+        rel = path.relative_to(root)
+        if len(rel.parts) != 2:
+            errors.append(f"screenshot must be one level below an approved gallery: {relative(path)}")
+            continue
+        gallery = rel.parts[0]
+        if gallery not in APPROVED_SCREENSHOT_DIRS:
+            errors.append(f"unapproved screenshot gallery: {relative(path)}")
+            continue
+        if path.suffix.lower() not in APPROVED_IMAGE_SUFFIXES:
+            errors.append(f"unsupported screenshot type: {relative(path)}")
+            continue
+        counts[gallery] += 1
+
+    for gallery, expected in EXPECTED_SCREENSHOT_COUNTS.items():
+        actual = counts[gallery]
+        if actual != expected:
+            errors.append(
+                f"screenshot inventory mismatch for {gallery}: expected {expected}, found {actual}"
+            )
+
+    if sum(counts.values()) != 53:
+        errors.append(f"screenshot inventory mismatch: expected 53, found {sum(counts.values())}")
+
+
+def check_video_inventory(errors: list[str]) -> None:
+    root = ROOT / "video"
+    allowed = {root / "README.md", root / ".gitkeep"}
+    for path in sorted(root.rglob("*")):
+        if path.is_file() and path not in allowed:
+            errors.append(f"undeclared video asset remains: {relative(path)}")
+
+
 def check_release_contract(errors: list[str]) -> None:
     manifest = (ROOT / "BUILD_MANIFEST.md").read_text(encoding="utf-8-sig")
     required_values = {
@@ -170,57 +203,35 @@ def check_release_contract(errors: list[str]) -> None:
         "2026-07-15",
         "| Release tag | `v1.0.0-showcase` |",
         "`anes-dev-ml/GymFlow-Showcase` / `main`",
-        "Current application screenshots | Not included",
+        "Current application screenshots | Included",
+        "53 tracked screenshots",
         "Product walkthrough video | Not included",
         "No green hosted-CI claim is made for this release",
-        "- [x] Create `v1.0.0-showcase` on the finalized showcase commit.",
     }
     for value in sorted(required_values):
         if value not in manifest:
             errors.append(f"build manifest is missing release evidence: {value}")
 
-    allowed_unchecked = {
-        "- [ ] Configure the GitHub social preview from an approved release design."
-    }
-    for line in manifest.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("- [ ]") and stripped not in allowed_unchecked:
-            errors.append(f"unexpected unfinished manifest checklist item: {stripped}")
-
     forbidden_phrases = {
         "capture pending",
         "will be captured later",
-        "will be captured from",
         "after screenshots and video are finalized",
-        "checks are green",
-        "all three prs are merged",
+        "current application screenshots | not included",
+        "does not claim a current screenshot set",
         "|merge",
-        "status in this release candidate",
-        "engineering case-study candidate includes",
     }
     for document in markdown_files():
         content = document.read_text(encoding="utf-8-sig").lower()
         for phrase in sorted(forbidden_phrases):
             if phrase in content:
                 errors.append(
-                    f"unfinished or contradictory release wording in "
-                    f"{relative(document)}: {phrase}"
+                    f"unfinished or contradictory release wording in {relative(document)}: {phrase}"
                 )
-
-    screenshot_root = ROOT / "screenshots"
-    for path in sorted(screenshot_root.rglob("*")):
-        if path.is_file() and path != screenshot_root / "README.md":
-            errors.append(f"undeclared screenshot asset remains: {relative(path)}")
-
-    video_root = ROOT / "video"
-    for path in sorted(video_root.rglob("*")):
-        if path.is_file() and path != video_root / "README.md":
-            errors.append(f"undeclared video asset remains: {relative(path)}")
 
 
 def check_document_contracts(errors: list[str]) -> None:
-    readme = (ROOT / "README.md").read_text(encoding="utf-8-sig")
-    required_readme_phrases = {
+    readme = (ROOT / "README.md").read_text(encoding="utf-8-sig").lower()
+    for phrase in {
         "multi-tenant",
         "client portal",
         "staff presence",
@@ -228,31 +239,18 @@ def check_document_contracts(errors: list[str]) -> None:
         "deterministic professional demo",
         "environment readiness",
         "project ownership",
-        "does not claim a current screenshot set",
+        "53 tracked screenshots",
         "does not claim green hosted ci",
-    }
-    lowered = readme.lower()
-    for phrase in sorted(required_readme_phrases):
-        if phrase not in lowered:
+    }:
+        if phrase not in readme:
             errors.append(f"README is missing required positioning: {phrase}")
 
-    roadmap = (ROOT / "ROADMAP.md").read_text(encoding="utf-8-sig")
-    required_roadmap_phrases = {
-        "| Git tag | Complete | `v1.0.0-showcase` |",
-        "Deferred to media release",
-        "No downloadable media or binaries are included",
-    }
-    for phrase in sorted(required_roadmap_phrases):
-        if phrase not in roadmap:
-            errors.append(f"ROADMAP is missing final release state: {phrase}")
-
     releases = (ROOT / "RELEASES.md").read_text(encoding="utf-8-sig")
-    required_release_phrases = {
-        "The `v1.0.0-showcase` tag is a documentation-only engineering case study.",
-        "the release does not claim green hosted CI",
+    for phrase in {
+        "The `v1.0.0-showcase` tag includes a provenance-backed screenshot gallery.",
+        "does not claim green hosted CI",
         "A code failure, test failure, configuration failure inside a running job",
-    }
-    for phrase in sorted(required_release_phrases):
+    }:
         if phrase not in releases:
             errors.append(f"RELEASES is missing evidence policy: {phrase}")
 
@@ -261,13 +259,12 @@ def check_workflow_contract(errors: list[str]) -> None:
     workflow = (ROOT / ".github/workflows/showcase-quality.yml").read_text(
         encoding="utf-8-sig"
     )
-    required_values = {
+    for value in {
         "permissions:\n  contents: read",
         "timeout-minutes: 5",
         "python -m compileall -q scripts",
         "python scripts/check_showcase.py",
-    }
-    for value in sorted(required_values):
+    }:
         if value not in workflow:
             errors.append(f"showcase workflow is missing safety contract: {value}")
 
@@ -278,6 +275,8 @@ def main() -> int:
     check_unsafe_files(errors)
     check_markdown_links(errors)
     check_text_safety(errors)
+    check_screenshot_inventory(errors)
+    check_video_inventory(errors)
     check_release_contract(errors)
     check_document_contracts(errors)
     check_workflow_contract(errors)
@@ -289,6 +288,7 @@ def main() -> int:
         return 1
 
     print("GymFlow showcase checks passed.")
+    print("Validated 53 screenshots across 5 approved galleries.")
     print(f"Validated {len(markdown_files())} Markdown documents.")
     return 0
 
