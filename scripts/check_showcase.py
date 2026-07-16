@@ -249,7 +249,7 @@ def check_document_contracts(errors: list[str]) -> None:
     releases = (ROOT / "RELEASES.md").read_text(encoding="utf-8-sig")
     required_release_phrases = {
         "The `v1.0.0-showcase` tag is a documentation-only engineering case study.",
-        "must not claim green hosted CI",
+        "the release does not claim green hosted CI",
         "A code failure, test failure, configuration failure inside a running job",
     }
     for phrase in sorted(required_release_phrases):
