@@ -1,26 +1,27 @@
-# GymFlow Demo Guide
+# GymFlow Demo Environment
 
-This guide defines the canonical professional demo flow for GymFlow.
+GymFlow includes a deterministic professional demo built around **Northline
+Performance Club**, a fictional Montréal gym. The environment exists to make
+product review repeatable while keeping development data, production data, and
+real payment activity outside the demonstration boundary.
 
-The demo uses a dedicated, deterministic PostgreSQL database and fictional identities. It is designed for repeatable product review, screenshot capture, and video recording without touching normal development data or processing real money.
-
-## Demo environment
+## Environment profile
 
 | Item | Value |
 |---|---|
 | Workspace | Northline Performance Club |
 | Database | `gymflow_demo` |
-| Environment | `demo` |
-| Payments | Manual/test records; Stripe test or Connect demo mode only |
-| Email identities | Reserved `.test` addresses |
+| Runtime environment | `demo` |
+| Payments | Manual, simulated, or Stripe test-mode records only |
+| Identities | Reserved `.test` addresses |
 | Real client data | None |
 | Real payment data | None |
 
-## Scenario summary
+## Deterministic scenario
 
-A successful rebuild creates:
+A validated rebuild produces the same connected business story:
 
-| Data area | Expected story |
+| Data area | Expected state |
 |---|---|
 | Staff | 1 owner, 1 manager, 3 trainers, 2 reception staff |
 | Presence | Online, away, and offline examples |
@@ -28,80 +29,54 @@ A successful rebuild creates:
 | Clients | 24 total: 20 active and 4 archived |
 | Plans | 5 total, 4 active |
 | Services | 7 total, 6 active |
-| Memberships | 18 active plus pending/expired/cancelled history |
-| Bookings | 72 total: scheduled, completed, cancelled, no-show |
+| Memberships | 18 active plus pending, expired, and cancelled history |
+| Bookings | 72 total across scheduled, completed, cancelled, and no-show states |
 | Check-ins | 58 recent, including 4 today |
-| Revenue | Six months of non-flat history; 3,402.00 CAD current month target |
+| Revenue | Six months of non-flat history; 3,402.00 CAD current-month target |
 | Pending payments | 377.00 CAD target |
-| Notifications | Staff/client examples; 6 unread for owner |
+| Notifications | Staff and client examples; 6 unread for the owner |
 | Messaging | One professional support workflow |
 | Client portal | Two connected client stories |
 
 ## Safety contract
 
-The destructive rebuild refuses to execute unless all of these are true:
+The destructive rebuild is intentionally narrow. Execution is refused unless:
 
 1. `ENVIRONMENT=demo`;
-2. database name is `gymflow_demo` or an approved `_demo` name;
-3. database host is local or the Docker `postgres` service;
-4. Stripe mode is `test`;
+2. the database name is `gymflow_demo` or another explicitly approved `_demo`
+   name;
+3. the database host is local or the Docker `postgres` service;
+4. Stripe is in test mode;
 5. no live Stripe secret is loaded;
 6. no stored live Stripe webhook event exists;
 7. every application table belongs to the reviewed allowlist;
-8. the exact confirmation value is supplied.
+8. the exact destructive confirmation value is supplied.
 
-The rebuild never:
+The rebuild does not drop schemas or tables, roll migrations backward, run
+`TRUNCATE ... CASCADE`, clear unknown tables dynamically, modify
+`alembic_version`, flush Redis globally, or create a live Stripe charge.
 
-- drops tables;
-- drops schemas;
-- rolls migrations backward;
-- runs `TRUNCATE ... CASCADE`;
-- clears unknown tables dynamically;
-- changes `alembic_version`;
-- flushes Redis globally;
-- creates a live Stripe charge.
+## Reproducible local execution
 
-## Select the demo database
-
-In the backend `.env`:
+The standard Docker stack supports both the normal development database and the
+dedicated demo database through one approved selector.
 
 ```dotenv
 GYMFLOW_DATABASE=gymflow_demo
 ```
 
-Start the stack:
-
 ```powershell
 docker compose up --build -d
 ```
 
-The same stack can return to normal development data by changing only:
-
-```dotenv
-GYMFLOW_DATABASE=gymflow
-```
-
-and running the same Compose command.
-
-## Inspect before changing data
-
-Read-only reset inspection:
+A read-only rebuild plan is available without destructive execution:
 
 ```powershell
-docker compose exec backend sh scripts/run_local_command.sh python scripts/reset_demo_data.py
+docker compose exec backend sh scripts/run_local_command.sh \
+  python scripts/seed_demo_data.py --rebuild
 ```
 
-Read-only complete rebuild plan:
-
-```powershell
-docker compose exec backend sh scripts/run_local_command.sh python scripts/seed_demo_data.py --rebuild
-```
-
-Without `--execute`, these commands do not delete or create data.
-
-## Rebuild the canonical scenario
-
-Supply the confirmation and password only to the explicit command. Do not store them in `.env`.
+The confirmed rebuild uses values supplied only to the command invocation:
 
 ```powershell
 docker compose exec `
@@ -111,30 +86,36 @@ docker compose exec `
   python scripts/seed_demo_data.py --rebuild --execute
 ```
 
-The seed performs one transaction:
+The operation runs as one transaction:
 
-1. verify environment, host, database, Stripe mode, migration state, and table allowlist;
+1. verify environment, host, database, Stripe mode, migration state, and table
+   allowlist;
 2. acquire a PostgreSQL advisory transaction lock;
 3. delete reviewed application data in foreign-key-safe order;
 4. create the complete connected scenario;
-5. validate metrics, relationships, reports, payments, presence, and portal stories;
-6. commit only after all validation succeeds.
+5. validate metrics, relationships, reports, payments, presence, and portal
+   stories;
+6. commit only after every validation succeeds.
 
 Any failure rolls the transaction back.
 
-## Validate the environment
+## Validation
+
+Human-readable validation:
 
 ```powershell
-docker compose exec backend sh scripts/run_local_command.sh python scripts/validate_demo_data.py
+docker compose exec backend sh scripts/run_local_command.sh \
+  python scripts/validate_demo_data.py
 ```
 
-Machine-readable output:
+Machine-readable validation:
 
 ```powershell
-docker compose exec backend sh scripts/run_local_command.sh python scripts/validate_demo_data.py --json
+docker compose exec backend sh scripts/run_local_command.sh \
+  python scripts/validate_demo_data.py --json
 ```
 
-Expected core metrics:
+Core targets include:
 
 | Metric | Expected |
 |---|---:|
@@ -153,9 +134,10 @@ Expected core metrics:
 | Pending payments | 37,700 cents |
 | Owner unread notifications | 6 |
 
-## Demo identities
+## Fictional identities
 
-The rebuild prints the password-independent account manifest. Stable staff emails include:
+The rebuild prints a password-independent account manifest. Stable staff
+identities include:
 
 ```text
 owner@gymflow-demo.test
@@ -164,9 +146,8 @@ sofia.trainer@gymflow-demo.test
 reception@gymflow-demo.test
 ```
 
-All seeded staff accounts use the password supplied through `GYMFLOW_DEMO_PASSWORD` for that rebuild.
-
-Do not publish a permanent password in this repository. The person preparing a temporary demo should choose a local password and share it only through the intended review channel.
+All seeded staff accounts use the password supplied for that rebuild. No
+permanent demo password is published in this repository.
 
 ## Client portal stories
 
@@ -176,14 +157,9 @@ Do not publish a permanent password in this repository. The person preparing a t
 lena.martin@gymflow-demo.test
 ```
 
-Lena demonstrates:
-
-- valid membership;
-- recent successful payments;
-- attendance history;
-- future bookings;
-- receipts and progress;
-- complete healthy-client portal experience.
+Lena represents a healthy member relationship with a valid membership,
+successful payments, attendance history, future bookings, receipts, progress,
+and a complete portal experience.
 
 ### Amina Haddad
 
@@ -191,109 +167,28 @@ Lena demonstrates:
 amina.haddad@gymflow-demo.test
 ```
 
-Amina demonstrates:
+Amina represents a member who needs operational attention: an expiring
+membership, failed payment, pending renewal, cancellation and no-show history,
+and meaningful staff follow-up.
 
-- expiring membership;
-- failed payment;
-- pending renewal;
-- cancellation and no-show history;
-- meaningful staff follow-up.
+Portal codes expire after 15 minutes. In guarded demo mode, codes for reserved
+`.test` identities can be returned to the frontend and filled into the access
+form. Production never exposes those codes.
 
-Portal codes expire after 15 minutes. Request fresh codes immediately before recording portal access.
+## Product review coverage
 
-In guarded demo mode, codes for reserved `.test` identities are returned to the frontend and filled into the portal form. Production never exposes those codes.
+The deterministic environment supports review of:
 
-## Full pre-recording checklist
+- owner dashboard totals and activity;
+- client lifecycle, memberships, payments, and portal access;
+- staff roles, trainer availability, invitations, and presence;
+- booking lifecycle, recurrence, cancellation, and no-show behavior;
+- daily attendance and front-desk check-in workflows;
+- reports with non-flat historical data;
+- professional messaging, notifications, and audit history;
+- client portal isolation and self-service;
+- desktop, mobile, French, and Arabic/RTL presentation.
 
-### Backend and data
-
-- [ ] Backend branch/commit matches `BUILD_MANIFEST.md`.
-- [ ] `GYMFLOW_DATABASE=gymflow_demo`.
-- [ ] `docker compose up --build -d` completed.
-- [ ] Full guarded rebuild completed.
-- [ ] Demo validator passed.
-- [ ] Backend logs show `environment=demo` and `database=gymflow_demo`.
-- [ ] No repeated 404, 422, or 500 responses during rehearsal.
-
-### Staff application
-
-- [ ] Owner login succeeds.
-- [ ] Workspace is Northline Performance Club.
-- [ ] Dashboard values match expected targets.
-- [ ] Client list and client detail load.
-- [ ] Plans and services load.
-- [ ] Staff presence shows online, away, and offline examples.
-- [ ] Bookings include all important lifecycle states.
-- [ ] Check-ins and attendance load.
-- [ ] Payments show paid, pending, failed, refunded, and cancelled examples.
-- [ ] Reports contain non-flat charts.
-- [ ] Messages, notifications, and activity logs load.
-- [ ] Settings and billing states are credible.
-
-### Client portal
-
-- [ ] Request a fresh Lena code.
-- [ ] Development/demo code appears and auto-fills.
-- [ ] Portal opens without exposing staff navigation.
-- [ ] Home, bookings, membership, payments, receipt, progress, pass, profile, settings, support, and messages load.
-- [ ] Repeat with Amina if the video includes the at-risk client story.
-- [ ] Portal token cannot open staff routes.
-
-### Visual quality
-
-- [ ] English desktop reviewed.
-- [ ] French long-copy reviewed.
-- [ ] Arabic RTL reviewed.
-- [ ] Mobile widths reviewed.
-- [ ] No overflow stripe, clipped dialog, loading hang, or empty chart.
-- [ ] Browser console contains no serious repeated errors.
-- [ ] Screens contain only fictional data.
-
-### Provider safety
-
-- [ ] No live Stripe key loaded.
-- [ ] No real card entered.
-- [ ] No real identity verification attempted.
-- [ ] Email remains disabled or intentionally configured.
-- [ ] OAuth is shown only if configured for the exact demo environment.
-
-## Recommended product video order
-
-| Time | Area | Story |
-|---|---|---|
-| 0:00–0:20 | Title/public home | What GymFlow solves |
-| 0:20–0:45 | Public features/security/pricing | Product completeness |
-| 0:45–1:05 | Authentication | Staff versus client access |
-| 1:05–1:40 | Dashboard | Business and operational overview |
-| 1:40–2:20 | Clients/client detail | Connected domain depth |
-| 2:20–2:55 | Staff/presence | Roles and real-time status |
-| 2:55–3:35 | Bookings/check-ins | Scheduling and physical operations |
-| 3:35–4:10 | Payments/reports | Financial lifecycle and analytics |
-| 4:10–4:45 | Messaging/notifications | Collaboration and auditability |
-| 4:45–5:45 | Client portal | Separate trust domain and self-service |
-| 5:45–6:15 | Mobile/Arabic | Responsive and international product |
-| 6:15–6:40 | Architecture/quality close | Engineering summary |
-
-## Recommended engineering video order
-
-1. System context and trust boundaries.
-2. Workspace and role model.
-3. Staff JWT versus portal token.
-4. Domain model and migrations.
-5. Booking and recurring scheduling.
-6. Payment/webhook idempotency.
-7. Messaging audience safety and optimistic concurrency.
-8. Staff presence design.
-9. Request IDs, structured logs, liveness/readiness.
-10. CI and contract checks.
-11. Docker environment selector.
-12. Guarded demo reset and validation.
-13. Production boundary and remaining operational verification.
-
-## After recording
-
-- update screenshot and video files according to their capture guides;
-- update `BUILD_MANIFEST.md` with final artifact names and checksums;
-- update `CHANGELOG.md` and release notes;
-- run showcase quality checks;
-- create the tagged GitHub release.
+The current visual evidence is available in the
+[GymFlow Visual Gallery](screenshots/README.md). The exact source revisions and
+release boundaries are recorded in the [Build Manifest](BUILD_MANIFEST.md).
