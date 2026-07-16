@@ -19,7 +19,7 @@ env:
 
 jobs:
   validate-showcase:
-    name: Validate documentation and release safety
+    name: Validate documentation, media, provenance, and release safety
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -35,5 +35,5 @@ jobs:
       - name: Compile quality tooling
         run: python -m compileall -q scripts
 
-      - name: Run showcase checks
-        run: python scripts/check_showcase.py
+      - name: Run final candidate checks
+        run: python scripts/check_release_candidate.py
