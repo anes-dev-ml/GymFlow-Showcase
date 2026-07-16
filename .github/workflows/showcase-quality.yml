@@ -35,5 +35,8 @@ jobs:
       - name: Compile quality tooling
         run: python -m compileall -q scripts
 
+      - name: Run base showcase checks
+        run: python scripts/check_showcase.py
+
       - name: Run final candidate checks
         run: python scripts/check_release_candidate.py
