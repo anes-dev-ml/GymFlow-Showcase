@@ -19,7 +19,7 @@ artifact inventory.
 `v1.0.0-showcase` is a historical tag that predates the final evidence-hardening
 pass. It must not be presented as the commit containing the current gallery.
 The next immutable release tag is created only after the final screenshot review,
-source-alignment review, and showcase validator succeed on the same commit.
+source-alignment review, and showcase validators succeed on the same commit.
 
 ## Canonical source snapshot
 
@@ -143,8 +143,11 @@ above unless it is revalidated and released under a new provenance-bound tag.
 | **Total** | **53** |
 
 The visual inventory is described in
-[`screenshots/README.md`](screenshots/README.md) and enforced by
-[`scripts/check_showcase.py`](scripts/check_showcase.py).
+[`screenshots/README.md`](screenshots/README.md). Inventory, dimension, duplicate,
+and baseline safety checks are enforced by
+[`scripts/check_showcase.py`](scripts/check_showcase.py); final approved-asset and
+source-provenance checks are enforced by
+[`scripts/check_release_candidate.py`](scripts/check_release_candidate.py).
 
 ## Validation evidence
 
@@ -152,9 +155,10 @@ The visual inventory is described in
 |---|---|---|
 | Frontend | Full frontend release-quality commands on `8242f24fb05f0918393e439b5e0f1cc2e5f3086d` | Required before the candidate tag is created |
 | Backend | Equivalent release validation completed locally | Completed on `2234af20d1d9dd143bcac22edc699d3ee7fe515f` |
-| Showcase | `python scripts/check_showcase.py` | Must pass on the exact commit selected for the release tag |
+| Showcase base | `python scripts/check_showcase.py` | Must pass on the exact commit selected for the release tag |
+| Final candidate | `python scripts/check_release_candidate.py` | Must pass after all final screenshot replacements are committed |
 | Hosted Actions | Jobs were blocked before checkout by the account spending policy | No green hosted-CI claim is made for this release candidate |
-| Screenshot inventory | Exact paths, image formats, dimensions, unique hashes, and blocked-asset checks | Enforced by the showcase validator |
+| Screenshot inventory | Exact paths, image formats, dimensions, unique hashes, blocked assets, and approved high-risk assets | Enforced by the two showcase validators |
 
 The hosted-runner restriction prevented jobs from reaching checkout or source
 execution. The workflows remain defined, while the candidate relies on equivalent
@@ -168,8 +172,10 @@ Create `v1.0.1-showcase` only when:
 2. the final screenshot replacements are committed;
 3. frontend validation has completed on the exact frontend revision above;
 4. `python scripts/check_showcase.py` passes locally;
-5. the release commit is reviewed for tokens, private data, stale UI, and misleading claims;
-6. the tag points to that exact reviewed commit.
+5. `python scripts/check_release_candidate.py` passes locally;
+6. the release commit is reviewed for tokens, private data, stale UI, and misleading claims;
+7. the tag points to that exact reviewed commit;
+8. `python scripts/check_release_candidate.py --release` passes after tagging.
 
 The tag, exact source revisions, deterministic targets, validation record, and
 artifact inventory together form the authoritative release evidence.
