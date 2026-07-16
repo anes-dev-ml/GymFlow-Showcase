@@ -54,9 +54,9 @@ than presenting disconnected CRUD pages.
 
 ![GymFlow client command center](screenshots/desktop/03-client-command-center.png)
 
-### Professional messaging
+### Scheduling and member self-service
 
-![GymFlow professional messaging](screenshots/desktop/07-professional-messaging.png)
+![GymFlow client portal bookings](screenshots/portal/02-bookings.png)
 
 ### Client portal
 
@@ -178,13 +178,14 @@ PostgreSQL and Redis integration, authorization, migrations, localization,
 route synchronization, application behavior, and release builds.
 
 GitHub-hosted jobs for this release line were blocked before checkout by an
-account-level spending policy. Equivalent validation was completed locally, and
-this repository **does not claim green hosted CI** for checks that did not run.
-The showcase validator remains intentionally strict and must pass on the exact
-commit selected for the next tag.
+account-level spending policy. This repository **does not claim green hosted CI**
+for checks that did not run. The final frontend release-quality commands must be
+rerun on the canonical frontend revision, and both showcase validators must pass
+on the exact commit selected for the next tag.
 
-The current candidate includes no public video, APK, Windows archive, or other
-installable binary.
+The current candidate includes no provenance-bound public video, APK, Windows
+archive, or other installable binary. Older standalone media is historical and
+is not evidence for the current candidate.
 
 ## Documentation map
 
