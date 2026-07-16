@@ -1,8 +1,7 @@
 # GymFlow Build Manifest
 
-This manifest ties the public engineering case study to an exact, reviewable
-application source state. It records what is included and, just as importantly,
-what is not included.
+This manifest ties the public GymFlow engineering case study to exact source
+revisions and an explicit release-asset inventory.
 
 ## Release identity
 
@@ -15,17 +14,16 @@ what is not included.
 | Payment boundary | Manual/test/demo state; no real charges |
 | Public source boundary | Showcase content only; application source remains private |
 
-The showcase tag target is authoritative for the showcase commit. Its SHA is
-intentionally not duplicated inside the commit it identifies, which would create
-a self-referential manifest.
+The release tag is authoritative for the showcase commit. Its own commit SHA is
+not duplicated inside the commit it identifies.
 
 ## Canonical source snapshot
 
 | Component | Repository/ref | Revision | Release evidence |
 |---|---|---|---|
-| Frontend | `anes-dev-ml/Gymflow-Frontend` / `main` | `489a82e03059465755c74b1be39ae7c05f98fb9b` | Runtime release at 1.0.0 plus final documentation, licensing, localization-tool retirement, and regression-contract audit |
-| Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | API release at 1.0.0 plus final documentation, licensing, dependency separation, container-build CI, and regression-contract audit |
-| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Release tag target | This manifest, engineering case study, media inventory, and showcase quality contract |
+| Frontend | `anes-dev-ml/Gymflow-Frontend` / `main` | `489a82e03059465755c74b1be39ae7c05f98fb9b` | Final frontend release audit merged into `main` |
+| Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | Final backend release audit merged into `main` |
+| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Release tag target | Engineering case study, screenshot gallery, provenance, and release contract |
 
 The merged application audit work was based directly on frontend
 `a0ab421b45c447dd710ce8c53cf97edcb7c85e1a` and backend
@@ -45,8 +43,8 @@ The merged application audit work was based directly on frontend
 | SQLAlchemy | 2.0.50 |
 | Alembic | 1.18.4 |
 | Alembic head | `9e4f6a8c2d1b` |
-| PostgreSQL | 16 in local and CI stacks |
-| Redis | 7 Alpine in local and CI stacks |
+| PostgreSQL | 16 |
+| Redis | 7 Alpine |
 | Stripe Python SDK | 14.4.1 |
 | `go_router` | 17.2.3 |
 | Flutter `http` | 1.6.0 |
@@ -87,9 +85,9 @@ The merged application audit work was based directly on frontend
 
 | Provider | Repository evidence | External evidence required for deployment |
 |---|---|---|
-| Stripe | Checkout, billing, Connect-aware demo boundary, webhook validation and idempotency | Target account keys, price IDs, webhook rehearsal, KYC/Connect decision |
-| Email | Verification, recovery, invitation, and portal-access workflows | Verified sender domain and real inbox delivery |
-| Google OAuth | Web handoff, Android identity-token path, Windows PKCE/loopback path | Real client IDs, redirects, package fingerprints, and end-to-end verification |
+| Stripe | Checkout, billing, Connect-aware demo boundary, webhook validation, idempotency | Target account keys, price IDs, webhook rehearsal, KYC/Connect decision |
+| Email | Verification, recovery, invitation, portal-access workflows | Verified sender domain and real inbox delivery |
+| Google OAuth | Web handoff, Android token path, Windows PKCE/loopback path | Real client IDs, redirects, package fingerprints, end-to-end verification |
 
 ## Public artifact inventory
 
@@ -97,52 +95,48 @@ The merged application audit work was based directly on frontend
 |---|---|---|
 | Engineering case study | Included | Versioned in this repository |
 | Architecture and threat-model documentation | Included | Versioned in this repository |
-| Current application screenshots | Not included | The previous 19-image set was removed because it predates the canonical snapshot |
-| Product walkthrough video | Not included | No public URL, binary, duration, or checksum is claimed |
-| Video thumbnail | Not included | No thumbnail is presented as release evidence |
+| Current application screenshots | Included | 53 tracked screenshots across desktop, portal, mobile, localization, and engineering galleries |
+| Product walkthrough video | Not included | No public URL, binary, duration, thumbnail, or checksum is claimed |
 | Android or Windows binary | Not included | No installable artifact or checksum is claimed |
-| Social preview | Repository-setting task | Must be configured from an approved current-release design before public promotion |
+| Social preview | Repository-setting task | Configure from an approved current-release design before public promotion |
 
-Screenshot and video specifications remain as release procedures for a later
-media-bearing release. They do not imply that the artifacts exist in this tag.
+The screenshot inventory is defined in `screenshots/README.md` and enforced by
+`scripts/check_showcase.py`. The release includes no public video binary.
 
 ## Verification evidence
 
 | Gate | Command or evidence | Release rule |
 |---|---|---|
-| Frontend | Equivalent release validation completed locally | Completed before the frontend audit merge |
-| Backend | Equivalent release validation completed locally | Completed before the backend audit merge |
-| Showcase | `python scripts/check_showcase.py` completed locally | Completed before tagging |
+| Frontend | Equivalent release validation completed locally | Completed before frontend audit merge |
+| Backend | Equivalent release validation completed locally | Completed before backend audit merge |
+| Showcase | `python scripts/check_showcase.py` completed locally | Required before tagging |
 | Hosted Actions | Jobs were blocked before checkout by the account spending policy | No green hosted-CI claim is made for this release |
-| Demo rebuild | Guarded rebuild and `validate_demo_data.py` | Required again before any new screenshots or video |
-| Route rehearsal | `DEMO.md` walkthrough | Required again before any new screenshots or video |
-| Release tag | `v1.0.0-showcase` | Created after the final snapshot reached `main` and local release validation passed |
+| Screenshot inventory | 53 tracked images across 5 approved galleries | Must match validator counts exactly |
+| Demo rebuild | Guarded rebuild and `validate_demo_data.py` | Required again before replacing release screenshots or recording video |
+| Route rehearsal | `DEMO.md` walkthrough | Required again before replacing release screenshots or recording video |
+| Release tag | `v1.0.0-showcase` | Create after final `main` validation succeeds |
 
 The account-level GitHub Actions restriction prevented hosted jobs from starting.
-The workflows remain defined, but this tag relies on the documented equivalent
+The workflows remain defined, but this release relies on documented equivalent
 local validation rather than claiming successful hosted CI runs.
 
 ## Release completion checklist
 
 - [x] Record the exact audited frontend revision.
 - [x] Record the exact audited backend revision.
-- [x] Record the Alembic head.
-- [x] Record the evidence date.
-- [x] State provider boundaries without production overclaiming.
-- [x] Inventory every public media/binary category.
-- [x] Remove the stale screenshot set.
-- [x] State that no video URL or checksum is included.
-- [x] Run the frontend release validation locally.
-- [x] Run the backend release validation locally.
-- [x] Run the showcase release validation locally.
+- [x] Record the Alembic head and evidence date.
+- [x] State provider and production boundaries accurately.
+- [x] Record and validate the 53-screenshot release inventory.
+- [x] State that no public video or installable binary is included.
+- [x] Complete frontend, backend, and showcase validation locally.
 - [x] Merge the frontend and backend audit pull requests.
 - [x] Publish the finalized showcase snapshot to `main`.
 - [x] Close the superseded showcase audit pull request without merging its obsolete history.
-- [x] Create `v1.0.0-showcase` on the finalized showcase commit.
+- [ ] Create `v1.0.0-showcase` on the final validated showcase commit.
 - [ ] Configure the GitHub social preview from an approved release design.
 
 ## Integrity note
 
-A filename containing “final” is not release evidence. The tag, exact source
-revisions, validation record, artifact inventory, and checksums for any future
-downloadable files are authoritative.
+A filename containing “final” is not release evidence. Exact source revisions,
+the release tag, validation record, declared screenshot inventory, and checksums
+for any future downloadable files are authoritative.
