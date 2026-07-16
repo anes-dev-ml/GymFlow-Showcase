@@ -1,29 +1,30 @@
 # GymFlow Build Manifest
 
 This manifest ties the public GymFlow engineering case study to exact source
-revisions and an explicit release-asset inventory.
+revisions, deterministic demo expectations, validation evidence, and a declared
+artifact inventory.
 
 ## Release identity
 
 | Field | Value |
 |---|---|
-| Release tag | `v1.0.0-showcase` |
+| Release identifier | `v1.0.0-showcase` |
 | Evidence date | 2026-07-15 |
 | Demo workspace | Northline Performance Club |
 | Data boundary | Fictional deterministic demo data only |
-| Payment boundary | Manual/test/demo state; no real charges |
+| Payment boundary | Manual, simulated, or Stripe test-mode state; no real charges |
 | Public source boundary | Showcase content only; application source remains private |
 
-The release tag is authoritative for the showcase commit. Its own commit SHA is
-not duplicated inside the commit it identifies.
+The release identifier is authoritative for the showcase snapshot. Its commit
+SHA is not duplicated inside the commit it identifies.
 
 ## Canonical source snapshot
 
-| Component | Repository/ref | Revision | Release evidence |
+| Component | Repository/ref | Revision | Evidence |
 |---|---|---|---|
 | Frontend | `anes-dev-ml/Gymflow-Frontend` / `main` | `489a82e03059465755c74b1be39ae7c05f98fb9b` | Final frontend release audit merged into `main` |
 | Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | Final backend release audit merged into `main` |
-| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Release tag target | Engineering case study, screenshot gallery, provenance, and release contract |
+| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Release identifier target | Case study, gallery, provenance, and release validation |
 
 The merged application audit work was based directly on frontend
 `a0ab421b45c447dd710ce8c53cf97edcb7c85e1a` and backend
@@ -58,10 +59,10 @@ The merged application audit work was based directly on frontend
 | Demo database | `gymflow_demo` |
 | Demo runtime | `ENVIRONMENT=demo` through the guarded selector |
 | Demo identities | Reserved `.test` addresses |
-| Demo payments | Fictional manual/test records; no live external IDs |
+| Demo payments | Fictional records with no live external identifiers |
 | Demo email | Disabled or guarded demo-assisted behavior |
 
-## Expected deterministic validation
+## Deterministic validation targets
 
 | Metric | Expected |
 |---|---:|
@@ -83,60 +84,56 @@ The merged application audit work was based directly on frontend
 
 ## Provider status
 
-| Provider | Repository evidence | External evidence required for deployment |
+| Provider | Repository evidence | Deployment-specific verification |
 |---|---|---|
-| Stripe | Checkout, billing, Connect-aware demo boundary, webhook validation, idempotency | Target account keys, price IDs, webhook rehearsal, KYC/Connect decision |
-| Email | Verification, recovery, invitation, portal-access workflows | Verified sender domain and real inbox delivery |
-| Google OAuth | Web handoff, Android token path, Windows PKCE/loopback path | Real client IDs, redirects, package fingerprints, end-to-end verification |
+| Stripe | Checkout, billing, Connect-aware demo behavior, webhook validation, idempotency | Target account keys, price IDs, webhook rehearsal, KYC and Connect model |
+| Email | Verification, recovery, invitation, and portal-access workflows | Verified sender domain and real inbox delivery |
+| Google OAuth | Web handoff, Android token path, Windows PKCE and loopback path | Real client IDs, redirects, package fingerprints, end-to-end verification |
 
 ## Public artifact inventory
 
-| Artifact | Status in this release | Integrity statement |
+| Artifact | Status | Integrity statement |
 |---|---|---|
 | Engineering case study | Included | Versioned in this repository |
 | Architecture and threat-model documentation | Included | Versioned in this repository |
-| Current application screenshots | Included | 53 tracked screenshots across desktop, portal, mobile, localization, and engineering galleries |
-| Product walkthrough video | Not included | No public URL, binary, duration, thumbnail, or checksum is claimed |
+| Screenshot gallery | Included | 53 tracked images across desktop, portal, mobile, localization, and engineering galleries |
+| Product walkthrough video | Not included | No public URL, binary, duration, thumbnail, captions file, or checksum is claimed |
 | Android or Windows binary | Not included | No installable artifact or checksum is claimed |
-| Social preview | Repository-setting task | Configure from an approved current-release design before public promotion |
+| Social preview | External repository metadata | Not part of the source or artifact provenance record |
 
-The screenshot inventory is defined in `screenshots/README.md` and enforced by
-`scripts/check_showcase.py`. The release includes no public video binary.
+### Screenshot inventory
 
-## Verification evidence
+| Gallery | Count |
+|---|---:|
+| Desktop | 22 |
+| Client portal | 10 |
+| Mobile | 7 |
+| Localization | 4 |
+| Engineering | 10 |
+| **Total** | **53** |
 
-| Gate | Command or evidence | Release rule |
+The visual inventory is described in
+[`screenshots/README.md`](screenshots/README.md) and enforced by
+[`scripts/check_showcase.py`](scripts/check_showcase.py).
+
+## Validation evidence
+
+| Gate | Evidence | Recorded result |
 |---|---|---|
-| Frontend | Equivalent release validation completed locally | Completed before frontend audit merge |
-| Backend | Equivalent release validation completed locally | Completed before backend audit merge |
-| Showcase | `python scripts/check_showcase.py` completed locally | Required before tagging |
+| Frontend | Equivalent release validation completed locally | Completed before the frontend audit merge |
+| Backend | Equivalent release validation completed locally | Completed before the backend audit merge |
+| Showcase | `python scripts/check_showcase.py` | Required to pass on the final showcase snapshot |
 | Hosted Actions | Jobs were blocked before checkout by the account spending policy | No green hosted-CI claim is made for this release |
-| Screenshot inventory | 53 tracked images across 5 approved galleries | Must match validator counts exactly |
-| Demo rebuild | Guarded rebuild and `validate_demo_data.py` | Required again before replacing release screenshots or recording video |
-| Route rehearsal | `DEMO.md` walkthrough | Required again before replacing release screenshots or recording video |
-| Release tag | `v1.0.0-showcase` | Create after final `main` validation succeeds |
+| Screenshot inventory | 53 tracked images across 5 approved galleries | Exact directory and count contract |
 
-The account-level GitHub Actions restriction prevented hosted jobs from starting.
-The workflows remain defined, but this release relies on documented equivalent
-local validation rather than claiming successful hosted CI runs.
+The account-level GitHub Actions restriction prevented hosted jobs from reaching
+checkout or source execution. The workflows remain defined, while the release
+record relies on equivalent local validation and explicitly avoids claiming
+successful hosted CI runs.
 
-## Release completion checklist
+## Integrity statement
 
-- [x] Record the exact audited frontend revision.
-- [x] Record the exact audited backend revision.
-- [x] Record the Alembic head and evidence date.
-- [x] State provider and production boundaries accurately.
-- [x] Record and validate the 53-screenshot release inventory.
-- [x] State that no public video or installable binary is included.
-- [x] Complete frontend, backend, and showcase validation locally.
-- [x] Merge the frontend and backend audit pull requests.
-- [x] Publish the finalized showcase snapshot to `main`.
-- [x] Close the superseded showcase audit pull request without merging its obsolete history.
-- [ ] Create `v1.0.0-showcase` on the final validated showcase commit.
-- [ ] Configure the GitHub social preview from an approved release design.
-
-## Integrity note
-
-A filename containing “final” is not release evidence. Exact source revisions,
-the release tag, validation record, declared screenshot inventory, and checksums
-for any future downloadable files are authoritative.
+The release identifier, exact source revisions, deterministic targets,
+validation record, and declared artifact inventory are the authoritative
+release evidence. Filenames or informal descriptions do not replace that
+provenance.
