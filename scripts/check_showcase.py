@@ -19,6 +19,7 @@ REQUIRED_FILES = {
     "LICENSE",
     ".gitignore",
     ".gitattributes",
+    ".github/workflows/showcase-quality.yml",
     "docs/PRODUCT.md",
     "docs/ENGINEERING.md",
     "docs/SECURITY_OVERVIEW.md",
@@ -36,6 +37,7 @@ FORBIDDEN_FILE_NAMES = {
     ".env.production",
     "id_rsa",
     "id_ed25519",
+    "criptscheck_showcase.pyExit",
 }
 
 FORBIDDEN_SUFFIXES = {
@@ -46,6 +48,12 @@ FORBIDDEN_SUFFIXES = {
     ".sqlite3",
     ".db",
     ".dump",
+}
+
+FORBIDDEN_PATH_PARTS = {
+    ".idea",
+    ".vscode",
+    "__pycache__",
 }
 
 STALE_VALUES = {
@@ -75,7 +83,7 @@ def relative(path: Path) -> str:
 
 def text_files() -> list[Path]:
     allowed = {".md", ".txt", ".yml", ".yaml", ".py", ""}
-    ignored_parts = {".git", "downloads"}
+    ignored_parts = {".git", "downloads", "exports"}
     result: list[Path] = []
     for path in ROOT.rglob("*"):
         if not path.is_file() or any(part in ignored_parts for part in path.parts):
@@ -83,6 +91,14 @@ def text_files() -> list[Path]:
         if path.suffix.lower() in allowed or path.name == "LICENSE":
             result.append(path)
     return result
+
+
+def markdown_files() -> list[Path]:
+    return [
+        path
+        for path in ROOT.rglob("*.md")
+        if path.is_file() and ".git" not in path.parts
+    ]
 
 
 def check_required_files(errors: list[str]) -> None:
@@ -95,8 +111,12 @@ def check_unsafe_files(errors: list[str]) -> None:
     for path in ROOT.rglob("*"):
         if not path.is_file() or ".git" in path.parts:
             continue
+        if any(part in FORBIDDEN_PATH_PARTS for part in path.parts):
+            errors.append(f"forbidden editor/generated path: {relative(path)}")
         if path.name in FORBIDDEN_FILE_NAMES:
-            errors.append(f"forbidden sensitive file name: {relative(path)}")
+            errors.append(
+                f"forbidden sensitive or accidental file name: {relative(path)}"
+            )
         if path.suffix.lower() in FORBIDDEN_SUFFIXES:
             errors.append(f"forbidden sensitive artifact type: {relative(path)}")
 
@@ -109,9 +129,7 @@ def normalize_link(raw: str) -> str:
 
 
 def check_markdown_links(errors: list[str]) -> None:
-    for document in ROOT.rglob("*.md"):
-        if ".git" in document.parts:
-            continue
+    for document in markdown_files():
         content = document.read_text(encoding="utf-8-sig")
         for match in MARKDOWN_LINK.finditer(content):
             target = normalize_link(match.group(1))
@@ -150,35 +168,59 @@ def check_release_contract(errors: list[str]) -> None:
         "2234af20d1d9dd143bcac22edc699d3ee7fe515f",
         "9e4f6a8c2d1b",
         "2026-07-15",
+        "| Release tag | `v1.0.0-showcase` |",
+        "`anes-dev-ml/GymFlow-Showcase` / `main`",
         "Current application screenshots | Not included",
         "Product walkthrough video | Not included",
+        "No green hosted-CI claim is made for this release",
+        "- [x] Create `v1.0.0-showcase` on the finalized showcase commit.",
     }
     for value in sorted(required_values):
         if value not in manifest:
             errors.append(f"build manifest is missing release evidence: {value}")
+
+    allowed_unchecked = {
+        "- [ ] Configure the GitHub social preview from an approved release design."
+    }
+    for line in manifest.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- [ ]") and stripped not in allowed_unchecked:
+            errors.append(f"unexpected unfinished manifest checklist item: {stripped}")
 
     forbidden_phrases = {
         "capture pending",
         "will be captured later",
         "will be captured from",
         "after screenshots and video are finalized",
+        "checks are green",
+        "all three prs are merged",
+        "|merge",
+        "status in this release candidate",
+        "engineering case-study candidate includes",
     }
-    for document_name in ("README.md", "BUILD_MANIFEST.md", "CHANGELOG.md"):
-        content = (ROOT / document_name).read_text(encoding="utf-8-sig").lower()
+    for document in markdown_files():
+        content = document.read_text(encoding="utf-8-sig").lower()
         for phrase in sorted(forbidden_phrases):
             if phrase in content:
-                errors.append(f"unfinished release wording in {document_name}: {phrase}")
+                errors.append(
+                    f"unfinished or contradictory release wording in "
+                    f"{relative(document)}: {phrase}"
+                )
 
-    legacy = sorted(
-        path for path in (ROOT / "screenshots").glob("*.*") if path.name != "README.md"
-    )
-    for path in legacy:
-        errors.append(f"legacy root screenshot remains: {relative(path)}")
+    screenshot_root = ROOT / "screenshots"
+    for path in sorted(screenshot_root.rglob("*")):
+        if path.is_file() and path != screenshot_root / "README.md":
+            errors.append(f"undeclared screenshot asset remains: {relative(path)}")
+
+    video_root = ROOT / "video"
+    for path in sorted(video_root.rglob("*")):
+        if path.is_file() and path != video_root / "README.md":
+            errors.append(f"undeclared video asset remains: {relative(path)}")
 
 
-def check_readme_contract(errors: list[str]) -> None:
+def check_document_contracts(errors: list[str]) -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8-sig")
-    required_phrases = {
+    required_readme_phrases = {
         "multi-tenant",
         "client portal",
         "staff presence",
@@ -186,11 +228,48 @@ def check_readme_contract(errors: list[str]) -> None:
         "deterministic professional demo",
         "environment readiness",
         "project ownership",
+        "does not claim a current screenshot set",
+        "does not claim green hosted ci",
     }
     lowered = readme.lower()
-    for phrase in sorted(required_phrases):
+    for phrase in sorted(required_readme_phrases):
         if phrase not in lowered:
             errors.append(f"README is missing required positioning: {phrase}")
+
+    roadmap = (ROOT / "ROADMAP.md").read_text(encoding="utf-8-sig")
+    required_roadmap_phrases = {
+        "| Git tag | Complete | `v1.0.0-showcase` |",
+        "Deferred to media release",
+        "No downloadable media or binaries are included",
+    }
+    for phrase in sorted(required_roadmap_phrases):
+        if phrase not in roadmap:
+            errors.append(f"ROADMAP is missing final release state: {phrase}")
+
+    releases = (ROOT / "RELEASES.md").read_text(encoding="utf-8-sig")
+    required_release_phrases = {
+        "The `v1.0.0-showcase` tag is a documentation-only engineering case study.",
+        "must not claim green hosted CI",
+        "A code failure, test failure, configuration failure inside a running job",
+    }
+    for phrase in sorted(required_release_phrases):
+        if phrase not in releases:
+            errors.append(f"RELEASES is missing evidence policy: {phrase}")
+
+
+def check_workflow_contract(errors: list[str]) -> None:
+    workflow = (ROOT / ".github/workflows/showcase-quality.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    required_values = {
+        "permissions:\n  contents: read",
+        "timeout-minutes: 5",
+        "python -m compileall -q scripts",
+        "python scripts/check_showcase.py",
+    }
+    for value in sorted(required_values):
+        if value not in workflow:
+            errors.append(f"showcase workflow is missing safety contract: {value}")
 
 
 def main() -> int:
@@ -200,7 +279,8 @@ def main() -> int:
     check_markdown_links(errors)
     check_text_safety(errors)
     check_release_contract(errors)
-    check_readme_contract(errors)
+    check_document_contracts(errors)
+    check_workflow_contract(errors)
 
     if errors:
         print("GymFlow showcase checks failed:")
@@ -209,7 +289,7 @@ def main() -> int:
         return 1
 
     print("GymFlow showcase checks passed.")
-    print(f"Validated {len(list(ROOT.rglob('*.md')))} Markdown documents.")
+    print(f"Validated {len(markdown_files())} Markdown documents.")
     return 0
 
 
