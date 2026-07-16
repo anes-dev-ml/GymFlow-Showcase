@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,6 +13,9 @@ permissions:
 concurrency:
   group: showcase-quality-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  PYTHONUTF8: '1'
 
 jobs:
   validate-showcase:
