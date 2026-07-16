@@ -63,8 +63,8 @@ The authoritative record for `v1.0.0-showcase` is the
 
 Green hosted CI is the preferred release evidence. For this release, GitHub
 hosted jobs were blocked before checkout by an account-level spending policy.
-Equivalent frontend, backend, and showcase validation was completed locally,
-and the limitation is recorded without claiming that hosted checks passed.
+Equivalent frontend, backend, and showcase validation was completed locally.
+The release does not claim green hosted CI.
 
 The exception applies only to a runner that never reaches repository checkout or
 code execution. A source, test, dependency, or configuration failure inside an
