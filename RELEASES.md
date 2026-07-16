@@ -18,17 +18,23 @@ The candidate includes:
 - exact frontend and backend source revisions;
 - 53 stable screenshot paths across five galleries;
 - deterministic demo targets and data boundaries;
-- improved image-integrity validation;
-- explicit provider, hosted-runner, and production-operation boundaries.
+- improved image-integrity and provenance validation;
+- explicit provider, hosted-runner, historical-media, and production-operation boundaries.
 
 The tag is intentionally not created until the exact candidate commit passes the
-final media review and showcase validator.
+final media review, frontend validation, and both showcase validators.
 
-## Historical release
+## Historical releases and media
 
 `v1.0.0-showcase` records the earlier screenshot-bearing baseline. The current
-`main` branch contains later documentation, validator, and gallery corrections.
-The historical tag must not be described as containing those later changes.
+`main` branch contains later documentation, validator, source-provenance, and
+gallery corrections. The historical tag must not be described as containing
+those later changes and must not be moved.
+
+A separate older GitHub release associated with a non-showcase `v1.0.0` tag may
+contain a walkthrough asset. That asset predates the current canonical frontend
+snapshot and is historical media, not evidence for `v1.0.1-showcase`. It should
+be archived or removed rather than presented as the final current walkthrough.
 
 ## Versioning
 
@@ -65,11 +71,18 @@ The authoritative candidate record is the [Build Manifest](BUILD_MANIFEST.md).
 ## Validation evidence
 
 Green hosted CI is preferred. Hosted jobs for this release line were blocked
-before checkout by an account-level spending policy. Equivalent frontend,
-backend, and showcase validation was completed locally, and the release does not claim green hosted CI.
+before checkout by an account-level spending policy, so the repository does not
+claim green hosted CI.
 
-The exception applies only when a runner never reaches checkout or code
-execution. A source, test, dependency, or configuration failure inside an
+Equivalent backend validation completed locally on the canonical backend
+revision. Earlier frontend validation also completed locally, but the final
+frontend release-quality commands must be rerun on
+`8242f24fb05f0918393e439b5e0f1cc2e5f3086d` before the candidate tag is created.
+The base showcase validator and the provenance-bound final candidate validator
+must then pass on the exact commit selected for the tag.
+
+The hosted-runner exception applies only when a runner never reaches checkout or
+code execution. A source, test, dependency, or configuration failure inside an
 executing job remains a real quality failure.
 
 ## Screenshot evidence
@@ -84,9 +97,10 @@ executing job remains a real quality failure.
 | **Total** | **53** |
 
 A final release requires all 53 paths and all 53 content hashes to be unique.
-Images use fictional data and test or simulated payment state. The validator
-checks the exact inventory, supported formats, minimum dimensions, duplicate
-content, and known rejected media hashes.
+Images use fictional data and test or simulated payment state. The validators
+check the exact inventory, supported formats, minimum dimensions, duplicate
+content, known rejected media hashes, approved high-risk assets, and canonical
+source provenance.
 
 The gallery is documented in the [GymFlow Visual Gallery](screenshots/README.md).
 
@@ -115,14 +129,16 @@ that the product is already production-operated.
 
 ## Video and installable artifacts
 
-No public video or installable binary is part of the current candidate. A later
-release containing a video, APK, Windows archive, or downloadable artifact would
-record the exact source revision, platform requirements, integrity hashes, and
-provider behavior. Video evidence would also record duration and captions status.
+No walkthrough video or installable binary is part of the current
+`v1.0.1-showcase` evidence contract. A later release containing a current video,
+APK, Windows archive, or downloadable artifact would record the exact source
+revision, platform requirements, integrity hashes, and provider behavior. Video
+evidence would also record duration and captions status.
 
 ## Correction policy
 
 Broken links, leaked information, misleading claims, duplicate or mislabeled
-artifacts, and release-tag inconsistencies are release defects. Active exposure
-is removed promptly, credentials are revoked when relevant, corrections are
-documented, and a new patch release is used for material evidence changes.
+artifacts, stale application captures, and release-tag inconsistencies are
+release defects. Active exposure is removed promptly, credentials are revoked
+when relevant, corrections are documented, and a new patch release is used for
+material evidence changes.
