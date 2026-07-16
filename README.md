@@ -2,28 +2,29 @@
 
 **A multi-tenant gym operations SaaS built with Flutter, FastAPI, PostgreSQL, Redis, Stripe, and Docker.**
 
-GymFlow combines a public product website, a role-aware studio operations dashboard, and a separate client portal. It covers client lifecycle management, memberships, booking and attendance, payments, reporting, secure messaging, staff presence, localization, and multi-environment release engineering.
+GymFlow combines a public product website, a role-aware studio operations dashboard, and a separate client portal. It covers client lifecycle management, memberships, bookings and attendance, payments, reporting, secure messaging, staff presence, localization, and multi-environment release engineering.
 
-> This repository is the public engineering case study for GymFlow. The frontend and backend source repositories remain private. The documentation, diagrams, screenshots, release evidence, and demonstration assets in this repository explain what was built and how it was engineered.
+> This repository is the public engineering case study for GymFlow. The frontend and backend source repositories remain private. The documentation, diagrams, release evidence, and artifact procedures in this repository explain what was built and how it was engineered.
 
 ## At a glance
 
 | Area | Current implementation |
 |---|---|
-| Product surfaces | Public website, owner/staff application, client portal |
+| Product surfaces | Public website, owner and staff application, client portal |
 | Roles | Owner, manager, trainer, receptionist, client |
 | Core operations | Clients, plans, memberships, services, bookings, check-ins, payments, reports |
 | Collaboration | Notifications, activity logs, secure messaging, staff presence |
 | Platforms | Flutter Web, Android, Windows |
 | Languages | English, French, Arabic with RTL support |
 | Backend | FastAPI, SQLAlchemy, Alembic, PostgreSQL, Redis |
-| Integrations | Google OAuth, Resend-compatible email, Stripe Checkout/Billing/Webhooks |
+| Integrations | Google OAuth, Resend-compatible email, Stripe Checkout, Billing, and Webhooks |
 | Environments | Development, test, guarded demo, strict production configuration |
-| Delivery | Docker, separate migration job, health checks, GitHub Actions |
+| Delivery | Docker, separate migration job, health checks, GitHub Actions workflows |
 
 ## Product problem
 
-A gym is not only a subscription list. Daily operations connect staff, clients, memberships, schedules, attendance, payments, communications, and reporting.
+A gym is not only a subscription list. Daily operations connect staff, clients,
+memberships, schedules, attendance, payments, communications, and reporting.
 
 GymFlow was designed around those connected workflows:
 
@@ -33,37 +34,53 @@ GymFlow was designed around those connected workflows:
 - Reception staff need fast client, booking, payment, and check-in workflows.
 - Clients need self-service without access to staff or administrative data.
 
-The result is a workspace-scoped SaaS system rather than a single-user CRUD dashboard.
+The result is a workspace-scoped SaaS system rather than a single-user CRUD
+dashboard.
 
 ## Strongest workflows
 
 ### Studio command center
 
-The dashboard combines live operational totals, revenue and booking signals, recent activity, onboarding progress, and shortcuts into the areas that need attention.
+The dashboard combines live operational totals, revenue and booking signals,
+recent activity, onboarding progress, and shortcuts into the areas that need
+attention.
 
 ### Client lifecycle
 
-A client profile connects identity, membership history, bookings, check-ins, payments, portal access, and operational context. Memberships support active, pending, expiring, expired, cancelled, and historical states.
+A client profile connects identity, membership history, bookings, check-ins,
+payments, portal access, and operational context. Memberships support active,
+pending, expiring, expired, cancelled, and historical states.
 
 ### Scheduling and attendance
 
-Bookings connect clients, services, trainers, availability, duration, recurring series, cancellations, completion, and no-show states. Attendance supports both a daily sheet and front-desk check-in/check-out workflows.
+Bookings connect clients, services, trainers, availability, duration, recurring
+series, cancellations, completion, and no-show states. Attendance supports both
+a daily sheet and front-desk check-in and check-out workflows.
 
 ### Payments and SaaS billing
 
-GymFlow separates client-to-studio payments from the studio's GymFlow subscription. It supports manual collection records, Stripe test checkout, payment lifecycle states, receipts, billing configuration, webhook processing, and duplicate-event protection.
+GymFlow separates client-to-studio payments from the studio's GymFlow
+subscription. It supports manual collection records, Stripe test checkout,
+payment lifecycle states, receipts, billing configuration, webhook processing,
+and duplicate-event protection.
 
 ### Secure communication
 
-Staff and client messaging supports role-scoped participants, queue assignment, priorities, internal notes, audience-safe responses, retry-safe sends, cursor pagination, and optimistic workflow updates.
+Staff and client messaging supports role-scoped participants, queue assignment,
+priorities, internal notes, audience-safe responses, retry-safe sends, cursor
+pagination, and optimistic workflow updates.
 
 ### Presence and real-time behavior
 
-Staff presence distinguishes secure connection heartbeats from user activity, aggregates multiple devices, and applies role-aware visibility for online, away, offline, and last-seen information.
+Staff presence distinguishes secure connection heartbeats from user activity,
+aggregates multiple devices, and applies role-aware visibility for online, away,
+offline, and last-seen information.
 
 ### Client portal
 
-Clients use a separate token and route surface for their own dashboard, bookings, membership, payments, receipts, progress, check-in pass, profile, preferences, support, and messaging. Portal credentials cannot be used as staff credentials.
+Clients use a separate token and route surface for their own dashboard, bookings,
+membership, payments, receipts, progress, check-in pass, profile, preferences,
+support, and messaging. Portal credentials cannot be used as staff credentials.
 
 ## Architecture preview
 
@@ -109,71 +126,73 @@ Read the full [architecture case study](ARCHITECTURE.md).
 | Product engineering | Three connected user surfaces and realistic gym operations |
 | System design | Multi-tenant workspace model and explicit trust boundaries |
 | Frontend architecture | Feature-oriented Flutter modules, repositories, controllers, route guards |
-| Backend architecture | Versioned FastAPI routes, service/repository boundaries, Pydantic contracts |
+| Backend architecture | Versioned FastAPI routes, service and repository boundaries, Pydantic contracts |
 | Relational modeling | SQLAlchemy models, constraints, indexes, foreign keys, Alembic migrations |
 | Authentication | Password login, email verification, recovery, OAuth, invitations, portal access |
 | Authorization | Role permissions, workspace scoping, resource ownership, portal isolation |
 | Reliability | Idempotency, optimistic workflow versions, transactional demo rebuilds |
 | Security | Rate limits, request-size limits, CORS, trusted hosts, headers, secret scanning |
 | Observability | Request IDs, structured logs, consistent errors, liveness and readiness |
-| DevOps | Docker, separate migrations, non-root image, CI, environment contracts |
+| DevOps | Docker, separate migrations, non-root image, CI workflows, environment contracts |
 | Internationalization | English, French, Arabic, RTL, localized enum display |
 | Release engineering | Deterministic fictional data, validation, build manifest, demo runbook |
 
-More detail is available in [Engineering](docs/ENGINEERING.md), [Quality](docs/QUALITY.md), and [Operations](docs/OPERATIONS.md).
+More detail is available in [Engineering](docs/ENGINEERING.md),
+[Quality](docs/QUALITY.md), and [Operations](docs/OPERATIONS.md).
 
 ## Environment readiness
 
 | Mode | Status | Purpose |
 |---|---|---|
 | Development | Ready | Local coding, debug routes, local CORS, provider test configuration |
-| Test | Ready | Automated backend and frontend validation in CI |
+| Test | Ready | Automated backend and frontend validation workflows |
 | Demo | Ready | Dedicated guarded database, deterministic scenario, safe test identities |
 | Production configuration | Implemented | Strict settings, non-root container, separate migrations, health checks |
 | Live provider verification | Release-specific | Requires real Stripe, email, and OAuth configuration |
 | Production operations | Deployment-specific | Requires managed infrastructure, monitoring, backups, and restore drills |
 
-GymFlow is a production-oriented system with a strict production mode. It is not presented as already operating a live commercial gym. Final provider and operational verification belongs to the deployment environment, not to the source code alone.
+GymFlow is a production-oriented system with a strict production mode. It is not
+presented as already operating a live commercial gym. Final provider and
+operational verification belongs to the deployment environment, not to source
+code alone.
 
 ## Deterministic professional demo
 
-The portfolio scenario represents **Northline Performance Club**, a fictional Montréal gym. A guarded rebuild creates:
+The portfolio scenario represents **Northline Performance Club**, a fictional
+Montréal gym. A guarded rebuild creates:
 
-- 7 staff members across owner, manager, trainer, and reception roles;
+- seven staff members across owner, manager, trainer, and reception roles;
 - online, away, and offline presence states;
 - 24 fictional clients;
-- 5 membership plans and 7 services;
+- five membership plans and seven services;
 - 72 bookings across scheduled, completed, cancelled, and no-show states;
 - 58 recent check-ins;
 - six months of non-flat revenue history;
 - paid, pending, failed, refunded, and cancelled payments;
 - notifications, activity history, a support conversation, and two portal stories.
 
-The reset never drops schemas or tables. It requires the demo environment, an approved local database name, Stripe test mode, a reviewed table allowlist, and explicit destructive confirmation. Validation occurs before the transaction is committed.
+The reset never drops schemas or tables. It requires the demo environment, an
+approved local database name, Stripe test mode, a reviewed table allowlist, and
+explicit destructive confirmation. Validation occurs before the transaction is
+committed.
 
-See [Demo Guide](DEMO.md).
+See the [Demo Guide](DEMO.md).
 
-## Quality and delivery
+## Quality and release evidence
 
-The backend pipeline runs against PostgreSQL and Redis and includes:
+The source repositories define comprehensive frontend and backend workflows,
+including PostgreSQL and Redis integration, static and behavioral contracts,
+authorization checks, localization checks, route synchronization, application
+smoke checks, and release builds.
 
-- secret scanning;
-- migration graph and database metadata checks;
-- security, observability, deployment, API, documentation, and demo-data contracts;
-- route authorization inspection;
-- application smoke checks;
-- pytest behavior tests.
+For `v1.0.0-showcase`, GitHub-hosted jobs were blocked before checkout by an
+account-level spending policy. Equivalent release validation was completed
+locally, and the build manifest records that limitation explicitly. This
+repository does not claim green hosted CI for checks that did not execute.
 
-The frontend pipeline includes:
-
-- secret scanning;
-- dependency installation and localization generation;
-- `flutter analyze`;
-- source and UI consistency checks;
-- frontend/backend API-sync tests;
-- portal privacy and regression tests.
-
-The showcase repository has its own quality workflow to detect missing documents, broken local links, stale credentials, unsafe files, and common secret patterns.
+The showcase validator checks required documentation, local links, unsafe file
+types, stale credentials and source values, common secret patterns, exact release
+revisions, media inventory, and release wording.
 
 ## Technology
 
@@ -186,19 +205,20 @@ The showcase repository has its own quality workflow to detect missing documents
 | Runtime support | Redis |
 | Identity | JWT, Google OAuth, email verification and recovery |
 | Payments | Stripe Checkout, Billing, Connect-aware demo behavior, webhooks |
-| Delivery | Docker, Docker Compose, GitHub Actions |
+| Delivery | Docker, Docker Compose, GitHub Actions workflows |
 | Targets | Web, Android, Windows |
 
 ## Release media
 
 This engineering case-study release does not claim a current screenshot set or
 public walkthrough video. The earlier 19-image gallery was removed because it
-predates the canonical frontend/backend snapshot. Publishing no visual evidence
-is more accurate than presenting polished but stale UI as current.
+predates the canonical frontend and backend snapshot. Publishing no visual
+evidence is more accurate than presenting polished but stale UI as current.
 
-The repository retains the [screenshot capture procedure](screenshots/README.md)
+The repository retains the [screenshot release procedure](screenshots/README.md)
 and [video release procedure](video/README.md) for a later media-bearing release.
-The exact current inventory is recorded in the [build manifest](BUILD_MANIFEST.md).
+The exact current inventory is recorded in the
+[build manifest](BUILD_MANIFEST.md).
 
 ## Documentation map
 
@@ -215,12 +235,16 @@ The exact current inventory is recorded in the [build manifest](BUILD_MANIFEST.m
 | [Engineering journey](docs/ENGINEERING_JOURNEY.md) | Evolution from initial idea to stabilized SaaS system |
 | [Demo guide](DEMO.md) | Deterministic environment and walkthrough |
 | [Releases](RELEASES.md) | Versioning, artifacts, and distribution boundary |
-| [Roadmap](ROADMAP.md) | Verified remaining release and operations work |
+| [Roadmap](ROADMAP.md) | Current release state and future operational work |
 | [Build manifest](BUILD_MANIFEST.md) | Canonical source revisions and artifact provenance |
 
 ## Project ownership
 
-GymFlow was designed and implemented end to end by **Anes** as a proof of full-stack software engineering capability. The work spans product design, Flutter architecture, backend API design, relational modeling, authentication, authorization, payments, security controls, testing, containerization, observability, deterministic demo infrastructure, and release preparation.
+GymFlow was designed and implemented end to end by **Anes** as a proof of
+full-stack software engineering capability. The work spans product design,
+Flutter architecture, backend API design, relational modeling, authentication,
+authorization, payments, security controls, testing, containerization,
+observability, deterministic demo infrastructure, and release preparation.
 
 ## Public repository boundary
 
@@ -229,10 +253,16 @@ This repository intentionally does not contain:
 - frontend or backend source code;
 - environment files or credentials;
 - real client, staff, or payment data;
-- Stripe, OAuth, email, database, or signing secrets.
+- Stripe, OAuth, email, database, or signing secrets;
+- current screenshots, public video, or installable binaries in this release.
 
-All demo identities are fictional. Stripe is used only in test or explicitly simulated demo modes. No real payment card data is stored. Technical walkthrough access can be arranged when appropriate.
+All demo identities are fictional. Stripe is used only in test or explicitly
+simulated demo modes. No real payment card data is stored. Technical walkthrough
+access can be arranged when appropriate.
 
 ## License
 
-The showcase content, branding, screenshots, diagrams, video, and downloadable artifacts are protected by the repository's [license](LICENSE). Viewing and linking are permitted; reuse or redistribution requires permission unless a specific artifact states otherwise.
+The showcase content, branding, diagrams, documentation, and any future approved
+media or downloadable artifacts are protected by the repository's
+[license](LICENSE). Viewing and linking are permitted; reuse or redistribution
+requires permission unless a specific artifact states otherwise.
