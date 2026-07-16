@@ -31,6 +31,17 @@ REQUIRED_FILES = {
     "video/README.md",
 }
 
+PUBLIC_PRESENTATION_FILES = {
+    "README.md",
+    "BUILD_MANIFEST.md",
+    "CHANGELOG.md",
+    "DEMO.md",
+    "RELEASES.md",
+    "ROADMAP.md",
+    "screenshots/README.md",
+    "video/README.md",
+}
+
 FORBIDDEN_FILE_NAMES = {
     ".env",
     ".env.local",
@@ -59,6 +70,26 @@ SECRET_PATTERNS = {
     "Stripe test secret": re.compile(r"\bsk_test_[A-Za-z0-9]{12,}"),
     "GitHub token": re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}"),
     "Google API key": re.compile(r"\bAIza[0-9A-Za-z_-]{30,}"),
+}
+
+INTERNAL_AUTHORING_PHRASES = {
+    "capture pending",
+    "replacement procedure",
+    "capture preparation",
+    "video description template",
+    "final review checklist",
+    "full pre-recording checklist",
+    "recommended product video order",
+    "recommended engineering video order",
+    "after recording",
+    "publication sequence",
+    "manual repository task",
+    "manual repository setting",
+    "<showcase repository url>",
+    "<tag/commit>",
+    "status in this release candidate",
+    "engineering case-study candidate includes",
+    "|merge",
 }
 
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
@@ -155,6 +186,17 @@ def check_text_safety(errors: list[str]) -> None:
                 errors.append(f"possible {name} in {relative(path)}")
 
 
+def check_public_tone(errors: list[str]) -> None:
+    for name in sorted(PUBLIC_PRESENTATION_FILES):
+        path = ROOT / name
+        content = path.read_text(encoding="utf-8-sig").lower()
+        for phrase in sorted(INTERNAL_AUTHORING_PHRASES):
+            if phrase in content:
+                errors.append(
+                    f"internal authoring language remains in {name}: {phrase}"
+                )
+
+
 def check_screenshot_inventory(errors: list[str]) -> None:
     root = ROOT / "screenshots"
     counts = {name: 0 for name in APPROVED_SCREENSHOT_DIRS}
@@ -164,7 +206,9 @@ def check_screenshot_inventory(errors: list[str]) -> None:
             continue
         rel = path.relative_to(root)
         if len(rel.parts) != 2:
-            errors.append(f"screenshot must be one level below an approved gallery: {relative(path)}")
+            errors.append(
+                f"screenshot must be one level below an approved gallery: {relative(path)}"
+            )
             continue
         gallery = rel.parts[0]
         if gallery not in APPROVED_SCREENSHOT_DIRS:
@@ -179,16 +223,18 @@ def check_screenshot_inventory(errors: list[str]) -> None:
         actual = counts[gallery]
         if actual != expected:
             errors.append(
-                f"screenshot inventory mismatch for {gallery}: expected {expected}, found {actual}"
+                f"screenshot inventory mismatch for {gallery}: "
+                f"expected {expected}, found {actual}"
             )
 
-    if sum(counts.values()) != 53:
-        errors.append(f"screenshot inventory mismatch: expected 53, found {sum(counts.values())}")
+    total = sum(counts.values())
+    if total != 53:
+        errors.append(f"screenshot inventory mismatch: expected 53, found {total}")
 
 
 def check_video_inventory(errors: list[str]) -> None:
     root = ROOT / "video"
-    allowed = {root / "README.md", root / ".gitkeep"}
+    allowed = {root / "README.md"}
     for path in sorted(root.rglob("*")):
         if path.is_file() and path not in allowed:
             errors.append(f"undeclared video asset remains: {relative(path)}")
@@ -201,10 +247,10 @@ def check_release_contract(errors: list[str]) -> None:
         "2234af20d1d9dd143bcac22edc699d3ee7fe515f",
         "9e4f6a8c2d1b",
         "2026-07-15",
-        "| Release tag | `v1.0.0-showcase` |",
+        "| Release identifier | `v1.0.0-showcase` |",
         "`anes-dev-ml/GymFlow-Showcase` / `main`",
-        "Current application screenshots | Included",
-        "53 tracked screenshots",
+        "Screenshot gallery | Included",
+        "53 tracked images",
         "Product walkthrough video | Not included",
         "No green hosted-CI claim is made for this release",
     }
@@ -212,47 +258,88 @@ def check_release_contract(errors: list[str]) -> None:
         if value not in manifest:
             errors.append(f"build manifest is missing release evidence: {value}")
 
-    forbidden_phrases = {
-        "capture pending",
-        "will be captured later",
-        "after screenshots and video are finalized",
-        "current application screenshots | not included",
-        "does not claim a current screenshot set",
-        "|merge",
-    }
-    for document in markdown_files():
-        content = document.read_text(encoding="utf-8-sig").lower()
-        for phrase in sorted(forbidden_phrases):
-            if phrase in content:
-                errors.append(
-                    f"unfinished or contradictory release wording in {relative(document)}: {phrase}"
-                )
+
+def require_phrases(
+    errors: list[str],
+    path: str,
+    phrases: set[str],
+    label: str,
+) -> None:
+    content = (ROOT / path).read_text(encoding="utf-8-sig").lower()
+    for phrase in sorted(phrases):
+        if phrase.lower() not in content:
+            errors.append(f"{label} is missing required public content: {phrase}")
 
 
 def check_document_contracts(errors: list[str]) -> None:
-    readme = (ROOT / "README.md").read_text(encoding="utf-8-sig").lower()
-    for phrase in {
-        "multi-tenant",
-        "client portal",
-        "staff presence",
-        "messaging",
-        "deterministic professional demo",
-        "environment readiness",
-        "project ownership",
-        "53 tracked screenshots",
-        "does not claim green hosted ci",
-    }:
-        if phrase not in readme:
-            errors.append(f"README is missing required positioning: {phrase}")
-
-    releases = (ROOT / "RELEASES.md").read_text(encoding="utf-8-sig")
-    for phrase in {
-        "The `v1.0.0-showcase` tag includes a provenance-backed screenshot gallery.",
-        "does not claim green hosted CI",
-        "A code failure, test failure, configuration failure inside a running job",
-    }:
-        if phrase not in releases:
-            errors.append(f"RELEASES is missing evidence policy: {phrase}")
+    require_phrases(
+        errors,
+        "README.md",
+        {
+            "multi-tenant",
+            "client portal",
+            "staff presence",
+            "deterministic professional demo",
+            "53-image visual gallery",
+            "GymFlow Visual Gallery",
+            "does not claim green hosted CI",
+            "Project ownership",
+        },
+        "README",
+    )
+    require_phrases(
+        errors,
+        "screenshots/README.md",
+        {
+            "# GymFlow Visual Gallery",
+            "53 screenshots",
+            "Selected product views",
+            "Provenance and integrity",
+        },
+        "Screenshot gallery",
+    )
+    require_phrases(
+        errors,
+        "video/README.md",
+        {
+            "# GymFlow Walkthrough Status",
+            "does not include a public walkthrough video",
+            "Intended walkthrough narrative",
+            "Future media releases",
+        },
+        "Walkthrough status",
+    )
+    require_phrases(
+        errors,
+        "DEMO.md",
+        {
+            "# GymFlow Demo Environment",
+            "Safety contract",
+            "Product review coverage",
+        },
+        "Demo document",
+    )
+    require_phrases(
+        errors,
+        "RELEASES.md",
+        {
+            "# GymFlow Release Integrity",
+            "screenshot-bearing engineering case study",
+            "does not claim green hosted CI",
+            "Correction policy",
+        },
+        "Release document",
+    )
+    require_phrases(
+        errors,
+        "ROADMAP.md",
+        {
+            "Product evolution",
+            "Production infrastructure",
+            "Production claim boundary",
+        },
+        "Roadmap",
+    )
 
 
 def check_workflow_contract(errors: list[str]) -> None:
@@ -275,6 +362,7 @@ def main() -> int:
     check_unsafe_files(errors)
     check_markdown_links(errors)
     check_text_safety(errors)
+    check_public_tone(errors)
     check_screenshot_inventory(errors)
     check_video_inventory(errors)
     check_release_contract(errors)
