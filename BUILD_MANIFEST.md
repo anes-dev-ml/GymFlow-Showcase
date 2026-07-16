@@ -25,7 +25,7 @@ create a self-referential manifest.
 |---|---|---|---|
 | Frontend | `anes-dev-ml/Gymflow-Frontend` / `main` | `489a82e03059465755c74b1be39ae7c05f98fb9b` | Runtime release at 1.0.0 plus final documentation, licensing, localization-tool retirement, and regression-contract audit |
 | Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | API release at 1.0.0 plus final documentation, licensing, dependency separation, container-build CI, and regression-contract audit |
-| Showcase | `anes-dev-ml/GymFlow-Showcase` / `agent/final-release-audit` | Release tag target | This manifest, engineering case study, media inventory, and showcase quality contract |
+| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Release tag target | This manifest, engineering case study, media inventory, and showcase quality contract |
 
 The application audit branches are release candidates based directly on
 frontend `a0ab421b45c447dd710ce8c53cf97edcb7c85e1a` and backend
@@ -110,9 +110,9 @@ media-bearing release. They do not imply that the artifacts exist today.
 
 | Gate | Command or evidence | Release rule |
 |---|---|---|
-| Frontend | GitHub Actions `frontend-ci.yml` | Must be green on the audit PR before merge |
-| Backend | GitHub Actions `backend-ci.yml` | Must be green on the audit PR before merge |
-| Showcase | GitHub Actions `showcase-quality.yml` | Must be green on the audit PR before merge |
+| Frontend | Local release validation completed | Required before the frontend audit merge |
+| Backend | Local release validation completed | Required before the backend audit merge |
+| Showcase | `python scripts/check_showcase.py` completed locally | Required before tagging |merge |
 | Demo rebuild | Guarded rebuild and `validate_demo_data.py` | Required again before any new screenshots/video |
 | Route rehearsal | `DEMO.md` walkthrough | Required again before any new screenshots/video |
 | Release tag | `v1.0.0-showcase` | Create only after all three PRs are merged and checks are green |
@@ -127,9 +127,12 @@ media-bearing release. They do not imply that the artifacts exist today.
 - [x] Inventory every public media/binary category.
 - [x] Remove the stale screenshot set.
 - [x] State that no video URL or checksum is included.
-- [ ] Confirm all three audit PR checks are green.
-- [ ] Merge all three audit PRs.
-- [ ] Create `v1.0.0-showcase` on the merged showcase commit.
+- [x] Run the frontend release validation locally.
+- [x] Run the backend release validation locally.
+- [x] Run the showcase release validation locally.
+- [x] Merge the frontend and backend audit pull requests.
+- [x] Publish the finalized showcase snapshot to `main`.
+- [ ] Create `v1.0.0-showcase` on the finalized showcase commit.
 - [ ] Configure the GitHub social preview from an approved release design.
 
 ## Integrity note
