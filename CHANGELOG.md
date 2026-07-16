@@ -24,9 +24,20 @@ artifacts.
 
 ### Remaining release gate
 
-The final tag remains blocked until the prepared image replacements and the final
-mobile and portal recaptures are committed, and the complete validator passes on
-the same commit.
+The prepared replacement package covers the rejected desktop, engineering,
+portal-QR, and portal-messaging evidence. Three fresh application captures remain
+before the candidate can be tagged:
+
+- `screenshots/mobile/04-check-in-pass.png` — show the complete mobile pass with a
+  deliberately invalid static QR, no raw token, no clipped action, and no
+  navigation overlap;
+- `screenshots/mobile/06-dashboard.png` — show one non-duplicated metric summary
+  followed by a different useful dashboard section;
+- `screenshots/portal/02-bookings.png` — show at least one upcoming booking and
+  at least one available fictional service.
+
+The final tag remains blocked until all prepared and manually recaptured images
+are committed and the complete validator passes on the same commit.
 
 ## 1.0.0-showcase — 2026-07-15
 
