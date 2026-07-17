@@ -6,12 +6,12 @@ GymFlow is complete as a controlled professional demonstration and is presented 
 
 The latest immutable showcase tag is `v1.0.1-showcase`.
 
-`main` contains the `v1.0.2-showcase` release candidate, a patch-level evidence and validation hardening line. It keeps the canonical application snapshots unchanged:
+`main` contains the tag-bound `v1.0.2-showcase` release record, a patch-level evidence and validation hardening line. It keeps the canonical application snapshots unchanged:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
 
-The candidate focuses on:
+The release line focuses on:
 
 - accurate release-state documentation;
 - centralized machine-readable provenance;
@@ -47,7 +47,7 @@ The candidate focuses on:
 
 Before tagging `v1.0.2-showcase`:
 
-1. run `./scripts/validate_release.ps1` or `./scripts/validate_release.sh`;
+1. run `.\scripts\validate_release.ps1` or `bash scripts/validate_release.sh`;
 2. complete the final privacy and visual review;
 3. commit any resulting corrections;
 4. confirm the working tree is clean;
