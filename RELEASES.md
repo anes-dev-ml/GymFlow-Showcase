@@ -1,40 +1,38 @@
 # GymFlow Release Integrity
 
-GymFlow showcase releases connect public claims and visual evidence to exact
-frontend, backend, schema, and demo-state revisions.
+GymFlow showcase releases connect public claims and visual evidence to exact frontend, backend, schema, demo-state, and artifact records.
 
-A reviewer should be able to determine what a release contains, which application
-snapshot it represents, which validations executed, and which provider or
-production responsibilities remain environment-specific.
+A reviewer should be able to determine what a release contains, which application snapshot it represents, which validations executed, and which provider or production responsibilities remain environment-specific.
 
-## Current candidate
+## Current release line
 
-`main` is preparing `v1.0.1-showcase`, an evidence-hardening release for the
-screenshot-bearing engineering case study.
+`main` contains the `v1.0.2-showcase` release candidate.
 
-The candidate includes:
+This patch-level correction keeps the canonical application revisions unchanged:
 
-- public product and engineering documentation;
-- exact frontend and backend source revisions;
-- 53 stable screenshot paths across five galleries;
-- deterministic demo targets and data boundaries;
-- improved image-integrity and provenance validation;
-- explicit provider, hosted-runner, historical-media, and production-operation boundaries.
+- frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
+- backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
+- Alembic head `9e4f6a8c2d1b`.
 
-The tag is intentionally not created until the exact candidate commit passes the
-final media review, frontend validation, and both showcase validators.
+It improves release integrity by:
 
-## Historical releases and media
+- correcting release-state wording after `v1.0.1-showcase`;
+- centralizing release facts in a machine-readable evidence manifest;
+- validating tracked Git content instead of unrelated local cache files;
+- replacing the unavailable hosted workflow with traditional local release runners;
+- adding regression tests for the validator;
+- strengthening cross-document provenance checks;
+- indexing the 53-image gallery with explicit evidence descriptions.
 
-`v1.0.0-showcase` records the earlier screenshot-bearing baseline. The current
-`main` branch contains later documentation, validator, source-provenance, and
-gallery corrections. The historical tag must not be described as containing
-those later changes and must not be moved.
+## Latest immutable release
 
-A separate older GitHub release associated with a non-showcase `v1.0.0` tag may
-contain a walkthrough asset. That asset predates the current canonical frontend
-snapshot and is historical media, not evidence for `v1.0.1-showcase`. It should
-be archived or removed rather than presented as the final current walkthrough.
+`v1.0.1-showcase` points to:
+
+`53aa79d5124902fc689c4f7b121c7d4b1fdccdc9`
+
+That tag remains immutable. It records the prior evidence-hardening baseline and must not be moved or silently rewritten.
+
+`v1.0.2-showcase` is the appropriate correction release because the changes affect documentation, validation, packaging, and provenance rather than the canonical application implementation.
 
 ## Versioning
 
@@ -43,47 +41,62 @@ Showcase releases use semantic identifiers:
 ```text
 v1.0.0-showcase
 v1.0.1-showcase
+v1.0.2-showcase
 v1.1.0-showcase
 ```
 
 - **major** identifies an important architecture or product generation;
 - **minor** identifies a substantial product capability or refreshed visual release;
-- **patch** identifies documentation, packaging, provenance, privacy, or other non-breaking corrections.
+- **patch** identifies documentation, packaging, provenance, privacy, validation, or other non-breaking corrections.
 
-Public evidence is immutable by convention. Material source or artifact changes
-belong to a new semantic release rather than a silent tag replacement.
+Public evidence is immutable by convention. Material changes belong to a new semantic release rather than a silent tag replacement.
 
 ## Canonical source record
 
 Every release records:
 
-- showcase release identifier and exact commit;
-- frontend branch and commit;
-- backend branch and commit;
-- Alembic head revision;
+- showcase release identifier;
+- frontend repository, ref, and commit;
+- backend repository, ref, and commit;
+- Alembic head;
 - evidence date and deterministic targets;
-- relevant runtime and dependency versions;
+- runtime and dependency versions;
 - included and omitted artifacts;
-- validation evidence and known limitations.
+- validation mode and executed commands;
+- known provider and production limitations.
 
-The authoritative candidate record is the [Build Manifest](BUILD_MANIFEST.md).
+The authoritative human-readable record is the [Build Manifest](BUILD_MANIFEST.md). The authoritative machine-readable record is [`release/evidence-manifest.json`](release/evidence-manifest.json).
 
-## Validation evidence
+## Local validation policy
 
-Green hosted CI is preferred. Hosted jobs for this release line were blocked
-before checkout by an account-level spending policy, so the repository does not
-claim green hosted CI.
+This showcase release line uses traditional local validation rather than GitHub Actions.
 
-Equivalent backend validation completed locally on the canonical backend
-revision. Earlier frontend validation also completed locally, but the final
-frontend release-quality commands must be rerun on
-`8242f24fb05f0918393e439b5e0f1cc2e5f3086d` before the candidate tag is created.
-The base showcase validator and the provenance-bound final candidate validator
-must then pass on the exact commit selected for the tag.
+The release gate is:
 
-The hosted-runner exception applies only when a runner never reaches checkout or
-code execution. A source, test, dependency, or configuration failure inside an
-executing job remains a real quality failure.
+```powershell
+./scripts/validate_release.ps1
+./scripts/validate_release.ps1 -Release
+```
+
+or:
+
+```bash
+./scripts/validate_release.sh
+./scripts/validate_release.sh --release
+```
+
+The local gate runs:
+
+- validator unit tests;
+- required-file and tracked-file safety checks;
+- local Markdown link validation;
+- public wording and stale-release checks;
+- screenshot inventory, format, dimension, orientation, and uniqueness checks;
+- rejected-media and exact approved-media checks;
+- canonical source-provenance checks;
+- optional release-tag and clean-worktree verification.
+
+No successful hosted execution is claimed. Local evidence is recorded explicitly and **no green hosted-CI claim** is made.
 
 ## Screenshot evidence
 
@@ -96,11 +109,7 @@ executing job remains a real quality failure.
 | Engineering | 10 |
 | **Total** | **53** |
 
-A final release requires all 53 paths and all 53 content hashes to be unique.
-Images use fictional data and test or simulated payment state. The validators
-check the exact inventory, supported formats, minimum dimensions, duplicate
-content, known rejected media hashes, approved high-risk assets, and canonical
-source provenance.
+A release requires all 53 declared paths and 53 unique content hashes. High-risk reviewed media is pinned to exact SHA-256 values, and known rejected media hashes are permanently blocked.
 
 The gallery is documented in the [GymFlow Visual Gallery](screenshots/README.md).
 
@@ -118,27 +127,18 @@ The showcase uses:
 
 ## Provider and production boundary
 
-GymFlow implements production-oriented architecture and strict production
-configuration. A live commercial deployment still depends on target hosting,
-domains, managed PostgreSQL and Redis, provider credentials, webhook rehearsal,
-verified email, OAuth redirects, monitoring, alerts, backups, restore testing,
-security operations, and legal ownership.
+GymFlow implements production-oriented architecture and strict production configuration. A live commercial deployment still depends on target hosting, domains, managed PostgreSQL and Redis, provider credentials, webhook rehearsal, verified email, OAuth redirects, monitoring, alerts, backups, restore testing, security operations, and legal ownership.
 
-The showcase does not collapse those responsibilities into an unsupported claim
-that the product is already production-operated.
+The showcase does not collapse those responsibilities into an unsupported claim that the product is already production-operated.
 
 ## Video and installable artifacts
 
-No walkthrough video or installable binary is part of the current
-`v1.0.1-showcase` evidence contract. A later release containing a current video,
-APK, Windows archive, or downloadable artifact would record the exact source
-revision, platform requirements, integrity hashes, and provider behavior. Video
-evidence would also record duration and captions status.
+No current walkthrough video or installable binary is part of the `v1.0.2-showcase` evidence contract.
+
+Historical media attached to an older non-showcase release is not evidence for the current source snapshot. A future media release would record exact source provenance, duration, captions status, integrity hashes, and platform requirements.
 
 ## Correction policy
 
-Broken links, leaked information, misleading claims, duplicate or mislabeled
-artifacts, stale application captures, and release-tag inconsistencies are
-release defects. Active exposure is removed promptly, credentials are revoked
-when relevant, corrections are documented, and a new patch release is used for
-material evidence changes.
+Broken links, leaked information, misleading claims, duplicate or mislabeled artifacts, stale application captures, incorrect source revisions, validator defects, and release-tag inconsistencies are release defects.
+
+Active exposure is removed promptly, credentials are revoked when relevant, corrections are documented, and a new patch release is used for material evidence changes.
