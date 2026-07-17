@@ -34,6 +34,10 @@ APPROVED_EXACT_HASHES = {
         "62a958d0f84fa37c8ed38dd1c65303f95ffea5444e6188b66c59a479e11fa5bd",
         "approved populated desktop portal bookings capture",
     ),
+    "screenshots/engineering/15-frontend-commit-history.png": (
+        "b04a3fcbf71aaf96254bf69e8d6639de522dd9675efc0b23208871be5438b347",
+        "curated frontend history for the canonical regression-reconciled revision",
+    ),
 }
 
 # Additional media found during the final source-alignment audit. These are
