@@ -1,5 +1,7 @@
 # GymFlow Walkthrough Status
 
+**Current media status:** Not included in `v1.0.2-showcase`.
+
 The tag-bound `v1.0.2-showcase` release record does **not include** a public walkthrough video, thumbnail, captions file, or downloadable video asset as part of its provenance-bound release contract.
 
 The current evidence is provided through:
