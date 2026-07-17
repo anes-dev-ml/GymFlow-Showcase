@@ -8,10 +8,10 @@ and the exact source provenance recorded in the
 [build manifest](../BUILD_MANIFEST.md).
 
 An older standalone GitHub release associated with a non-showcase `v1.0.0` tag
-may contain a walkthrough asset. That media predates the canonical frontend
-snapshot recorded for `v1.0.1-showcase`, is not part of the current candidate,
-and must not be described as evidence for the final release unless it is
-revalidated and republished under a new provenance-bound tag.
+may contain a walkthrough asset. That asset is historical media: it predates the
+canonical frontend snapshot recorded for `v1.0.1-showcase`, is not part of the
+current candidate, and must not be described as evidence for the final release
+unless it is revalidated and republished under a new provenance-bound tag.
 
 The historical `v1.0.0-showcase` tag remains the earlier documentation and
 screenshot baseline. Existing historical tags are not moved or silently
