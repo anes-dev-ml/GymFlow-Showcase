@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "target_release": "v1.0.2-showcase",
+  "latest_immutable_release": {
+    "tag": "v1.0.1-showcase",
+    "commit": "53aa79d5124902fc689c4f7b121c7d4b1fdccdc9"
+  },
+  "state": "release-candidate",
+  "evidence_date": "2026-07-17",
+  "source": {
+    "frontend": {
+      "repository": "anes-dev-ml/Gymflow-Frontend",
+      "ref": "main",
+      "commit": "b73a623c3985e4bc458d04b4b484887ada593fa5",
+      "version": "1.0.0+1"
+    },
+    "backend": {
+      "repository": "anes-dev-ml/Gymflow-Backend",
+      "ref": "main",
+      "commit": "2234af20d1d9dd143bcac22edc699d3ee7fe515f",
+      "version": "1.0.0",
+      "alembic_head": "9e4f6a8c2d1b"
+    }
+  },
+  "validation": {
+    "mode": "local",
+    "hosted_ci_claim": false,
+    "commands": [
+      "python -m unittest discover -s tests -p test_*.py",
+      "python scripts/check_showcase.py",
+      "python scripts/check_release_candidate.py",
+      "python scripts/check_release_candidate.py --release"
+    ],
+    "note": "GitHub-hosted jobs are not used as release evidence for this repository."
+  },
+  "gallery": {
+    "total": 53,
+    "counts": {
+      "desktop": 22,
+      "portal": 10,
+      "mobile": 7,
+      "localization": 4,
+      "engineering": 10
+    },
+    "inventory": {
+      "desktop": [
+        "01-public-home.png",
+        "02-owner-dashboard.png",
+        "03-client-command-center.png",
+        "04-staff-presence.png",
+        "05-bookings.png",
+        "06-reports.png",
+        "07-professional-messaging.png",
+        "08-public-features.png",
+        "09-public-pricing.png",
+        "10-public-security.png",
+        "11-auth.png",
+        "12-clients.png",
+        "13-plans.png",
+        "14-services.png",
+        "15-trainer-availability.png",
+        "16-invitations.png",
+        "17-check-ins.png",
+        "18-payments.png",
+        "19-notifications.png",
+        "20-activity-logs.png",
+        "21-settings.png",
+        "22-billing.png"
+      ],
+      "portal": [
+        "00-access.png",
+        "01-portal-home.png",
+        "02-bookings.png",
+        "03-membership.png",
+        "04-payments.png",
+        "05-receipt.png",
+        "06-progress.png",
+        "07-check-in-pass.png",
+        "08-messages.png",
+        "09-profile-settings.png"
+      ],
+      "mobile": [
+        "01-portal-home.png",
+        "02-portal-bookings.png",
+        "03-portal-payments.png",
+        "04-check-in-pass.png",
+        "05-public-home.png",
+        "06-dashboard.png",
+        "07-client-detail.png"
+      ],
+      "localization": [
+        "01-arabic-rtl.png",
+        "02-french-dashboard.png",
+        "03-arabic-portal-mobile.png",
+        "04-arabic-portal-desktop.png"
+      ],
+      "engineering": [
+        "07-frontend-project-structure.png",
+        "08-backend-project-structure.png",
+        "09-postgresql-schema.png",
+        "10-openapi.png",
+        "11-docker-runtime.png",
+        "12-demo-clients-data.png",
+        "13-demo-messages-data.png",
+        "14-demo-payments-data.png",
+        "15-frontend-commit-history.png",
+        "16-backend-commit-history.png"
+      ]
+    },
+    "approved_exact_sha256": {
+      "screenshots/mobile/04-check-in-pass.png": "7bf6a105ba160fe87a35d46a97c62a6d4050d9a0dc20752f8025ea1e2fae61c7",
+      "screenshots/mobile/06-dashboard.png": "6d8570aaad3c305b9f495e340b274a4f10d6005a4834e90247f3719727f152cf",
+      "screenshots/portal/02-bookings.png": "62a958d0f84fa37c8ed38dd1c65303f95ffea5444e6188b66c59a479e11fa5bd",
+      "screenshots/engineering/15-frontend-commit-history.png": "b04a3fcbf71aaf96254bf69e8d6639de522dd9675efc0b23208871be5438b347"
+    },
+    "blocked_sha256": {
+      "d074a81c15e600540ff5bfdc1c61ff737639e7deae727bbb88e50ed5d85045ee": "generated credential in QR",
+      "09c0a175c226c94908873b9092174704f8b50c2496cad66ab28d3d52020f9e5d": "browser zoom overlay",
+      "9bbf368029eae06475ab9eba2fd55512923f85f404097bbf9b6674ac8460b8f8": "cropped mobile check-in pass",
+      "8f5deb25a640bd748b183e68017ecd12d49c26b63c47aa603e84251f6f6e5788": "repetitive mobile dashboard",
+      "a937ef59a984ee6f33caa89a049a2a528e2566415e522d8a7ab91bfc95ce8f16": "empty portal bookings state",
+      "b40892477efe226ea39f10a83b2a3490752ec11dd83139b0c064c6cfd67caa32": "stale messaging workspace",
+      "86526846feed25d1343bc8be85fd8f40d7cdc15c3dff10142b3f16f6099ffaa5": "superseded frontend provenance",
+      "d6dd447e5c9e268cfc70a3810c39a59a680a408aef2207f8eaa2ef89bca7ff1f": "empty mobile bookings state"
+    }
+  },
+  "artifacts": {
+    "walkthrough_video": {
+      "status": "not-included",
+      "reason": "No current provenance-bound walkthrough is part of this release line."
+    },
+    "installable_binary": {
+      "status": "not-included",
+      "reason": "The repository is an engineering case study, not a binary distribution channel."
+    },
+    "application_source": {
+      "status": "private",
+      "reason": "Frontend and backend source remain in private repositories."
+    }
+  },
+  "boundaries": {
+    "data": "Fictional deterministic demo data only",
+    "payments": "Manual, simulated, or Stripe test-mode state only",
+    "production": "Production-oriented architecture; deployment-specific production operation is not claimed"
+  }
+}
