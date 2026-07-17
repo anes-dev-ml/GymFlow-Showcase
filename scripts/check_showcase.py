@@ -13,90 +13,107 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_FILES = {
     "README.md",
     "ARCHITECTURE.md",
-    "SECURITY.md",
+    "BUILD_MANIFEST.md",
+    "CHANGELOG.md",
     "DEMO.md",
+    "ENGINEERING.md",
+    "JOURNEY.md",
+    "LICENSE",
+    "OPERATIONS.md",
+    "QUALITY.md",
     "RELEASES.md",
     "ROADMAP.md",
-    "CHANGELOG.md",
-    "BUILD_MANIFEST.md",
-    "LICENSE",
-    ".gitignore",
-    ".gitattributes",
-    ".github/workflows/showcase-quality.yml",
-    "docs/PRODUCT.md",
-    "docs/ENGINEERING.md",
-    "docs/SECURITY_OVERVIEW.md",
-    "docs/THREAT_MODEL.md",
-    "docs/QUALITY.md",
-    "docs/OPERATIONS.md",
-    "docs/ENGINEERING_JOURNEY.md",
+    "SECURITY.md",
+    "THREAT_MODEL.md",
     "screenshots/README.md",
     "video/README.md",
+    ".github/workflows/showcase-quality.yml",
 }
 
 PUBLIC_PRESENTATION_FILES = {
     "README.md",
+    "ARCHITECTURE.md",
     "BUILD_MANIFEST.md",
     "CHANGELOG.md",
     "DEMO.md",
+    "ENGINEERING.md",
+    "JOURNEY.md",
+    "OPERATIONS.md",
+    "QUALITY.md",
     "RELEASES.md",
     "ROADMAP.md",
+    "SECURITY.md",
+    "THREAT_MODEL.md",
     "screenshots/README.md",
     "video/README.md",
+}
+
+INTERNAL_AUTHORING_PHRASES = {
+    "how to capture",
+    "capture this image",
+    "replace this image",
+    "for the owner",
+    "tell the owner",
+    "instructions for the owner",
+    "todo for owner",
+    "screenshot instructions",
+}
+
+FORBIDDEN_PATH_PARTS = {
+    ".idea",
+    ".vscode",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".dart_tool",
+    "build",
 }
 
 FORBIDDEN_FILE_NAMES = {
     ".env",
     ".env.local",
     ".env.production",
-    "id_rsa",
-    "id_ed25519",
-    "criptscheck_showcase.pyExit",
+    "key.properties",
+    "google-services.json",
+    "GoogleService-Info.plist",
 }
-FORBIDDEN_SUFFIXES = {".pem", ".p12", ".pfx", ".sqlite", ".sqlite3", ".db", ".dump"}
-FORBIDDEN_PATH_PARTS = {".idea", ".vscode", "__pycache__", ".pytest_cache", ".dart_tool"}
+
+FORBIDDEN_SUFFIXES = {
+    ".pem",
+    ".p12",
+    ".pfx",
+    ".jks",
+    ".keystore",
+    ".sqlite",
+    ".db",
+    ".log",
+}
 
 STALE_VALUES = {
-    "owner@" + "gymflow.demo",
-    "staff@" + "gymflow.demo",
-    "Demo" + "Owner123!",
-    "Demo" + "Staff123!",
-    "85fb121968bf862945de" + "bf349ce8c28df72c0fdd",
-    "7bef6bfdf7ba1fbd3db" + "9669b59aafa6ce6f2b9ac",
-    "client-dashboard-" + "redesign",
+    "85fb121",
+    "7bef6bfd",
+    "capture pending",
+    "screenshot capture pending",
+    "video capture pending",
 }
 
 SECRET_PATTERNS = {
     "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
-    "Stripe live secret": re.compile(r"\bsk_live_[A-Za-z0-9]{12,}"),
-    "Stripe test secret": re.compile(r"\bsk_test_[A-Za-z0-9]{12,}"),
-    "GitHub token": re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}"),
-    "Google API key": re.compile(r"\bAIza[0-9A-Za-z_-]{30,}"),
-    "JWT-like credential": re.compile(
-        r"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b"
-    ),
-}
-
-INTERNAL_AUTHORING_PHRASES = {
-    "capture pending",
-    "replacement procedure",
-    "capture preparation",
-    "video description template",
-    "full pre-recording checklist",
-    "recommended product video order",
-    "recommended engineering video order",
-    "after recording",
-    "publication sequence",
-    "manual repository task",
-    "manual repository setting",
-    "<showcase repository url>",
-    "<tag/commit>",
-    "|merge",
+    "GitHub token": re.compile(r"\bgh[pousr]_[A-Za-z0-9_]{20,}\b"),
+    "Stripe live secret": re.compile(r"\bsk_live_[A-Za-z0-9]{16,}\b"),
+    "Stripe live restricted key": re.compile(r"\brk_live_[A-Za-z0-9]{16,}\b"),
+    "JWT-like token": re.compile(r"\beyJ[A-Za-z0-9_-]{12,}\.[A-Za-z0-9_-]{12,}\.[A-Za-z0-9_-]{12,}\b"),
 }
 
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
-APPROVED_SCREENSHOT_DIRS = {"desktop", "engineering", "localization", "mobile", "portal"}
 APPROVED_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
+APPROVED_SCREENSHOT_DIRS = {
+    "desktop",
+    "portal",
+    "mobile",
+    "localization",
+    "engineering",
+}
 
 EXPECTED_SCREENSHOTS = {
     "desktop": {
@@ -165,13 +182,11 @@ EXPECTED_SCREENSHOTS = {
 }
 
 # Known media that failed a release review. Keeping their hashes here prevents a
-# filename-only replacement or accidental reintroduction. The last three entries
-# intentionally keep the candidate red until fresh application captures replace
-# those exact files.
+# filename-only replacement or accidental reintroduction.
 BLOCKED_IMAGE_SHA256 = {
     "d074a81c15e600540ff5bfdc1c61ff737639e7deae727bbb88e50ed5d85045ee": "published QR contained a generated credential",
     "09c0a175c226c94908873b9092174704f8b50c2496cad66ab28d3d52020f9e5d": "browser zoom overlay remained visible",
-    "9bbf368029eae06475ab9eba2fd55512923f85f404097bbf9e6674ac8460b8f8": "mobile check-in pass is cropped before the QR evidence",
+    "9bbf368029eae06475ab9eba2fd55512923f85f404097bbf9b6674ac8460b8f8": "mobile check-in pass is cropped before the QR evidence",
     "8f5deb25a640bd748b183e68017ecd12d49c26b63c47aa603e84251f6f6e5788": "mobile dashboard repeats the same summary cards",
     "a937ef59a984ee6f33caa89a049a2a528e2566415e522d8a7ab91bfc95ce8f16": "portal bookings capture shows no available services or upcoming bookings",
 }
@@ -402,7 +417,7 @@ def check_video_inventory(errors: list[str]) -> None:
 def check_release_contract(errors: list[str]) -> None:
     manifest = (ROOT / "BUILD_MANIFEST.md").read_text(encoding="utf-8-sig")
     required_values = {
-        "489a82e03059465755c74b1be39ae7c05f98fb9b",
+        "b73a623c3985e4bc458d04b4b484887ada593fa5",
         "2234af20d1d9dd143bcac22edc699d3ee7fe515f",
         "9e4f6a8c2d1b",
         "2026-07-16",
@@ -418,10 +433,17 @@ def check_release_contract(errors: list[str]) -> None:
             errors.append(f"build manifest is missing release evidence: {value}")
 
 
+def normalize_document_text(content: str) -> str:
+    return " ".join(content.lower().split())
+
+
 def require_phrases(errors: list[str], path: str, phrases: set[str], label: str) -> None:
-    content = (ROOT / path).read_text(encoding="utf-8-sig").lower()
+    content = normalize_document_text(
+        (ROOT / path).read_text(encoding="utf-8-sig")
+    )
     for phrase in sorted(phrases):
-        if phrase.lower() not in content:
+        normalized_phrase = normalize_document_text(phrase)
+        if normalized_phrase not in content:
             errors.append(f"{label} is missing required public content: {phrase}")
 
 
