@@ -1,6 +1,6 @@
 # GymFlow Visual Gallery
 
-The `v1.0.2-showcase` release candidate defines **53 stable screenshot paths** tied to the frontend and backend revisions recorded in the [Build Manifest](../BUILD_MANIFEST.md) and [`release/evidence-manifest.json`](../release/evidence-manifest.json).
+The tag-bound `v1.0.2-showcase` release record defines **53 stable screenshot paths** tied to the frontend and backend revisions recorded in the [Build Manifest](../BUILD_MANIFEST.md) and [`release/evidence-manifest.json`](../release/evidence-manifest.json).
 
 The latest immutable gallery release is `v1.0.1-showcase`. The current correction line keeps the same application snapshots:
 
