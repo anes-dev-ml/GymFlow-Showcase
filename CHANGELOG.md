@@ -2,7 +2,7 @@
 
 All notable changes to the GymFlow showcase are documented here. The private application repositories maintain their own histories; this changelog tracks the public case study, diagrams, screenshots, manifests, validation contracts, and release artifacts.
 
-## [Unreleased] — `v1.0.2-showcase`
+## [Unreleased] — v1.0.2-showcase
 
 ### Added
 
