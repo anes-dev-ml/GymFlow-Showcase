@@ -1,23 +1,23 @@
 # GymFlow Build Manifest
 
-This manifest connects the GymFlow engineering case study to exact application revisions, deterministic demo expectations, validation evidence, and a declared artifact inventory.
+This manifest connects the GymFlow engineering case study to exact application revisions, deterministic demo expectations, validation evidence, and the declared public artifact set.
 
-The machine-readable companion record is [`release/evidence-manifest.json`](release/evidence-manifest.json).
+The machine-readable authority is [`release/evidence-manifest.json`](release/evidence-manifest.json).
 
 ## Release identity
 
 | Field | Value |
 |---|---|
-| Target release | `v1.0.2-showcase` |
-| Current state | Tag-bound release record on `main`; immutable when the target tag points to the reviewed commit |
-| Latest immutable release | `v1.0.1-showcase` at `53aa79d5124902fc689c4f7b121c7d4b1fdccdc9` |
+| Current release record | `v1.0.3-showcase` |
+| Previous immutable release | `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f` |
+| Record state | Release record; release mode verifies the current tag on clean reviewed `HEAD` |
 | Evidence date | 2026-07-17 |
 | Demo workspace | Northline Performance Club |
 | Data boundary | Fictional deterministic demo data only |
 | Payment boundary | Manual, simulated, or Stripe test-mode state; no real charges |
 | Public source boundary | Showcase content only; application source remains private |
 
-`v1.0.2-showcase` is a patch-level evidence-integrity correction. It preserves the canonical frontend and backend snapshots while correcting release-state wording, centralizing provenance, strengthening tracked-file validation, adding local release runners, and testing the validation tooling itself.
+`v1.0.3-showcase` is the final public-release integrity correction. It preserves the application snapshot and reviewed gallery while replacing the ambiguous dynamic “latest immutable release” field with explicit current and previous release identities.
 
 ## Canonical source snapshot
 
@@ -25,9 +25,9 @@ The machine-readable companion record is [`release/evidence-manifest.json`](rele
 |---|---|---|---|
 | Frontend | `anes-dev-ml/Gymflow-Frontend` / `main` | `b73a623c3985e4bc458d04b4b484887ada593fa5` | Final responsive and regression-reconciled product snapshot |
 | Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | Final audited API, data, security, demo, and operational snapshot |
-| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Current reviewed record HEAD | Documentation, gallery, provenance, and local release validation |
+| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Current reviewed record `HEAD` | Documentation, gallery, provenance, and local release validation |
 
-The showcase commit is identified by the immutable release tag. A document inside a Git commit does not attempt to contain its own SHA; the target tag is the authoritative pointer to the reviewed commit.
+The showcase commit is identified by the immutable release tag. A file inside a commit does not attempt to contain its own commit SHA.
 
 ## Application and schema versions
 
@@ -83,7 +83,7 @@ These values describe the authoritative result immediately after a successful gu
 | Owner unread notifications | 6 |
 | Canonical portal stories | 2 |
 
-The deterministic validator is authoritative for exact counts and relationships. Screenshots demonstrate representative fictional states; date-relative values, live presence, temporary notifications, and capture-time UI state can differ after review actions.
+The deterministic validator is authoritative for exact counts and relationships. Screenshots show representative fictional states; date-relative values, active presence, temporary notifications, and capture-time state can differ after review actions.
 
 ## Provider status
 
@@ -99,13 +99,13 @@ The deterministic validator is authoritative for exact counts and relationships.
 |---|---|---|
 | Engineering case study | Included | Versioned in this repository |
 | Architecture and security documentation | Included | Versioned in this repository |
-| Screenshot gallery | Included | 53 tracked files across five galleries with 53 unique screenshots |
-| Evidence manifest | Included | Machine-readable source, gallery, boundary, and validation record |
+| Screenshot gallery | Included | 53 tracked files with 53 unique hashes and 53 exact SHA-256 approvals |
+| Evidence manifest | Included | Machine-readable release, source, gallery, boundary, and validation record |
 | Product walkthrough video | Not included | No current provenance-bound walkthrough is claimed |
 | Android or Windows binary | Not included | No installable artifact or checksum is claimed |
 | Social preview | Repository metadata | Outside the source-provenance contract |
 
-An older standalone non-showcase release may contain historical media. It is not evidence for the current source snapshot and must not be described as the current walkthrough.
+Historical media attached to an older non-showcase release is not evidence for the current application snapshot.
 
 ## Screenshot inventory
 
@@ -120,41 +120,40 @@ An older standalone non-showcase release may contain historical media. It is not
 
 Every release screenshot must satisfy all of these rules:
 
-- the canonical application revisions remain unchanged;
+- canonical application revisions remain unchanged;
 - identities and records are fictional;
 - no token, password, secret, live provider identifier, or valid QR credential is visible;
-- every filename matches the declared gallery contract;
-- all 53 image files have unique content hashes;
-- known rejected media hashes remain absent;
-- high-risk reviewed images retain their exact approved SHA-256 values;
-- the gallery passes manual privacy, localization, responsive, and visual review.
+- every filename matches the gallery contract;
+- all 53 image files are unique;
+- all 53 image files match their exact approved SHA-256 values;
+- known rejected hashes remain absent;
+- manual privacy, localization, responsive, and visual review is complete.
 
 ## Local validation evidence
 
-| Gate | Command | Release expectation |
+| Gate | Command | Expectation |
 |---|---|---|
 | Validator tests | `python -m unittest discover -s tests -p "test_*.py"` | Must pass |
 | Showcase base | `python scripts/check_showcase.py` | Must pass |
-| Final candidate | `python scripts/check_release_candidate.py` | Must pass |
-| Release tag | `python scripts/check_release_candidate.py --release` | Must pass after tagging |
+| Release record | `python scripts/check_release.py` | Must pass |
+| Release tag | `python scripts/check_release.py --release` | Must pass after tagging |
 | Combined PowerShell gate | `.\scripts\validate_release.ps1` | Must pass |
-| Combined shell gate | `bash scripts/validate_release.sh` | Must pass |
+| Combined POSIX gate | `bash scripts/validate_release.sh` | Must pass |
 
-Validation for this showcase release line is local and traditional. GitHub-hosted Actions are not used as release evidence. **No green hosted-CI claim is made.**
+Validation is local and traditional. GitHub-hosted Actions are not used as release evidence. **No green hosted-CI claim is made.**
 
-The validators inspect tracked Git content, local links, release-state consistency, source provenance, screenshot inventory, dimensions, duplicate hashes, blocked media, exact approved media, public wording, and release-tag alignment. Unit tests protect the validator behavior that previously caused false failures.
+The validators inspect tracked Git content, local links, release-state consistency, source provenance, screenshot inventory, dimensions, duplicate hashes, blocked media, all exact approved media hashes, public wording, and release-tag alignment.
 
-## Tag rule
+## Release procedure
 
-Create `v1.0.2-showcase` only when:
+For `v1.0.3-showcase`:
 
-1. the frontend and backend revisions still match this manifest;
-2. validator unit tests pass;
-3. `python scripts/check_showcase.py` passes;
-4. `python scripts/check_release_candidate.py` passes;
-5. the record commit has received a final privacy and visual review;
-6. the working tree is clean;
-7. the tag is created on that exact reviewed commit;
-8. `python scripts/check_release_candidate.py --release` passes.
+1. refresh all 53 exact evidence hashes with `python scripts/refresh_evidence_hashes.py`;
+2. commit the resulting manifest;
+3. run the combined local gate;
+4. complete the final privacy and visual review;
+5. confirm the working tree is clean;
+6. create the tag on that exact reviewed commit;
+7. run the release form of the local gate.
 
 The immutable tag, canonical source revisions, deterministic targets, evidence manifest, and reviewed image set together form the authoritative release record.
