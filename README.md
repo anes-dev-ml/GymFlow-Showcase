@@ -10,14 +10,14 @@ GymFlow connects public product discovery, staff operations, and private client 
 
 | Record | Value |
 |---|---|
-| Current `main` line | `v1.0.2-showcase` release candidate |
+| Current `main` line | `v1.0.2-showcase` tag-bound release record |
 | Latest immutable showcase tag | `v1.0.1-showcase` |
 | Frontend revision | `b73a623c3985e4bc458d04b4b484887ada593fa5` |
 | Backend revision | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` |
 | Evidence model | 53 unique screenshots across five galleries |
 | Validation | Local release validation; no green hosted-CI claim |
 
-`v1.0.2-showcase` is an evidence-integrity correction line. It keeps the same canonical application revisions while strengthening release truth, tracked-file validation, local tooling, regression tests, and the machine-readable evidence record.
+`v1.0.2-showcase` is an evidence-integrity correction line. The record remains accurate on `main` before tagging and becomes immutable when the target tag points to the reviewed commit. It keeps the same canonical application revisions while strengthening release truth, tracked-file validation, local tooling, regression tests, and the machine-readable evidence record.
 
 ## Product surfaces
 
@@ -120,13 +120,13 @@ See the [Demo Environment](DEMO.md) and [Build Manifest](BUILD_MANIFEST.md).
 The showcase deliberately uses a traditional local release gate while hosted Actions are unavailable. The validation entry points are:
 
 ```powershell
-./scripts/validate_release.ps1
-./scripts/validate_release.ps1 -Release
+.\scripts\validate_release.ps1
+.\scripts\validate_release.ps1 -Release
 ```
 
 ```bash
-./scripts/validate_release.sh
-./scripts/validate_release.sh --release
+bash scripts/validate_release.sh
+bash scripts/validate_release.sh --release
 ```
 
 The local gate runs validator unit tests, repository and media checks, provenance checks, and optional release-tag verification. It inspects tracked Git content rather than failing on unrelated local cache files.
