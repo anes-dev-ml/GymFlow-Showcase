@@ -6,13 +6,22 @@ import re
 import struct
 import subprocess
 from collections import defaultdict
+from datetime import date
 from pathlib import Path
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = Path("release/evidence-manifest.json")
+CURRENT_RELEASE = "v1.0.3-showcase"
+PREVIOUS_RELEASE = "v1.0.2-showcase"
+PREVIOUS_RELEASE_COMMIT = "4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f"
+FRONTEND_COMMIT = "b73a623c3985e4bc458d04b4b484887ada593fa5"
+BACKEND_COMMIT = "2234af20d1d9dd143bcac22edc699d3ee7fe515f"
+ALEMBIC_HEAD = "9e4f6a8c2d1b"
 
 REQUIRED_FILES = {
+    ".gitattributes",
+    ".gitignore",
     "README.md",
     "ARCHITECTURE.md",
     "BUILD_MANIFEST.md",
@@ -30,9 +39,11 @@ REQUIRED_FILES = {
     "docs/THREAT_MODEL.md",
     "release/evidence-manifest.json",
     "release/v1.0.2-release-notes.md",
+    "release/v1.0.3-release-notes.md",
     "screenshots/README.md",
-    "scripts/check_release_candidate.py",
+    "scripts/check_release.py",
     "scripts/check_showcase.py",
+    "scripts/refresh_evidence_hashes.py",
     "scripts/showcase_validation.py",
     "scripts/validate_release.ps1",
     "scripts/validate_release.sh",
@@ -56,10 +67,12 @@ PUBLIC_PRESENTATION_FILES = {
     "docs/QUALITY.md",
     "docs/SECURITY_OVERVIEW.md",
     "docs/THREAT_MODEL.md",
-    "release/v1.0.2-release-notes.md",
+    "release/v1.0.3-release-notes.md",
     "screenshots/README.md",
     "video/README.md",
 }
+
+HISTORICAL_RELEASE_DOCS = {"release/v1.0.2-release-notes.md"}
 
 INTERNAL_AUTHORING_PHRASES = {
     "how to capture",
@@ -108,6 +121,9 @@ OBSOLETE_RELEASE_TEXT = {
     "unreleased — `v1.0.1-showcase` candidate",
     "before the candidate tag is created",
     "tag only after every final gate passes",
+    "latest immutable showcase tag | `v1.0.1-showcase`",
+    "before tagging `v1.0.2-showcase`",
+    "release-candidate validation failed",
 }
 
 SECRET_PATTERNS = {
@@ -129,6 +145,7 @@ APPROVED_SCREENSHOT_DIRS = {
     "localization",
     "engineering",
 }
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 
 def git_bytes(root: Path, *args: str) -> bytes | None:
@@ -186,14 +203,30 @@ def load_manifest(root: Path = ROOT) -> dict:
     return data
 
 
+def dictionary(value: object) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
+def string_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, str)]
+
+
 def expected_screenshots(manifest: dict) -> dict[str, set[str]]:
-    inventory = manifest.get("gallery", {}).get("inventory", {})
-    if not isinstance(inventory, dict):
-        return {}
+    inventory = dictionary(dictionary(manifest.get("gallery")).get("inventory"))
     return {
-        gallery: set(names)
+        gallery: set(string_list(names))
         for gallery, names in inventory.items()
-        if isinstance(gallery, str) and isinstance(names, list)
+        if isinstance(gallery, str)
+    }
+
+
+def expected_screenshot_paths(manifest: dict) -> set[str]:
+    return {
+        f"screenshots/{gallery}/{name}"
+        for gallery, names in expected_screenshots(manifest).items()
+        for name in names
     }
 
 
@@ -224,6 +257,8 @@ def check_required_files(errors: list[str], root: Path = ROOT) -> None:
     for item in sorted(REQUIRED_FILES):
         if item not in tracked:
             errors.append(f"missing required tracked file: {item}")
+    if "scripts/check_release_candidate.py" in tracked:
+        errors.append("obsolete candidate-named release gate remains tracked")
 
 
 def check_tracked_file_safety(errors: list[str], root: Path = ROOT) -> None:
@@ -245,6 +280,7 @@ def normalize_link(raw: str) -> str:
 
 
 def check_markdown_links(errors: list[str], root: Path = ROOT) -> None:
+    root_resolved = root.resolve()
     for document in markdown_files(root):
         content = document.read_text(encoding="utf-8-sig")
         for match in MARKDOWN_LINK.finditer(content):
@@ -258,11 +294,16 @@ def check_markdown_links(errors: list[str], root: Path = ROOT) -> None:
                 root / path_part.lstrip("/")
                 if path_part.startswith("/")
                 else document.parent / path_part
-            )
-            if not candidate.resolve().exists():
+            ).resolve()
+            try:
+                candidate.relative_to(root_resolved)
+            except ValueError:
                 errors.append(
-                    f"broken local link in {relative(document, root)}: {target}"
+                    f"local link escapes repository root in {relative(document, root)}: {target}"
                 )
+                continue
+            if not candidate.exists():
+                errors.append(f"broken local link in {relative(document, root)}: {target}")
 
 
 def check_text_safety(errors: list[str], root: Path = ROOT) -> None:
@@ -273,7 +314,7 @@ def check_text_safety(errors: list[str], root: Path = ROOT) -> None:
             continue
 
         rel = relative(path, root)
-        if not rel.startswith(("scripts/", "tests/")):
+        if not rel.startswith(("scripts/", "tests/")) and rel not in HISTORICAL_RELEASE_DOCS:
             lowered = content.lower()
             for stale in OBSOLETE_RELEASE_TEXT:
                 if stale.lower() in lowered:
@@ -292,9 +333,7 @@ def check_public_tone(errors: list[str], root: Path = ROOT) -> None:
         content = (root / name).read_text(encoding="utf-8-sig").lower()
         for phrase in sorted(INTERNAL_AUTHORING_PHRASES):
             if phrase in content:
-                errors.append(
-                    f"internal authoring language remains in {name}: {phrase}"
-                )
+                errors.append(f"internal authoring language remains in {name}: {phrase}")
 
 
 def read_png_size(path: Path) -> tuple[int, int]:
@@ -335,20 +374,14 @@ def read_jpeg_size(path: Path) -> tuple[int, int]:
 
 
 def image_size(path: Path) -> tuple[int, int]:
-    suffix = path.suffix.lower()
-    if suffix == ".png":
+    if path.suffix.lower() == ".png":
         return read_png_size(path)
-    if suffix in {".jpg", ".jpeg"}:
+    if path.suffix.lower() in {".jpg", ".jpeg"}:
         return read_jpeg_size(path)
     raise ValueError("unsupported image type")
 
 
-def check_dimensions(
-    path: Path,
-    gallery: str,
-    errors: list[str],
-    root: Path = ROOT,
-) -> None:
+def check_dimensions(path: Path, gallery: str, errors: list[str], root: Path = ROOT) -> None:
     try:
         width, height = image_size(path)
     except ValueError as exc:
@@ -356,13 +389,10 @@ def check_dimensions(
         return
 
     if width < 600 or height < 650:
-        errors.append(
-            f"image is too small for review: {relative(path, root)} is {width}x{height}"
-        )
+        errors.append(f"image is too small for review: {relative(path, root)} is {width}x{height}")
 
     mobile_layout = gallery == "mobile" or (
-        gallery == "localization"
-        and path.name == "03-arabic-portal-mobile.png"
+        gallery == "localization" and path.name == "03-arabic-portal-mobile.png"
     )
     if mobile_layout:
         if height <= width or width < 650 or height < 1200:
@@ -378,56 +408,68 @@ def check_dimensions(
             )
 
 
-def check_manifest_contract(
-    errors: list[str],
-    manifest: dict,
-) -> None:
+def check_manifest_contract(errors: list[str], manifest: dict) -> None:
     expected_top = {
         "schema_version",
-        "target_release",
-        "latest_immutable_release",
-        "state",
-        "evidence_date",
+        "release",
+        "previous_release",
         "source",
         "validation",
         "gallery",
         "artifacts",
         "boundaries",
     }
-    missing = expected_top - set(manifest)
-    for key in sorted(missing):
+    for key in sorted(expected_top - set(manifest)):
         errors.append(f"evidence manifest is missing top-level field: {key}")
 
-    if manifest.get("schema_version") != 1:
-        errors.append("evidence manifest schema_version must be 1")
-    if manifest.get("target_release") != "v1.0.2-showcase":
-        errors.append("evidence manifest target_release must be v1.0.2-showcase")
-    if manifest.get("state") != "tag-bound-release-record":
-        errors.append("evidence manifest state must be tag-bound-release-record")
+    if manifest.get("schema_version") != 2:
+        errors.append("evidence manifest schema_version must be 2")
 
-    latest = manifest.get("latest_immutable_release", {})
-    if latest.get("tag") != "v1.0.1-showcase":
-        errors.append("latest immutable showcase tag must be v1.0.1-showcase")
-    if latest.get("commit") != "53aa79d5124902fc689c4f7b121c7d4b1fdccdc9":
-        errors.append("v1.0.1-showcase commit record is incorrect")
+    release = dictionary(manifest.get("release"))
+    if release.get("tag") != CURRENT_RELEASE:
+        errors.append(f"current release tag must be {CURRENT_RELEASE}")
+    if release.get("state") != "release-record":
+        errors.append("release state must be release-record")
+    evidence_date = release.get("evidence_date")
+    try:
+        date.fromisoformat(evidence_date) if isinstance(evidence_date, str) else None
+    except ValueError:
+        errors.append("release evidence_date must use YYYY-MM-DD")
+    if not isinstance(evidence_date, str):
+        errors.append("release evidence_date must use YYYY-MM-DD")
 
-    source = manifest.get("source", {})
-    frontend = source.get("frontend", {})
-    backend = source.get("backend", {})
-    if frontend.get("commit") != "b73a623c3985e4bc458d04b4b484887ada593fa5":
+    previous = dictionary(manifest.get("previous_release"))
+    if previous.get("tag") != PREVIOUS_RELEASE:
+        errors.append(f"previous release tag must be {PREVIOUS_RELEASE}")
+    if previous.get("commit") != PREVIOUS_RELEASE_COMMIT:
+        errors.append(f"{PREVIOUS_RELEASE} commit record is incorrect")
+
+    source = dictionary(manifest.get("source"))
+    frontend = dictionary(source.get("frontend"))
+    backend = dictionary(source.get("backend"))
+    if frontend.get("commit") != FRONTEND_COMMIT:
         errors.append("canonical frontend revision is incorrect")
-    if backend.get("commit") != "2234af20d1d9dd143bcac22edc699d3ee7fe515f":
+    if backend.get("commit") != BACKEND_COMMIT:
         errors.append("canonical backend revision is incorrect")
-    if backend.get("alembic_head") != "9e4f6a8c2d1b":
+    if backend.get("alembic_head") != ALEMBIC_HEAD:
         errors.append("canonical Alembic head is incorrect")
 
-    validation = manifest.get("validation", {})
+    validation = dictionary(manifest.get("validation"))
     if validation.get("mode") != "local":
         errors.append("showcase validation mode must be local")
     if validation.get("hosted_ci_claim") is not False:
         errors.append("evidence manifest must not claim hosted CI")
+    commands = set(string_list(validation.get("commands")))
+    required_commands = {
+        "python -m unittest discover -s tests -p test_*.py",
+        "python scripts/check_showcase.py",
+        "python scripts/check_release.py",
+        "python scripts/check_release.py --release",
+    }
+    for command in sorted(required_commands - commands):
+        errors.append(f"evidence manifest is missing validation command: {command}")
 
-    gallery = manifest.get("gallery", {})
+    gallery = dictionary(manifest.get("gallery"))
     inventory = expected_screenshots(manifest)
     if set(inventory) != APPROVED_SCREENSHOT_DIRS:
         errors.append("evidence manifest gallery names do not match the approved set")
@@ -436,7 +478,7 @@ def check_manifest_contract(
         errors.append(
             f"evidence manifest screenshot total must be 53, found {gallery.get('total')} / {total}"
         )
-    counts = gallery.get("counts", {})
+    counts = dictionary(gallery.get("counts"))
     for gallery_name, names in inventory.items():
         if counts.get(gallery_name) != len(names):
             errors.append(
@@ -444,19 +486,43 @@ def check_manifest_contract(
                 f"expected {len(names)}, found {counts.get(gallery_name)}"
             )
 
+    approved = dictionary(gallery.get("approved_sha256"))
+    expected_paths = expected_screenshot_paths(manifest)
+    approved_paths = {path for path in approved if isinstance(path, str)}
+    for path in sorted(expected_paths - approved_paths):
+        errors.append(f"evidence manifest is missing approved SHA-256: {path}")
+    for path in sorted(approved_paths - expected_paths):
+        errors.append(f"evidence manifest has unexpected approved SHA-256: {path}")
+    for path, digest in sorted(approved.items()):
+        if not isinstance(path, str) or not isinstance(digest, str) or not SHA256_PATTERN.fullmatch(digest):
+            errors.append(f"invalid approved SHA-256 entry: {path}")
 
-def check_screenshot_inventory(
-    errors: list[str],
-    manifest: dict,
-    root: Path = ROOT,
-) -> None:
+    blocked = dictionary(gallery.get("blocked_sha256"))
+    for digest, reason in sorted(blocked.items()):
+        if not isinstance(digest, str) or not SHA256_PATTERN.fullmatch(digest):
+            errors.append(f"invalid blocked SHA-256 entry: {digest}")
+        if not isinstance(reason, str) or not reason.strip():
+            errors.append(f"blocked SHA-256 reason is missing: {digest}")
+
+    artifacts = dictionary(manifest.get("artifacts"))
+    for name, expected_status in {
+        "walkthrough_video": "not-included",
+        "installable_binary": "not-included",
+        "application_source": "private",
+    }.items():
+        artifact = dictionary(artifacts.get(name))
+        if artifact.get("status") != expected_status:
+            errors.append(f"artifact status is incorrect for {name}")
+
+
+def check_screenshot_inventory(errors: list[str], manifest: dict, root: Path = ROOT) -> None:
     screenshot_root = root / "screenshots"
     expected = expected_screenshots(manifest)
-    actual: dict[str, set[str]] = {
-        name: set() for name in APPROVED_SCREENSHOT_DIRS
-    }
+    actual: dict[str, set[str]] = {name: set() for name in APPROVED_SCREENSHOT_DIRS}
     hashes: dict[str, list[str]] = defaultdict(list)
-    blocked = manifest.get("gallery", {}).get("blocked_sha256", {})
+    gallery = dictionary(manifest.get("gallery"))
+    blocked = dictionary(gallery.get("blocked_sha256"))
+    approved = dictionary(gallery.get("approved_sha256"))
 
     for path in screenshot_files(root):
         rel = path.relative_to(screenshot_root)
@@ -466,34 +532,37 @@ def check_screenshot_inventory(
                 f"{relative(path, root)}"
             )
             continue
-        gallery = rel.parts[0]
-        if gallery not in APPROVED_SCREENSHOT_DIRS:
+        gallery_name = rel.parts[0]
+        if gallery_name not in APPROVED_SCREENSHOT_DIRS:
             errors.append(f"unapproved screenshot gallery: {relative(path, root)}")
             continue
         if path.suffix.lower() not in APPROVED_IMAGE_SUFFIXES:
             errors.append(f"unsupported screenshot type: {relative(path, root)}")
             continue
 
-        actual[gallery].add(path.name)
+        actual[gallery_name].add(path.name)
+        relative_path = relative(path, root)
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        hashes[digest].append(relative(path, root))
-        reason = blocked.get(digest)
-        if reason:
+        hashes[digest].append(relative_path)
+        if digest in blocked:
+            errors.append(f"rejected screenshot remains: {relative_path} — {blocked[digest]}")
+        expected_digest = approved.get(relative_path)
+        if expected_digest is not None and digest != expected_digest:
             errors.append(
-                f"rejected screenshot remains: {relative(path, root)} — {reason}"
+                f"approved screenshot changed: {relative_path} — "
+                f"expected {str(expected_digest)[:12]}…, found {digest[:12]}…"
             )
-        check_dimensions(path, gallery, errors, root)
+        check_dimensions(path, gallery_name, errors, root)
 
-    for gallery, expected_names in expected.items():
-        for name in sorted(expected_names - actual[gallery]):
-            errors.append(f"missing screenshot: screenshots/{gallery}/{name}")
-        for name in sorted(actual[gallery] - expected_names):
-            errors.append(f"unexpected screenshot: screenshots/{gallery}/{name}")
+    for gallery_name, expected_names in expected.items():
+        for name in sorted(expected_names - actual[gallery_name]):
+            errors.append(f"missing screenshot: screenshots/{gallery_name}/{name}")
+        for name in sorted(actual[gallery_name] - expected_names):
+            errors.append(f"unexpected screenshot: screenshots/{gallery_name}/{name}")
 
     total = sum(len(names) for names in actual.values())
     if total != 53:
         errors.append(f"screenshot inventory mismatch: expected 53, found {total}")
-
     for digest, paths in sorted(hashes.items()):
         if len(paths) > 1:
             errors.append(
@@ -502,28 +571,7 @@ def check_screenshot_inventory(
                 + f" (sha256 {digest[:12]}…)"
             )
     if len(hashes) != 53:
-        errors.append(
-            f"screenshot uniqueness mismatch: expected 53 unique hashes, found {len(hashes)}"
-        )
-
-
-def check_approved_media(
-    errors: list[str],
-    manifest: dict,
-    root: Path = ROOT,
-) -> None:
-    approved = manifest.get("gallery", {}).get("approved_exact_sha256", {})
-    for relative_path, expected_hash in sorted(approved.items()):
-        path = root / relative_path
-        if not path.is_file():
-            errors.append(f"missing approved release asset: {relative_path}")
-            continue
-        actual_hash = hashlib.sha256(path.read_bytes()).hexdigest()
-        if actual_hash != expected_hash:
-            errors.append(
-                f"approved release asset changed: {relative_path} — "
-                f"expected {expected_hash[:12]}…, found {actual_hash[:12]}…"
-            )
+        errors.append(f"screenshot uniqueness mismatch: expected 53 unique hashes, found {len(hashes)}")
 
 
 def check_video_inventory(errors: list[str], root: Path = ROOT) -> None:
@@ -548,159 +596,147 @@ def require_phrases(
     if not document.is_file():
         errors.append(f"{label} is missing required file: {path}")
         return
-    content = normalize_document_text(
-        document.read_text(encoding="utf-8-sig")
-    )
+    content = normalize_document_text(document.read_text(encoding="utf-8-sig"))
     for phrase in sorted(phrases):
-        normalized_phrase = normalize_document_text(phrase)
-        if normalized_phrase not in content:
+        if normalize_document_text(phrase) not in content:
             errors.append(f"{label} is missing required public content: {phrase}")
 
 
-def check_document_contracts(
-    errors: list[str],
-    manifest: dict,
-    root: Path = ROOT,
-) -> None:
-    frontend = manifest["source"]["frontend"]["commit"]
-    backend = manifest["source"]["backend"]["commit"]
-    target = manifest["target_release"]
-    latest = manifest["latest_immutable_release"]["tag"]
+def check_document_contracts(errors: list[str], manifest: dict, root: Path = ROOT) -> None:
+    release = dictionary(manifest.get("release"))
+    previous = dictionary(manifest.get("previous_release"))
+    source = dictionary(manifest.get("source"))
+    frontend = dictionary(source.get("frontend")).get("commit", "")
+    backend = dictionary(source.get("backend")).get("commit", "")
+    current_tag = str(release.get("tag", ""))
+    previous_tag = str(previous.get("tag", ""))
+    evidence_date = str(release.get("evidence_date", ""))
 
-    require_phrases(
-        errors,
-        "README.md",
-        {
-            "multi-tenant",
-            "client portal",
-            "deterministic professional demo",
-            "local release validation",
-            target,
-            latest,
-            frontend,
-            backend,
-            "Project ownership",
-        },
-        "README",
-        root,
-    )
-    require_phrases(
-        errors,
-        "BUILD_MANIFEST.md",
-        {
-            target,
-            latest,
-            frontend,
-            backend,
-            "tag-bound release record",
-            "local validation",
-            "53 unique screenshots",
-            "No green hosted-CI claim",
-        },
-        "Build manifest",
-        root,
-    )
-    require_phrases(
-        errors,
-        "RELEASES.md",
-        {
-            target,
-            latest,
-            frontend,
-            backend,
-            "Local validation policy",
-            "Correction policy",
-        },
-        "Release policy",
-        root,
-    )
-    require_phrases(
-        errors,
-        "CHANGELOG.md",
-        {
-            f"{target} — evidence date 2026-07-17",
-            latest,
-            frontend,
-            backend,
-        },
-        "Changelog",
-        root,
-    )
-    require_phrases(
-        errors,
-        "screenshots/README.md",
-        {
-            "# GymFlow Visual Gallery",
-            "53 stable screenshot paths",
-            "53 unique image hashes",
-            target,
-            frontend,
-            backend,
-            "Evidence index",
-        },
-        "Screenshot gallery",
-        root,
-    )
-    require_phrases(
-        errors,
-        "video/README.md",
-        {
-            "# GymFlow Walkthrough Status",
-            target,
-            "not included",
-            "historical media",
-            "provenance-bound release",
-        },
-        "Walkthrough status",
-        root,
-    )
-    require_phrases(
-        errors,
-        "DEMO.md",
-        {
-            "# GymFlow Demo Environment",
-            "Safety contract",
-            "Visual-capture semantics",
-            "No screenshot may publish a real generated token or QR credential",
-        },
-        "Demo document",
-        root,
-    )
-    require_phrases(
-        errors,
-        "SECURITY.md",
-        {
-            "Report a vulnerability",
-            "Advisories",
-            "Do not post exploit details",
-        },
-        "Security policy",
-        root,
-    )
-    require_phrases(
-        errors,
-        "ROADMAP.md",
-        {
-            target,
-            latest,
-            "Product evolution",
-            "Production infrastructure",
-            "Production claim boundary",
-        },
-        "Roadmap",
-        root,
-    )
+    contracts = [
+        (
+            "README.md",
+            {
+                "multi-tenant",
+                "client portal",
+                "deterministic professional demo",
+                "local release validation",
+                current_tag,
+                previous_tag,
+                str(frontend),
+                str(backend),
+                "Project ownership",
+            },
+            "README",
+        ),
+        (
+            "BUILD_MANIFEST.md",
+            {
+                current_tag,
+                previous_tag,
+                str(frontend),
+                str(backend),
+                "release record",
+                "local validation",
+                "53 exact SHA-256 approvals",
+                "No green hosted-CI claim",
+            },
+            "Build manifest",
+        ),
+        (
+            "RELEASES.md",
+            {
+                current_tag,
+                previous_tag,
+                str(frontend),
+                str(backend),
+                "Local validation policy",
+                "Correction policy",
+            },
+            "Release policy",
+        ),
+        (
+            "CHANGELOG.md",
+            {
+                f"{current_tag} — {evidence_date}",
+                previous_tag,
+                str(frontend),
+                str(backend),
+            },
+            "Changelog",
+        ),
+        (
+            "screenshots/README.md",
+            {
+                "# GymFlow Visual Gallery",
+                "53 stable screenshot paths",
+                "53 exact SHA-256 approvals",
+                current_tag,
+                previous_tag,
+                str(frontend),
+                str(backend),
+                "Evidence index",
+            },
+            "Screenshot gallery",
+        ),
+        (
+            "video/README.md",
+            {
+                "# GymFlow Walkthrough Status",
+                current_tag,
+                previous_tag,
+                "not included",
+                "historical media",
+                "provenance-bound release",
+            },
+            "Walkthrough status",
+        ),
+        (
+            "DEMO.md",
+            {
+                "# GymFlow Demo Environment",
+                "Safety contract",
+                "Visual-capture semantics",
+                "No screenshot may publish a real generated token or QR credential",
+            },
+            "Demo document",
+        ),
+        (
+            "SECURITY.md",
+            {"Report a vulnerability", "Advisories", "Do not post exploit details"},
+            "Security policy",
+        ),
+        (
+            "ROADMAP.md",
+            {
+                current_tag,
+                previous_tag,
+                "Product evolution",
+                "Production infrastructure",
+                "Production claim boundary",
+            },
+            "Roadmap",
+        ),
+        (
+            "release/v1.0.3-release-notes.md",
+            {
+                current_tag,
+                previous_tag,
+                str(frontend),
+                str(backend),
+                "53 exact SHA-256 approvals",
+                "Evidence boundary",
+            },
+            "Release notes",
+        ),
+    ]
+    for path, phrases, label in contracts:
+        require_phrases(errors, path, phrases, label, root)
 
 
-def check_local_validation_contract(
-    errors: list[str],
-    root: Path = ROOT,
-) -> None:
+def check_local_validation_contract(errors: list[str], root: Path = ROOT) -> None:
     tracked = {path.as_posix() for path in tracked_relative_paths(root)}
     if ".github/workflows/showcase-quality.yml" in tracked:
-        errors.append(
-            "obsolete hosted Actions workflow remains; this release line uses local validation"
-        )
+        errors.append("obsolete hosted Actions workflow remains; this release line uses local validation")
 
     powershell_path = root / "scripts/validate_release.ps1"
     shell_path = root / "scripts/validate_release.sh"
@@ -713,7 +749,7 @@ def check_local_validation_contract(
     required_commands = {
         "python -m unittest discover",
         "python scripts/check_showcase.py",
-        "python scripts/check_release_candidate.py",
+        "python scripts/check_release.py",
     }
     for command in sorted(required_commands):
         if command not in powershell:
@@ -746,7 +782,6 @@ def run_base_checks(root: Path = ROOT) -> tuple[list[str], dict | None]:
     if manifest is not None:
         check_manifest_contract(errors, manifest)
         check_screenshot_inventory(errors, manifest, root)
-        check_approved_media(errors, manifest, root)
         check_document_contracts(errors, manifest, root)
 
     return errors, manifest
