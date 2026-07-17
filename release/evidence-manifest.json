@@ -5,7 +5,7 @@
     "tag": "v1.0.1-showcase",
     "commit": "53aa79d5124902fc689c4f7b121c7d4b1fdccdc9"
   },
-  "state": "release-candidate",
+  "state": "tag-bound-release-record",
   "evidence_date": "2026-07-17",
   "source": {
     "frontend": {
