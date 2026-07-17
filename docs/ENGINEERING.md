@@ -1,6 +1,6 @@
 # GymFlow Engineering
 
-This document explains the engineering depth behind GymFlow: the design choices, boundaries, failure modes, and trade-offs that are easy to miss in a visual product demo.
+This document explains the engineering depth behind GymFlow: system boundaries, implementation choices, failure handling, reliability patterns, and trade-offs that are easy to miss in a visual product demonstration.
 
 ## Engineering scope
 
@@ -16,170 +16,94 @@ GymFlow demonstrates work across:
 - real-time messaging and presence;
 - reliability and idempotency;
 - security and observability;
-- testing and CI;
+- testing and validation;
 - Docker and environment design;
 - deterministic demo and release engineering.
 
 ## 1. Product-to-system decomposition
 
-The application was split into vertical product areas instead of a technical folder tree with no business ownership.
+The application is organized around vertical product areas rather than one technical layer with no business ownership.
 
-Examples:
+Examples include clients, memberships, staff, bookings, check-ins, payments, reports, messaging, and the client portal. Each slice owns its data access, state coordination, presentation, and targeted verification.
 
-- clients;
-- memberships;
-- staff;
-- bookings;
-- check-ins;
-- payments;
-- reports;
-- messaging;
-- portal.
-
-Each slice owns its models, repository/API access, state/controller logic, presentation, and targeted tests. This makes a change such as “support no-show reporting” traceable from backend data through API schema, frontend parsing, dashboard aggregation, and UI display.
+This makes a change such as “support no-show reporting” traceable from database state through API schema, aggregation, frontend parsing, and UI display.
 
 ## 2. Frontend architecture
 
-### Feature-oriented organization
-
-The Flutter code uses feature modules with three main layers:
+### Feature-oriented structure
 
 | Layer | Responsibility |
 |---|---|
 | Data | Models, repositories, API payload parsing, persistence adapters |
-| State | Controllers/coordinators, loading and mutation lifecycle |
+| State | Controllers or coordinators, loading state, mutation lifecycle |
 | Presentation | Pages, dialogs, responsive widgets, localized copy |
 
-The architecture avoids placing all HTTP calls in widgets or making one global controller own unrelated product behavior.
+HTTP behavior is isolated from widgets, and unrelated product areas are not forced through one global controller.
 
-### Router as a product boundary
+### Routing as a product boundary
 
-The router handles more than navigation:
+The router handles:
 
 - public and protected routes;
 - staff and portal session separation;
 - session-expired redirects;
-- safe redirect target filtering;
-- role-based route access;
+- safe redirect filtering;
+- role-aware route access;
 - billing-state gates;
 - portal preview and session resolution.
 
-This improves user experience, but backend authorization remains the final authority.
+These controls improve navigation and user experience. Backend authorization remains the final security authority.
 
 ### State and failure handling
 
-Pages account for:
+Pages account for loading, refresh, empty state, partial data, API failure, mutation progress, conflict or rate-limit feedback, and session expiry.
 
-- initial loading;
-- refresh;
-- empty state;
-- partial data;
-- API failure;
-- mutation progress;
-- conflict/rate-limit feedback;
-- session expiry.
+The goal is to avoid the common portfolio pattern where only a single happy path exists.
 
-The goal is to avoid the common portfolio pattern where only the happy state exists.
+### Localization and responsiveness
 
-### API boundary
+User-facing copy goes through generated localization or shared display helpers. Backend enum values are mapped into localized labels instead of being displayed raw.
 
-Repositories isolate:
-
-- route construction;
-- authentication headers;
-- request/response encoding;
-- error envelope parsing;
-- model conversion;
-- retry/idempotency metadata.
-
-Controllers then express product actions such as `load`, `create`, `cancel`, `claim`, or `markRead` without embedding raw HTTP logic in UI components.
-
-### Localization architecture
-
-User-facing copy goes through generated `AppLocalizations` or shared display helpers. Backend enum values are mapped into localized labels instead of being shown raw.
-
-This matters for values such as:
-
-- role;
-- membership status;
-- booking status;
-- payment status/provider;
-- billing state;
-- presence state.
-
-Arabic requires more than translated strings. The layout must support RTL direction, alignment, icon order, long labels, and responsive behavior.
-
-### Responsive strategy
-
-GymFlow uses explicit layout tiers rather than assuming desktop widgets will shrink correctly.
-
-The app is reviewed across:
+The interface is reviewed across:
 
 - large desktop;
 - common laptop;
-- compressed desktop/tablet;
+- compressed desktop and tablet;
 - mobile widths;
-- long French copy;
+- expanded French copy;
 - Arabic RTL.
 
-Dialogs, navigation, data cards, timelines, forms, and portal shells each need their own responsive behavior.
+Dialogs, navigation, data cards, forms, timelines, and portal shells have explicit responsive behavior rather than relying on simple widget shrinking.
 
 ## 3. Backend architecture
 
-### FastAPI route organization
+FastAPI routes are grouped under `/api/v1` by business capability. Dependencies apply authentication, portal identity, workspace membership, role requirements, and rate limits near the HTTP boundary.
 
-Routes are grouped under `/api/v1` by business capability. Dependencies apply authentication, portal identity, workspace membership, role requirements, and rate limits near the HTTP boundary.
+| Layer | Responsibility |
+|---|---|
+| API routes | HTTP contract, dependency injection, authorization entry point |
+| Pydantic schemas | Typed validation and audience-safe response models |
+| Services | Business rules, lifecycle transitions, provider coordination, transactions |
+| Repositories and queries | Scoped database access |
+| SQLAlchemy models | Relationships, constraints, indexes, persistence |
+| Core and middleware | Settings, authentication, request IDs, headers, limits, logs |
+| Alembic | Published schema migration history |
 
-### Pydantic contracts
-
-Schemas provide:
-
-- typed request validation;
-- normalized email and identifier handling;
-- separate create/update/read shapes;
-- audience-specific response models;
-- consistent API errors.
-
-A significant lesson was that response validation is also a runtime boundary. The deterministic `.test` identities required an explicit demo-compatible response type while registration and invitation creation retained stricter email validation.
-
-### Service and repository responsibilities
-
-Business behavior is kept outside route handlers when it involves:
-
-- multi-model validation;
-- transactions;
-- provider calls;
-- idempotency;
-- access rules;
-- lifecycle transitions;
-- reporting aggregation.
-
-Repository/query code must preserve workspace scoping and avoid returning a resource before authorization context is applied.
+Business behavior stays outside route handlers when it involves multi-model validation, transactions, provider calls, idempotency, access rules, or reporting aggregation.
 
 ## 4. Relational data design
 
-PostgreSQL was selected because GymFlow contains strongly related business entities and transactional workflows.
+PostgreSQL fits the product because GymFlow contains strongly connected entities and transactional workflows.
 
 Examples:
 
-- a booking references a workspace, client, service, and optional trainer;
-- a client membership references a client and plan;
-- a payment can reference client and membership context;
-- a message belongs to a conversation with authorized participants;
+- bookings connect workspace, client, service, and optional trainer;
+- memberships connect clients and plans;
+- payments connect financial state with client and membership context;
+- messages belong to authorized conversations;
 - reports aggregate durable operational records.
 
-The database uses:
-
-- foreign keys;
-- unique constraints;
-- indexes;
-- enums/status values;
-- timestamps;
-- migration-managed schema evolution.
-
-### Why not store everything as unstructured JSON?
-
-The application depends on referential integrity, filtering, lifecycle queries, aggregation, and cross-entity validation. A relational model makes those invariants visible and enforceable.
+The model uses foreign keys, unique constraints, indexes, statuses, timestamps, and migration-managed schema evolution.
 
 ## 5. Migration discipline
 
@@ -187,10 +111,10 @@ Alembic migrations are treated as published history.
 
 Controls include:
 
-- migration graph checks;
-- metadata/table contract checks;
+- migration-graph checks;
 - one-head expectations;
-- explicit production migration command;
+- model and migration metadata contracts;
+- explicit production migration commands;
 - separation from web startup;
 - preservation of `alembic_version` during demo resets.
 
@@ -198,293 +122,194 @@ The deployment path favors forward fixes over destructive rollback assumptions.
 
 ## 6. Authentication and authorization
 
-### Multiple access models
-
-GymFlow supports:
-
-- staff password login;
-- email verification;
-- password recovery;
-- Google OAuth;
-- staff invitations;
-- client portal one-time access.
-
-These flows share identity concepts but do not share one universal token.
-
-### Workspace and role model
-
-Role is attached to workspace membership. This supports users who can belong to different studios with different permissions.
+GymFlow supports staff password login, verification, recovery, Google OAuth, staff invitations, and one-time client portal access.
 
 Authorization combines:
 
-- user identity;
-- token type;
+- user or portal identity;
+- credential type;
 - active workspace membership;
-- role;
-- membership status;
+- role and membership status;
+- requested operation;
 - resource workspace;
-- resource ownership;
-- operation.
+- client ownership;
+- message audience and participant rules.
 
-### Frontend versus backend permissions
+Frontend permissions answer whether an action should be offered. Backend permissions answer whether the operation is allowed. Both matter, but only the backend is the security boundary.
 
-Frontend permissions answer: “Should this action or route be offered?”
+## 7. Scheduling and attendance
 
-Backend permissions answer: “Is this operation allowed?”
-
-Both are required, but only the backend is a security control.
-
-## 7. Booking and recurrence engineering
-
-Booking logic had to handle:
+Booking logic handles:
 
 - service duration;
-- optional/required trainer;
+- optional or required trainer;
 - trainer availability;
 - overlapping bookings;
 - staff versus portal permissions;
 - recurring generation;
 - future-series cancellation;
-- status transitions;
+- lifecycle transitions;
 - no-show reporting.
 
-A recurring booking is represented as related records rather than one UI-only repetition rule. This allows individual occurrences to have their own lifecycle while preserving series operations.
+Recurring bookings are related records, allowing each occurrence to have its own lifecycle while preserving series-level operations.
 
-## 8. Payment engineering
+Attendance is stored separately from booking state so a physical visit does not have to be represented as the same event as a scheduled session.
 
-### Two financial domains
+## 8. Payments and billing
 
-Client payments and GymFlow SaaS billing are separate domains even when both use Stripe.
+GymFlow separates two financial domains:
 
-This avoids mixing:
+1. **Client payments** between a client and studio.
+2. **SaaS billing** between a studio and GymFlow.
 
-- a client's gym invoice/payment;
-- the studio's subscription to GymFlow.
+Webhook handling verifies signatures, stores provider event identifiers, detects duplicate delivery, and applies idempotent state transitions.
 
-### Idempotency and webhook delivery
+Studios can represent cash, terminal, bank transfer, or Stripe test checkout while preserving a shared payment lifecycle and method context.
 
-Webhooks can be delivered more than once. GymFlow stores provider event identifiers and processing outcomes so duplicate delivery does not repeat a financial state transition.
+## 9. Messaging
 
-Operational logs distinguish:
+Messaging is a workflow system rather than a simple chat table.
 
-- processed;
-- ignored;
-- duplicate.
+It supports:
 
-### Manual and online collection
-
-Studios may accept cash, terminal, bank transfer, or Stripe checkout. The application models a shared payment lifecycle while preserving provider/method context.
-
-## 9. Messaging engineering
-
-Messaging required stronger design than a basic chat demo.
-
-### Audience separation
-
-A conversation can contain:
-
-- client-visible messages;
+- authorized participants;
+- staff assignment and queue claiming;
+- priorities and statuses;
+- client-visible replies;
 - staff-only internal notes;
-- assignment and queue metadata.
+- cursor pagination;
+- retry-safe send identifiers;
+- optimistic workflow versions;
+- lifecycle cleanup and abuse limits.
 
-Client-facing schemas never serialize internal notes.
+Audience-specific response schemas prevent portal clients from receiving internal notes or operational metadata.
 
-### Retry-safe sends
+## 10. Presence
 
-A client may retry a request after a timeout without knowing whether the server committed it. Retry-safe identifiers prevent duplicate messages from being created.
+Presence is not a manually toggled boolean.
 
-### Optimistic workflow versions
-
-Two staff users may update assignment, priority, or status concurrently. A workflow version allows the backend to reject stale updates rather than silently overwriting the newer state.
-
-### Pagination
-
-Cursor pagination avoids unstable page-number behavior as new messages arrive.
-
-## 10. Presence engineering
-
-Presence is not represented as a manually toggled boolean.
-
-The system distinguishes:
+The system combines:
 
 - authenticated connection heartbeat;
 - recent user activity;
-- multi-device connection aggregation;
-- online/away/offline derivation;
+- multiple-device aggregation;
+- online, away, and offline derivation;
 - visibility policy;
 - administrative reset.
 
-This prevents common errors such as one closed browser tab forcing a multi-device user offline.
+One closed browser tab therefore does not incorrectly force a multi-device user offline.
 
-## 11. Reliability patterns
-
-GymFlow uses several reliability patterns:
+## 11. Reliability and observability
 
 | Pattern | Example |
 |---|---|
-| Transaction | Demo reset/seed/validation commits as one unit |
+| Transaction | Demo reset, seed, validation, and commit as one unit |
 | Advisory lock | Prevent concurrent demo rebuilds |
 | Idempotency | Stripe webhook events and message sends |
 | Optimistic concurrency | Conversation workflow updates |
-| Expiring one-time credential | Portal access, recovery, verification |
-| Consistent error envelope | Frontend can interpret API failures predictably |
-| Readiness dependency checks | Traffic is rejected when required dependencies are unavailable |
+| Expiring one-time credential | Portal access, recovery, and verification |
 | Neutral public response | Prevent identity enumeration |
+| Readiness checks | Reject traffic when required dependencies are unavailable |
+| Request correlation | Connect frontend failures with structured backend logs |
 
-## 12. Security engineering
+Every request receives an `X-Request-ID`. Liveness and readiness remain separate because “the process is running” is different from “the service can safely receive traffic.”
 
-Implemented controls include:
+## 12. Environment design
 
-- trusted hosts;
-- controlled CORS;
-- rate limiting;
-- sensitive request-body limits;
-- security headers;
-- disabled production debug/docs;
-- workspace/role/token isolation;
-- generic 500 responses;
-- request IDs;
-- secret scanning;
-- strict production provider settings;
-- demo refusal when live payment configuration is detected.
+| Environment | Purpose |
+|---|---|
+| Development | Local iteration and diagnostics |
+| Test | Isolated and deterministic automated checks |
+| Demo | Guarded fictional scenario and repeatable presentation |
+| Production | Fail-closed configuration and provider verification |
 
-Security is treated as both code and configuration. Correct source code cannot compensate for a production environment that exposes local origins, weak secrets, or misconfigured provider callbacks.
+Demo mode is not an alias for development. It has its own database, identity, payment, and destructive-operation contract.
 
-## 13. Observability engineering
+## 13. Deterministic demo engineering
 
-The API emits structured logs with:
-
-- request ID;
-- method;
-- path;
-- status;
-- duration;
-- client context;
-- event-specific metadata.
-
-Errors return the request ID so a UI failure can be correlated with backend logs.
-
-Liveness and readiness are separate because “the process is running” is different from “the service can safely receive traffic.”
-
-## 14. Environment design
-
-### Development
-
-Optimized for local iteration and diagnostics.
-
-### Test
-
-Optimized for isolated and deterministic automated checks.
-
-### Demo
-
-Optimized for repeatable professional presentation with fictional identities and destructive safeguards.
-
-### Production
-
-Optimized to fail configuration validation when required security and provider settings are incomplete or unsafe.
-
-The demo environment is intentionally not a loose development mode. It has its own database and reset contract.
-
-## 15. Docker and deployment engineering
-
-The backend container:
-
-- uses a slim Python base image;
-- installs dependencies at build time;
-- runs as a non-root user;
-- exposes a readiness health check;
-- starts through an explicit script.
-
-Production migrations run as a separate job before the web container is rolled. This makes schema changes visible and operationally intentional.
-
-The local stack supports switching between `gymflow` and `gymflow_demo` without deleting the shared PostgreSQL volume.
-
-## 16. Deterministic demo engineering
-
-The professional demo seed is not a random fixture generator.
-
-It has fixed identities, relationships, dates relative to the seed date, lifecycle states, financial totals, portal stories, and dashboard/report targets.
+The Northline Performance Club seed is not a random fixture generator. It has fixed identities, connected relationships, relative dates, lifecycle states, financial totals, portal stories, and report targets.
 
 The rebuild:
 
 - refuses production;
 - refuses arbitrary database names;
 - refuses remote database hosts;
-- refuses live Stripe mode or live stored events;
+- refuses live Stripe configuration or stored live events;
 - refuses unknown application tables;
-- preserves schema and migrations;
+- preserves schema and migration history;
 - deletes in reviewed dependency order;
 - validates before commit.
 
 This turns demo preparation into a repeatable release process rather than manual database editing.
 
-## 17. Testing strategy
+## 14. Validation strategy
 
-GymFlow uses multiple test types because one type cannot protect all risks.
+The application and showcase use layered evidence:
 
-| Test type | What it protects |
+| Layer | Protection |
 |---|---|
-| Unit/model tests | Parsing, mapping, calculations, state transitions |
-| API behavior tests | HTTP contracts and business outcomes |
-| Authorization tests | Tenant, role, portal, and participant isolation |
-| Contract scripts | Required routes, middleware, migrations, settings, docs |
-| Source/regression tests | Flutter architecture and UI rules difficult to exercise headlessly |
-| API-sync tests | Frontend/backend route and payload alignment |
-| Static analysis | Dart and Python/source quality |
-| Manual QA | Responsive behavior, provider flow, localization, visual credibility |
+| Unit and model tests | Parsing, calculations, mappings, transitions |
+| API behavior tests | Contracts, business outcomes, and errors |
+| Authorization tests | Workspace, role, portal, and participant isolation |
+| Contract scripts | Required routes, settings, middleware, and migration structure |
+| API synchronization | Frontend and backend route or payload drift |
+| Static analysis | Dart and Python quality |
+| Manual QA | Responsive layout, localization, provider behavior, and visuals |
+| Demo validation | Deterministic counts, relationships, trends, and identities |
+| Showcase validation | Documentation, privacy, provenance, and media integrity |
 
-## 18. CI design
+The showcase uses traditional local release validation:
 
-### Backend CI
+```powershell
+./scripts/validate_release.ps1
+```
 
-Runs with PostgreSQL and Redis services and executes the complete backend quality runner.
+or:
 
-### Frontend CI
+```bash
+./scripts/validate_release.sh
+```
 
-Runs secret scanning, dependency installation, localization generation, Flutter analysis, quality checks, and API-sync tests.
+The tooling inspects tracked Git content, runs its own regression tests, validates the 53-image contract, verifies canonical source revisions, and optionally confirms the release tag on a clean working tree.
 
-### Showcase CI
+No successful hosted execution is claimed for this release line.
 
-Validates documentation structure, local links, asset references, stale credentials, and common secret patterns.
+## 15. Release engineering
 
-## 19. Key architecture decisions
+The `v1.0.2-showcase` candidate centralizes release facts in [`release/evidence-manifest.json`](../release/evidence-manifest.json).
 
-| Decision | Alternative considered | Why the chosen approach won |
+The record includes:
+
+- target and historical release identifiers;
+- frontend and backend commits;
+- Alembic head;
+- evidence date;
+- gallery paths and counts;
+- approved and blocked media hashes;
+- included and omitted artifacts;
+- validation commands;
+- product and production boundaries.
+
+The canonical application snapshots remain:
+
+- frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
+- backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
+
+## 16. Key decisions and trade-offs
+
+| Decision | Benefit | Trade-off |
 |---|---|---|
-| Flutter multi-platform client | Separate web/mobile implementations | Shared domain UI and consistent product experience |
-| FastAPI typed API | Loosely typed endpoints | Clear validation, OpenAPI contracts, dependency-based auth |
-| PostgreSQL | Document-only persistence | Strong relationships, transactions, reporting, constraints |
-| Workspace membership roles | One global user role | Supports multi-workspace SaaS and scoped privilege |
-| Portal token separate from staff JWT | Reuse staff auth for clients | Least privilege and client-safe experience |
-| Separate migration job | Auto-migrate on every web boot | Predictable releases and visible schema change |
-| Redis-backed production limits | Process-local counters only | Correct behavior across multiple API instances |
-| Deterministic demo database | Manual fixture editing | Repeatable QA, screenshots, video, and failure diagnosis |
-| Audience-specific messaging schemas | One universal message response | Prevent internal-note and metadata leakage |
-| Presence from heartbeat + activity | Manual online switch | More truthful multi-device online/away behavior |
+| Flutter across client targets | Shared product logic and consistent design | Platform integrations still need adapters |
+| FastAPI and Pydantic | Typed contracts and clear validation | Route and service boundaries require discipline |
+| PostgreSQL relational model | Strong relationships and transactional rules | Schema changes require migrations |
+| Workspace membership boundary | Multi-workspace users and scoped roles | Every business query must preserve scope |
+| Separate portal token | Least privilege and safer client UX | Two session models must be maintained |
+| Separate migration job | Predictable deployment and explicit schema changes | Deployment has an additional step |
+| Redis-backed production limits | Shared abuse-control state across instances | Production requires another managed service |
+| Deterministic demo rebuild | Repeatable review and release evidence | Seed contracts evolve with the product |
+| Internal-note separation | Protects client-facing audiences | Messaging schemas and tests are more complex |
+| Local release validation | Reproducible traditional gate without false hosted claims | Reviewers do not receive a green hosted badge |
 
-## 20. Engineering evidence matrix
+## Production boundary
 
-| Skill | Concrete evidence |
-|---|---|
-| System design | C4-style architecture, trust boundaries, deployment model |
-| API design | Versioned routes, typed schemas, consistent errors |
-| Database design | Relational domain model and migration contracts |
-| Security | Token separation, workspace scope, rate/body limits, headers |
-| Distributed systems | Idempotency, retries, optimistic concurrency, WebSockets |
-| DevOps | CI services, Docker, separate migrations, health checks |
-| Observability | Request correlation, structured logs, provider diagnostics |
-| Testing | Layered automated checks plus manual QA |
-| Product thinking | Connected workflows and realistic edge cases |
-| Internationalization | Three languages, RTL, localized domain values |
-| Release engineering | Guarded deterministic seed and artifact manifest |
-
-## 21. Known trade-offs and future work
-
-- Flutter provides cross-platform leverage but still requires platform-specific OAuth, camera, and browser integration handling.
-- Source-based UI regression tests are useful but should be complemented by more golden/integration tests over time.
-- Provider integrations need real environment verification before production claims.
-- Production operations need managed hosting, monitoring, backup/restore, and vulnerability scanning.
-- A public API collection and generated release SBOM would strengthen external review.
-
-These items are tracked in the [Roadmap](../ROADMAP.md) rather than hidden from the showcase.
+The architecture is production-oriented, but a live commercial launch still requires deployment-specific verification of hosting, managed PostgreSQL and Redis, Stripe and OAuth callbacks, verified email delivery, monitoring, alerting, backups, restore drills, vulnerability scanning, and operational ownership.
