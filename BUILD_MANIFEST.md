@@ -25,15 +25,16 @@ source-alignment review, and showcase validators succeed on the same commit.
 
 | Component | Repository/ref | Revision | Evidence |
 |---|---|---|---|
-| Frontend | `anes-dev-ml/Gymflow-Frontend` / `main` | `8242f24fb05f0918393e439b5e0f1cc2e5f3086d` | Final responsive dashboard, messaging, payments, check-in, localization, and regression hardening |
+| Frontend | `anes-dev-ml/Gymflow-Frontend` / `main` | `b73a623c3985e4bc458d04b4b484887ada593fa5` | Final responsive product hardening plus regression-suite reconciliation for messaging, payments, attendance, portal architecture, and Windows source contracts |
 | Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | Final backend release audit merged into `main` |
 | Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Release-candidate head | Case study, gallery, provenance, and release validation |
 
 The earlier release-audit baseline was frontend
 `489a82e03059465755c74b1be39ae7c05f98fb9b`. The canonical frontend snapshot
 above includes the subsequent mobile-dashboard, professional-messaging,
-zoom-responsive, payment-copy, and attendance hardening used by the final visual
-evidence. The backend remains unchanged from its final audited revision.
+zoom-responsive, payment-copy, attendance, source-contract, and portal-test
+reconciliation used by the final visual evidence. The backend remains unchanged
+from its final audited revision.
 
 ## Application and schema versions
 
@@ -153,7 +154,7 @@ source-provenance checks are enforced by
 
 | Gate | Evidence | Recorded result |
 |---|---|---|
-| Frontend | Full frontend release-quality commands on `8242f24fb05f0918393e439b5e0f1cc2e5f3086d` | Required before the candidate tag is created |
+| Frontend | Full frontend release-quality commands on `b73a623c3985e4bc458d04b4b484887ada593fa5` | Required before the candidate tag is created |
 | Backend | Equivalent release validation completed locally | Completed on `2234af20d1d9dd143bcac22edc699d3ee7fe515f` |
 | Showcase base | `python scripts/check_showcase.py` | Must pass on the exact commit selected for the release tag |
 | Final candidate | `python scripts/check_release_candidate.py` | Must pass after all final screenshot replacements are committed |
