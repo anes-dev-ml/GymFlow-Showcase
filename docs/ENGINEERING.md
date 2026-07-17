@@ -64,14 +64,7 @@ The goal is to avoid the common portfolio pattern where only a single happy path
 
 User-facing copy goes through generated localization or shared display helpers. Backend enum values are mapped into localized labels instead of being displayed raw.
 
-The interface is reviewed across:
-
-- large desktop;
-- common laptop;
-- compressed desktop and tablet;
-- mobile widths;
-- expanded French copy;
-- Arabic RTL.
+The interface is reviewed across large desktop, common laptop, compressed desktop/tablet, mobile widths, expanded French copy, and Arabic RTL.
 
 Dialogs, navigation, data cards, forms, timelines, and portal shells have explicit responsive behavior rather than relying on simple widget shrinking.
 
@@ -139,17 +132,7 @@ Frontend permissions answer whether an action should be offered. Backend permiss
 
 ## 7. Scheduling and attendance
 
-Booking logic handles:
-
-- service duration;
-- optional or required trainer;
-- trainer availability;
-- overlapping bookings;
-- staff versus portal permissions;
-- recurring generation;
-- future-series cancellation;
-- lifecycle transitions;
-- no-show reporting.
+Booking logic handles service duration, optional or required trainers, trainer availability, overlapping bookings, staff versus portal permissions, recurring generation, future-series cancellation, lifecycle transitions, and no-show reporting.
 
 Recurring bookings are related records, allowing each occurrence to have its own lifecycle while preserving series-level operations.
 
@@ -186,16 +169,7 @@ Audience-specific response schemas prevent portal clients from receiving interna
 
 ## 10. Presence
 
-Presence is not a manually toggled boolean.
-
-The system combines:
-
-- authenticated connection heartbeat;
-- recent user activity;
-- multiple-device aggregation;
-- online, away, and offline derivation;
-- visibility policy;
-- administrative reset.
+Presence is not a manually toggled boolean. The system combines authenticated connection heartbeat, recent user activity, multiple-device aggregation, online/away/offline derivation, visibility policy, and administrative reset.
 
 One closed browser tab therefore does not incorrectly force a multi-device user offline.
 
@@ -229,16 +203,7 @@ Demo mode is not an alias for development. It has its own database, identity, pa
 
 The Northline Performance Club seed is not a random fixture generator. It has fixed identities, connected relationships, relative dates, lifecycle states, financial totals, portal stories, and report targets.
 
-The rebuild:
-
-- refuses production;
-- refuses arbitrary database names;
-- refuses remote database hosts;
-- refuses live Stripe configuration or stored live events;
-- refuses unknown application tables;
-- preserves schema and migration history;
-- deletes in reviewed dependency order;
-- validates before commit.
+The rebuild refuses production, arbitrary database names, remote database hosts, live Stripe configuration, stored live events, and unknown application tables. It preserves schema and migration history, deletes in reviewed dependency order, and validates before commit.
 
 This turns demo preparation into a repeatable release process rather than manual database editing.
 
@@ -264,28 +229,26 @@ The showcase uses traditional local release validation:
 .\scripts\validate_release.ps1
 ```
 
-or:
-
 ```bash
 bash scripts/validate_release.sh
 ```
 
-The tooling inspects tracked Git content, runs its own regression tests, validates the 53-image contract, verifies canonical source revisions, and optionally confirms the release tag on a clean working tree.
+The tooling inspects tracked Git content, runs its own regression tests, validates the 53-image contract and all 53 exact SHA-256 approvals, verifies canonical source revisions, and optionally confirms the current release tag on a clean working tree.
 
 No successful hosted execution is claimed for this release line.
 
 ## 15. Release engineering
 
-The tag-bound `v1.0.2-showcase` release record centralizes release facts in [`release/evidence-manifest.json`](../release/evidence-manifest.json).
+The `v1.0.3-showcase` release record centralizes public release facts in [`release/evidence-manifest.json`](../release/evidence-manifest.json). The previous immutable release is `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`.
 
 The record includes:
 
-- target and historical release identifiers;
+- explicit current and previous release identities;
 - frontend and backend commits;
 - Alembic head;
 - evidence date;
-- gallery paths and counts;
-- approved and blocked media hashes;
+- gallery paths, counts, and exact hashes;
+- blocked rejected-media hashes;
 - included and omitted artifacts;
 - validation commands;
 - product and production boundaries.
@@ -308,7 +271,8 @@ The canonical application snapshots remain:
 | Redis-backed production limits | Shared abuse-control state across instances | Production requires another managed service |
 | Deterministic demo rebuild | Repeatable review and release evidence | Seed contracts evolve with the product |
 | Internal-note separation | Protects client-facing audiences | Messaging schemas and tests are more complex |
-| Local release validation | Reproducible traditional gate without false hosted claims | Reviewers do not receive a green hosted badge |
+| Local release validation | Reproducible gate without false hosted claims | Reviewers do not receive a green hosted badge |
+| Full screenshot hash approval | Exact visual evidence integrity | Any legitimate recapture requires a new release record |
 
 ## Production boundary
 
