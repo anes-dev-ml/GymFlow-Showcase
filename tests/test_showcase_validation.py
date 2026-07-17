@@ -13,7 +13,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import showcase_validation as validation
-from check_release_candidate import check_release_state
+from check_release import check_release_state
 
 
 def run_git(root: Path, *args: str) -> str:
@@ -42,6 +42,15 @@ class ShowcaseValidationTests(unittest.TestCase):
         run_git(root, "commit", "-qm", message)
         return run_git(root, "rev-parse", "HEAD")
 
+    def current_manifest(self) -> dict:
+        return json.loads(
+            (
+                Path(__file__).resolve().parents[1]
+                / "release"
+                / "evidence-manifest.json"
+            ).read_text(encoding="utf-8")
+        )
+
     def test_tracked_file_discovery_ignores_untracked_bytecode(self) -> None:
         root = self.make_repo()
         (root / "README.md").write_text("# Fixture\n", encoding="utf-8")
@@ -51,12 +60,8 @@ class ShowcaseValidationTests(unittest.TestCase):
         cache.mkdir(parents=True)
         (cache / "validator.pyc").write_bytes(b"generated")
 
-        tracked = {
-            path.as_posix()
-            for path in validation.tracked_relative_paths(root)
-        }
+        tracked = {path.as_posix() for path in validation.tracked_relative_paths(root)}
         self.assertEqual(tracked, {"README.md"})
-
         errors: list[str] = []
         validation.check_tracked_file_safety(errors, root)
         self.assertEqual(errors, [])
@@ -64,24 +69,35 @@ class ShowcaseValidationTests(unittest.TestCase):
     def test_obsolete_release_text_is_detected_in_public_docs(self) -> None:
         root = self.make_repo()
         (root / "README.md").write_text(
-            "main is preparing `v1.0.1-showcase`\n",
+            "Before tagging `v1.0.2-showcase`, rerun the candidate gate.\n",
             encoding="utf-8",
         )
         self.commit_all(root)
 
         errors: list[str] = []
         validation.check_text_safety(errors, root)
-        self.assertTrue(
-            any("obsolete release statement" in error for error in errors),
-            errors,
+        self.assertTrue(any("obsolete release statement" in error for error in errors), errors)
+
+    def test_historical_release_notes_may_preserve_historical_wording(self) -> None:
+        root = self.make_repo()
+        path = root / "release" / "v1.0.2-release-notes.md"
+        path.parent.mkdir()
+        path.write_text(
+            "Before tagging `v1.0.2-showcase`, run the release gate.\n",
+            encoding="utf-8",
         )
+        self.commit_all(root)
+
+        errors: list[str] = []
+        validation.check_text_safety(errors, root)
+        self.assertEqual(errors, [])
 
     def test_validator_source_can_contain_detection_literals(self) -> None:
         root = self.make_repo()
         scripts = root / "scripts"
         scripts.mkdir()
         (scripts / "fixture.py").write_text(
-            'VALUE = "main is preparing `v1.0.1-showcase`"\n',
+            'VALUE = "before tagging `v1.0.2-showcase`"\n',
             encoding="utf-8",
         )
         self.commit_all(root)
@@ -91,47 +107,52 @@ class ShowcaseValidationTests(unittest.TestCase):
         self.assertEqual(errors, [])
 
     def test_manifest_contract_accepts_current_release_record(self) -> None:
-        manifest = json.loads(
-            (
-                Path(__file__).resolve().parents[1]
-                / "release"
-                / "evidence-manifest.json"
-            ).read_text(encoding="utf-8")
-        )
         errors: list[str] = []
-        validation.check_manifest_contract(errors, manifest)
+        validation.check_manifest_contract(errors, self.current_manifest())
         self.assertEqual(errors, [])
 
     def test_manifest_contract_rejects_source_drift(self) -> None:
-        manifest = json.loads(
-            (
-                Path(__file__).resolve().parents[1]
-                / "release"
-                / "evidence-manifest.json"
-            ).read_text(encoding="utf-8")
-        )
-        changed = deepcopy(manifest)
+        changed = deepcopy(self.current_manifest())
         changed["source"]["frontend"]["commit"] = "0" * 40
 
         errors: list[str] = []
         validation.check_manifest_contract(errors, changed)
         self.assertIn("canonical frontend revision is incorrect", errors)
 
-    def test_release_mode_requires_target_tag_on_clean_head(self) -> None:
+    def test_manifest_contract_handles_malformed_nested_values(self) -> None:
+        changed = deepcopy(self.current_manifest())
+        changed["release"] = "invalid"
+        changed["source"] = []
+        changed["gallery"] = None
+
+        errors: list[str] = []
+        validation.check_manifest_contract(errors, changed)
+        self.assertTrue(errors)
+
+    def test_manifest_requires_exact_hash_for_every_screenshot(self) -> None:
+        changed = deepcopy(self.current_manifest())
+        first = next(iter(changed["gallery"]["approved_sha256"]))
+        del changed["gallery"]["approved_sha256"][first]
+
+        errors: list[str] = []
+        validation.check_manifest_contract(errors, changed)
+        self.assertTrue(any("missing approved SHA-256" in error for error in errors), errors)
+
+    def test_release_mode_requires_current_tag_on_clean_head(self) -> None:
         root = self.make_repo()
         (root / "README.md").write_text("# Fixture\n", encoding="utf-8")
-        first = self.commit_all(root, "first")
-        run_git(root, "tag", "v1.0.1-showcase", first)
+        previous_commit = self.commit_all(root, "previous")
+        run_git(root, "tag", "v1.0.2-showcase", previous_commit)
 
-        (root / "README.md").write_text("# Fixture\n\nSecond\n", encoding="utf-8")
-        second = self.commit_all(root, "second")
-        run_git(root, "tag", "v1.0.2-showcase", second)
+        (root / "README.md").write_text("# Fixture\n\nCurrent\n", encoding="utf-8")
+        current_commit = self.commit_all(root, "current")
+        run_git(root, "tag", "v1.0.3-showcase", current_commit)
 
         manifest = {
-            "target_release": "v1.0.2-showcase",
-            "latest_immutable_release": {
-                "tag": "v1.0.1-showcase",
-                "commit": first,
+            "release": {"tag": "v1.0.3-showcase"},
+            "previous_release": {
+                "tag": "v1.0.2-showcase",
+                "commit": previous_commit,
             },
         }
         errors: list[str] = []
@@ -141,10 +162,32 @@ class ShowcaseValidationTests(unittest.TestCase):
         (root / "README.md").write_text("# Dirty\n", encoding="utf-8")
         errors = []
         check_release_state(errors, manifest, True, root)
-        self.assertIn(
-            "release validation requires a clean working tree",
-            errors,
-        )
+        self.assertIn("release validation requires a clean working tree", errors)
+
+    def test_record_mode_accepts_current_tag_not_yet_created(self) -> None:
+        root = self.make_repo()
+        (root / "README.md").write_text("# Fixture\n", encoding="utf-8")
+        previous_commit = self.commit_all(root, "previous")
+        run_git(root, "tag", "v1.0.2-showcase", previous_commit)
+
+        (root / "README.md").write_text("# Fixture\n\nCurrent\n", encoding="utf-8")
+        self.commit_all(root, "current")
+
+        manifest = {
+            "release": {"tag": "v1.0.3-showcase"},
+            "previous_release": {
+                "tag": "v1.0.2-showcase",
+                "commit": previous_commit,
+            },
+        }
+        errors: list[str] = []
+        check_release_state(errors, manifest, False, root)
+        self.assertEqual(errors, [])
+
+    def test_current_repository_base_checks_pass(self) -> None:
+        errors, manifest = validation.run_base_checks(Path(__file__).resolve().parents[1])
+        self.assertIsNotNone(manifest)
+        self.assertEqual(errors, [])
 
 
 if __name__ == "__main__":
