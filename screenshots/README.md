@@ -128,7 +128,7 @@ That distinction is recorded in the build manifest rather than hidden.
 
 The candidate represents:
 
-- frontend `main` at `8242f24fb05f0918393e439b5e0f1cc2e5f3086d`;
+- frontend `main` at `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `main` at `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
 - the Northline Performance Club fictional scenario;
 - reserved `.test` or IANA example-domain identities;
