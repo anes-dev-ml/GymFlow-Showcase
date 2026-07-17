@@ -6,7 +6,7 @@ A reviewer should be able to determine what a release contains, which applicatio
 
 ## Current release line
 
-`main` contains the `v1.0.2-showcase` release candidate.
+`main` contains the tag-bound `v1.0.2-showcase` release record. Before tagging it is the reviewed release line; after tagging the immutable tag becomes the authoritative pointer to the same commit.
 
 This patch-level correction keeps the canonical application revisions unchanged:
 
@@ -74,15 +74,15 @@ This showcase release line uses traditional local validation rather than GitHub 
 The release gate is:
 
 ```powershell
-./scripts/validate_release.ps1
-./scripts/validate_release.ps1 -Release
+.\scripts\validate_release.ps1
+.\scripts\validate_release.ps1 -Release
 ```
 
 or:
 
 ```bash
-./scripts/validate_release.sh
-./scripts/validate_release.sh --release
+bash scripts/validate_release.sh
+bash scripts/validate_release.sh --release
 ```
 
 The local gate runs:
