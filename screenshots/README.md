@@ -1,8 +1,8 @@
 # GymFlow Visual Gallery
 
-The tag-bound `v1.0.2-showcase` release record defines **53 stable screenshot paths** tied to the frontend and backend revisions recorded in the [Build Manifest](../BUILD_MANIFEST.md) and [`release/evidence-manifest.json`](../release/evidence-manifest.json).
+The `v1.0.3-showcase` release record defines **53 stable screenshot paths** tied to the frontend and backend revisions recorded in the [Build Manifest](../BUILD_MANIFEST.md) and [`release/evidence-manifest.json`](../release/evidence-manifest.json).
 
-The latest immutable gallery release is `v1.0.1-showcase`. The current correction line keeps the same application snapshots:
+The previous immutable gallery release is `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`. The current record keeps the same application snapshots:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
@@ -20,7 +20,7 @@ All identities and business records are fictional. Payment states are manual, si
 | Engineering | [`engineering/`](engineering/) | 10 | Architecture, schema, API, runtime, deterministic summaries, and provenance |
 | **Total** |  | **53** |  |
 
-The filenames are a release contract. A final release must contain exactly these paths, supported image formats, readable dimensions, and **53 unique image hashes**. Renaming a misleading image is not a substitute for replacing its content.
+The filenames are a release contract. A release must contain exactly these paths, supported image formats, readable dimensions, 53 unique image hashes, and **53 exact SHA-256 approvals**. Renaming a misleading image is not a substitute for replacing its content.
 
 ## Evidence types
 
@@ -145,8 +145,8 @@ The gallery is protected by:
 - exact inventory paths and counts;
 - supported format and dimension checks;
 - 53 unique image hashes;
+- 53 exact SHA-256 approvals;
 - permanently blocked rejected-media hashes;
-- exact SHA-256 values for high-risk reviewed assets;
 - canonical source revision checks;
 - manual privacy, localization, responsive, and visual review.
 
