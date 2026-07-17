@@ -10,7 +10,7 @@ from pathlib import Path
 import check_showcase
 
 ROOT = Path(__file__).resolve().parents[1]
-FRONTEND_SHA = "8242f24fb05f0918393e439b5e0f1cc2e5f3086d"
+FRONTEND_SHA = "b73a623c3985e4bc458d04b4b484887ada593fa5"
 BACKEND_SHA = "2234af20d1d9dd143bcac22edc699d3ee7fe515f"
 TARGET_TAG = "v1.0.1-showcase"
 
