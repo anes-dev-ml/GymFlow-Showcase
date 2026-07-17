@@ -1,12 +1,14 @@
 {
-  "schema_version": 1,
-  "target_release": "v1.0.2-showcase",
-  "latest_immutable_release": {
-    "tag": "v1.0.1-showcase",
-    "commit": "53aa79d5124902fc689c4f7b121c7d4b1fdccdc9"
+  "schema_version": 2,
+  "release": {
+    "tag": "v1.0.3-showcase",
+    "state": "release-record",
+    "evidence_date": "2026-07-17"
   },
-  "state": "tag-bound-release-record",
-  "evidence_date": "2026-07-17",
+  "previous_release": {
+    "tag": "v1.0.2-showcase",
+    "commit": "4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f"
+  },
   "source": {
     "frontend": {
       "repository": "anes-dev-ml/Gymflow-Frontend",
@@ -28,10 +30,10 @@
     "commands": [
       "python -m unittest discover -s tests -p test_*.py",
       "python scripts/check_showcase.py",
-      "python scripts/check_release_candidate.py",
-      "python scripts/check_release_candidate.py --release"
+      "python scripts/check_release.py",
+      "python scripts/check_release.py --release"
     ],
-    "note": "GitHub-hosted jobs are not used as release evidence for this repository."
+    "note": "The reviewed local gate is the release authority. GitHub-hosted execution is not claimed."
   },
   "gallery": {
     "total": 53,
@@ -107,11 +109,11 @@
         "16-backend-commit-history.png"
       ]
     },
-    "approved_exact_sha256": {
+    "approved_sha256": {
+      "screenshots/engineering/15-frontend-commit-history.png": "b04a3fcbf71aaf96254bf69e8d6639de522dd9675efc0b23208871be5438b347",
       "screenshots/mobile/04-check-in-pass.png": "7bf6a105ba160fe87a35d46a97c62a6d4050d9a0dc20752f8025ea1e2fae61c7",
       "screenshots/mobile/06-dashboard.png": "6d8570aaad3c305b9f495e340b274a4f10d6005a4834e90247f3719727f152cf",
-      "screenshots/portal/02-bookings.png": "62a958d0f84fa37c8ed38dd1c65303f95ffea5444e6188b66c59a479e11fa5bd",
-      "screenshots/engineering/15-frontend-commit-history.png": "b04a3fcbf71aaf96254bf69e8d6639de522dd9675efc0b23208871be5438b347"
+      "screenshots/portal/02-bookings.png": "62a958d0f84fa37c8ed38dd1c65303f95ffea5444e6188b66c59a479e11fa5bd"
     },
     "blocked_sha256": {
       "d074a81c15e600540ff5bfdc1c61ff737639e7deae727bbb88e50ed5d85045ee": "generated credential in QR",
@@ -127,7 +129,7 @@
   "artifacts": {
     "walkthrough_video": {
       "status": "not-included",
-      "reason": "No current provenance-bound walkthrough is part of this release line."
+      "reason": "No current provenance-bound walkthrough is part of this release."
     },
     "installable_binary": {
       "status": "not-included",
