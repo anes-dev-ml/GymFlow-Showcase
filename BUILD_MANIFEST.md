@@ -9,7 +9,7 @@ The machine-readable companion record is [`release/evidence-manifest.json`](rele
 | Field | Value |
 |---|---|
 | Target release | `v1.0.2-showcase` |
-| Current state | Release candidate on `main` |
+| Current state | Tag-bound release record on `main`; immutable when the target tag points to the reviewed commit |
 | Latest immutable release | `v1.0.1-showcase` at `53aa79d5124902fc689c4f7b121c7d4b1fdccdc9` |
 | Evidence date | 2026-07-17 |
 | Demo workspace | Northline Performance Club |
@@ -25,7 +25,7 @@ The machine-readable companion record is [`release/evidence-manifest.json`](rele
 |---|---|---|---|
 | Frontend | `anes-dev-ml/Gymflow-Frontend` / `main` | `b73a623c3985e4bc458d04b4b484887ada593fa5` | Final responsive and regression-reconciled product snapshot |
 | Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | Final audited API, data, security, demo, and operational snapshot |
-| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Current reviewed candidate HEAD | Documentation, gallery, provenance, and local release validation |
+| Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Current reviewed record HEAD | Documentation, gallery, provenance, and local release validation |
 
 The showcase commit is identified by the immutable release tag. A document inside a Git commit does not attempt to contain its own SHA; the target tag is the authoritative pointer to the reviewed commit.
 
@@ -137,14 +137,14 @@ Every release screenshot must satisfy all of these rules:
 | Showcase base | `python scripts/check_showcase.py` | Must pass |
 | Final candidate | `python scripts/check_release_candidate.py` | Must pass |
 | Release tag | `python scripts/check_release_candidate.py --release` | Must pass after tagging |
-| Combined PowerShell gate | `./scripts/validate_release.ps1` | Must pass |
-| Combined shell gate | `./scripts/validate_release.sh` | Must pass |
+| Combined PowerShell gate | `.\scripts\validate_release.ps1` | Must pass |
+| Combined shell gate | `bash scripts/validate_release.sh` | Must pass |
 
 Validation for this showcase release line is local and traditional. GitHub-hosted Actions are not used as release evidence. **No green hosted-CI claim is made.**
 
 The validators inspect tracked Git content, local links, release-state consistency, source provenance, screenshot inventory, dimensions, duplicate hashes, blocked media, exact approved media, public wording, and release-tag alignment. Unit tests protect the validator behavior that previously caused false failures.
 
-## Release rule
+## Tag rule
 
 Create `v1.0.2-showcase` only when:
 
@@ -152,7 +152,7 @@ Create `v1.0.2-showcase` only when:
 2. validator unit tests pass;
 3. `python scripts/check_showcase.py` passes;
 4. `python scripts/check_release_candidate.py` passes;
-5. the candidate commit has received a final privacy and visual review;
+5. the record commit has received a final privacy and visual review;
 6. the working tree is clean;
 7. the tag is created on that exact reviewed commit;
 8. `python scripts/check_release_candidate.py --release` passes.
