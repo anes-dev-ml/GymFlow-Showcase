@@ -2,7 +2,7 @@
 
 All notable changes to the GymFlow showcase are documented here. The private application repositories maintain their own histories; this changelog tracks the public case study, diagrams, screenshots, manifests, validation contracts, and release artifacts.
 
-## [Unreleased] — v1.0.2-showcase
+## v1.0.2-showcase — evidence date 2026-07-17
 
 ### Added
 
@@ -33,6 +33,10 @@ All notable changes to the GymFlow showcase are documented here. The private app
 - Prevented generated `__pycache__` directories from causing false release failures when they are untracked.
 - Added Python cache rules to `.gitignore`.
 - Removed the broken hosted workflow whose compile step created files forbidden by the following validation step.
+
+### Release rule
+
+This record becomes immutable when `v1.0.2-showcase` points to the reviewed commit and the release-form local validator passes.
 
 ## `v1.0.1-showcase` — 2026-07-16
 
