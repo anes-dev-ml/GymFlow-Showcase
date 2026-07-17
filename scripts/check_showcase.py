@@ -13,13 +13,17 @@ def main() -> int:
             print(f"- {error}")
         return 1
 
-    gallery_total = manifest["gallery"]["total"] if manifest else "unknown"
-    gallery_count = len(manifest["gallery"]["inventory"]) if manifest else "unknown"
+    assert manifest is not None
+    gallery_total = manifest["gallery"]["total"]
+    gallery_count = len(manifest["gallery"]["inventory"])
+    approved_count = len(manifest["gallery"]["approved_sha256"])
+
     print("GymFlow showcase checks passed.")
     print(
         f"Validated {gallery_total} unique screenshots across "
         f"{gallery_count} approved galleries."
     )
+    print(f"Validated {approved_count} exact screenshot SHA-256 approvals.")
     print(f"Validated {len(markdown_files(ROOT))} Markdown documents.")
     print("Validated tracked-file hygiene, release truth, and local tooling contracts.")
     return 0
