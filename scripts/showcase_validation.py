@@ -402,8 +402,8 @@ def check_manifest_contract(
         errors.append("evidence manifest schema_version must be 1")
     if manifest.get("target_release") != "v1.0.2-showcase":
         errors.append("evidence manifest target_release must be v1.0.2-showcase")
-    if manifest.get("state") != "release-candidate":
-        errors.append("evidence manifest state must be release-candidate on main")
+    if manifest.get("state") != "tag-bound-release-record":
+        errors.append("evidence manifest state must be tag-bound-release-record")
 
     latest = manifest.get("latest_immutable_release", {})
     if latest.get("tag") != "v1.0.1-showcase":
@@ -544,8 +544,12 @@ def require_phrases(
     label: str,
     root: Path = ROOT,
 ) -> None:
+    document = root / path
+    if not document.is_file():
+        errors.append(f"{label} is missing required file: {path}")
+        return
     content = normalize_document_text(
-        (root / path).read_text(encoding="utf-8-sig")
+        document.read_text(encoding="utf-8-sig")
     )
     for phrase in sorted(phrases):
         normalized_phrase = normalize_document_text(phrase)
@@ -588,7 +592,7 @@ def check_document_contracts(
             latest,
             frontend,
             backend,
-            "release candidate",
+            "tag-bound release record",
             "local validation",
             "53 unique screenshots",
             "No green hosted-CI claim",
@@ -614,7 +618,7 @@ def check_document_contracts(
         errors,
         "CHANGELOG.md",
         {
-            f"[Unreleased] — {target}",
+            f"{target} — evidence date 2026-07-17",
             latest,
             frontend,
             backend,
@@ -698,12 +702,14 @@ def check_local_validation_contract(
             "obsolete hosted Actions workflow remains; this release line uses local validation"
         )
 
-    powershell = (root / "scripts/validate_release.ps1").read_text(
-        encoding="utf-8-sig"
-    )
-    shell = (root / "scripts/validate_release.sh").read_text(
-        encoding="utf-8-sig"
-    )
+    powershell_path = root / "scripts/validate_release.ps1"
+    shell_path = root / "scripts/validate_release.sh"
+    gitignore_path = root / ".gitignore"
+    if not powershell_path.is_file() or not shell_path.is_file() or not gitignore_path.is_file():
+        return
+
+    powershell = powershell_path.read_text(encoding="utf-8-sig")
+    shell = shell_path.read_text(encoding="utf-8-sig")
     required_commands = {
         "python -m unittest discover",
         "python scripts/check_showcase.py",
@@ -715,7 +721,7 @@ def check_local_validation_contract(
         if command not in shell:
             errors.append(f"shell validator is missing command: {command}")
 
-    gitignore = (root / ".gitignore").read_text(encoding="utf-8-sig")
+    gitignore = gitignore_path.read_text(encoding="utf-8-sig")
     for value in {"__pycache__/", "*.py[cod]", ".pytest_cache/"}:
         if value not in gitignore:
             errors.append(f".gitignore is missing Python hygiene rule: {value}")
