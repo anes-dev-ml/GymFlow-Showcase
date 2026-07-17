@@ -9,7 +9,7 @@ from showcase_validation import ROOT, git_text, run_base_checks
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the provenance-bound GymFlow showcase candidate gate."
+        description="Run the provenance-bound GymFlow showcase release gate."
     )
     parser.add_argument(
         "--release",
@@ -67,7 +67,7 @@ def main() -> int:
         check_release_state(errors, manifest, args.release, ROOT)
 
     if errors:
-        print("GymFlow final candidate checks failed:")
+        print("GymFlow release checks failed:")
         for error in errors:
             print(f"- {error}")
         return 1
@@ -77,14 +77,14 @@ def main() -> int:
     backend = manifest["source"]["backend"]["commit"]
     target = manifest["target_release"]
 
-    print("GymFlow final candidate checks passed.")
+    print("GymFlow release checks passed.")
     print(f"Validated frontend provenance: {frontend}.")
     print(f"Validated backend provenance: {backend}.")
     print("Validated local-only release evidence without a hosted-CI claim.")
     if args.release:
         print(f"Validated release tag: {target} points to reviewed HEAD.")
     else:
-        print(f"Release candidate is ready for final review before tagging {target}.")
+        print(f"Release record is ready for final review before tagging {target}.")
     return 0
 
 
