@@ -126,20 +126,20 @@ The reset, seed, and validation run inside one transaction and commit only after
 
 ## Showcase release validation
 
-The `v1.0.2-showcase` release candidate uses a traditional local gate.
+The tag-bound `v1.0.2-showcase` release record uses a traditional local gate.
 
 ### PowerShell
 
 ```powershell
-./scripts/validate_release.ps1
-./scripts/validate_release.ps1 -Release
+.\scripts\validate_release.ps1
+.\scripts\validate_release.ps1 -Release
 ```
 
 ### POSIX shell
 
 ```bash
-./scripts/validate_release.sh
-./scripts/validate_release.sh --release
+bash scripts/validate_release.sh
+bash scripts/validate_release.sh --release
 ```
 
 The combined gate runs:
@@ -207,15 +207,15 @@ GitHub Actions are not used as release evidence for this showcase line. The prio
 
 The repository therefore makes **no green hosted-CI claim**. The traditional local gate is the explicit release authority.
 
-## Candidate release gate
+## Tag rule
 
-`v1.0.2-showcase` may be tagged only after:
+`v1.0.2-showcase` may point to a commit only after:
 
 1. validator tests pass;
 2. all 53 declared images remain present and unique;
 3. no blocked media or changed approved media is detected;
 4. source provenance remains `b73a623c3985e4bc458d04b4b484887ada593fa5` and `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
-5. the candidate receives manual privacy and visual review;
+5. the record receives manual privacy and visual review;
 6. the working tree is clean;
 7. the tag points to the reviewed commit;
 8. the release-form validator passes.
