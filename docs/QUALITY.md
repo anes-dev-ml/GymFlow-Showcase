@@ -50,10 +50,10 @@ GymFlow uses layered automated checks and manual product review. The objective i
 | Demo reset targets unsafe data | Environment, host, name, allowlist, and confirmation guards |
 | French or Arabic layout regresses | Responsive and localization review |
 | Public repository leaks a secret | Source and showcase secret checks |
-| Screenshot inventory drifts | Exact filenames, dimensions, hashes, and blocked-media checks |
-| Release wording contradicts the tag state | Cross-document release-contract checks |
+| Screenshot inventory drifts | Exact filenames, dimensions, uniqueness, and full SHA-256 approval |
+| Release wording contradicts tag state | Stable current/previous release schema and document contracts |
 | Local cache causes a false release failure | Tracked-file discovery and regression tests |
-| Release tag misrepresents evidence | Clean-worktree and tag-on-reviewed-HEAD verification |
+| Release tag misrepresents evidence | Previous-tag verification plus clean-HEAD current-tag verification |
 
 ## Application validation
 
@@ -126,7 +126,7 @@ The reset, seed, and validation run inside one transaction and commit only after
 
 ## Showcase release validation
 
-The tag-bound `v1.0.2-showcase` release record uses a traditional local gate.
+The `v1.0.3-showcase` release record uses a traditional local gate. The previous immutable release is `v1.0.2-showcase`.
 
 ### PowerShell
 
@@ -146,26 +146,26 @@ The combined gate runs:
 
 1. validator regression tests;
 2. base repository and media validation;
-3. candidate provenance validation;
-4. optional release-tag and clean-worktree verification.
+3. release-record provenance validation;
+4. optional current-tag and clean-worktree verification.
 
 The validator inspects tracked Git content rather than every transient local file. This preserves strict repository hygiene without allowing an untracked `__pycache__` directory to create a false release defect.
 
 ## Validator regression tests
 
-The validation tooling is itself tested for:
+The validation tooling is tested for:
 
-- tracked-file discovery;
-- exclusion of untracked bytecode;
-- stale release wording in public documentation;
+- tracked-file discovery and exclusion of untracked bytecode;
+- stale release wording in active public documentation;
+- safe preservation of historical release wording;
 - safe use of detection literals inside validator source;
-- machine-readable manifest correctness;
-- canonical source drift;
-- historical tag immutability;
-- target-tag alignment;
-- clean working-tree enforcement in release mode.
-
-This directly protects the classes of validator failures discovered during the `v1.0.1-showcase` hardening pass.
+- machine-readable manifest correctness and source drift;
+- malformed nested manifest handling;
+- complete 53-file SHA-256 approval;
+- previous-tag immutability;
+- pre-tag record mode;
+- current-tag alignment and clean working-tree enforcement;
+- full repository base validation.
 
 ## Media validation
 
@@ -175,49 +175,46 @@ The gallery contract checks:
 - supported file formats;
 - readable dimensions and expected orientation;
 - 53 unique content hashes;
+- 53 exact SHA-256 approvals;
 - known rejected media hashes;
-- exact approved hashes for high-risk assets;
-- stale source revisions and release wording;
 - common text-secret and JWT-like patterns;
-- local Markdown links;
+- local Markdown links and repository-root containment;
 - the absence of undeclared video assets.
 
 Binary checks do not replace human review. Every screenshot still requires inspection for visible credentials, local paths, browser overlays, private data, broken localization, misleading state, and non-identical visual duplication.
 
 ## Release evidence model
 
-The machine-readable [`release/evidence-manifest.json`](../release/evidence-manifest.json) is the central source for:
+The machine-readable [`release/evidence-manifest.json`](../release/evidence-manifest.json) is the central public record for:
 
-- target release;
-- latest immutable release;
+- current and previous release identities;
 - canonical frontend and backend commits;
 - Alembic head;
 - evidence date;
-- gallery inventory and counts;
-- approved and blocked media hashes;
+- gallery inventory, counts, and exact hashes;
 - validation commands;
 - included and omitted artifacts;
 - data, payment, and production boundaries.
 
-Human-readable documents are validated against that record.
+The validator has a small explicit trust root for the expected current release, previous immutable release, canonical source commits, and Alembic head. Human-readable documents are checked against the manifest.
 
 ## Hosted-runner boundary
 
-GitHub Actions are not used as release evidence for this showcase line. The prior workflow was removed because hosted execution was unavailable and the workflow's bytecode compile step conflicted with the following generated-file check.
+GitHub Actions are not used as release evidence for this showcase line. The prior workflow was removed because hosted execution was unavailable and its bytecode compile step conflicted with the following generated-file check.
 
-The repository therefore makes **no green hosted-CI claim**. The traditional local gate is the explicit release authority.
+The repository therefore makes **no green hosted-CI claim**. The reviewed local gate is the explicit release authority.
 
 ## Tag rule
 
-`v1.0.2-showcase` may point to a commit only after:
+`v1.0.3-showcase` may point to a commit only after:
 
 1. validator tests pass;
-2. all 53 declared images remain present and unique;
-3. no blocked media or changed approved media is detected;
+2. all 53 declared images are present, unique, and match exact approved hashes;
+3. no blocked media is detected;
 4. source provenance remains `b73a623c3985e4bc458d04b4b484887ada593fa5` and `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
 5. the record receives manual privacy and visual review;
 6. the working tree is clean;
 7. the tag points to the reviewed commit;
-8. the release-form validator passes.
+8. release-mode validation passes.
 
 Commercial production assurance would additionally benefit from accessibility automation, browser/device matrix execution, performance budgets, load and query analysis, dependency/container scanning, SBOM and signed provenance, backup restore drills, and hosted synthetic monitoring.
