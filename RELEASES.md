@@ -4,35 +4,26 @@ GymFlow showcase releases connect public claims and visual evidence to exact fro
 
 A reviewer should be able to determine what a release contains, which application snapshot it represents, which validations executed, and which provider or production responsibilities remain environment-specific.
 
-## Current release line
+## Current release record
 
-`main` contains the tag-bound `v1.0.2-showcase` release record. Before tagging it is the reviewed release line; after tagging the immutable tag becomes the authoritative pointer to the same commit.
+The current release identifier is `v1.0.3-showcase`. The previous immutable release is `v1.0.2-showcase`, which points to:
 
-This patch-level correction keeps the canonical application revisions unchanged:
+`4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`
+
+The current record preserves the canonical application revisions:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
 - Alembic head `9e4f6a8c2d1b`.
 
-It improves release integrity by:
+`v1.0.3-showcase` corrects the final release-model ambiguity by:
 
-- correcting release-state wording after `v1.0.1-showcase`;
-- centralizing release facts in a machine-readable evidence manifest;
-- validating tracked Git content instead of unrelated local cache files;
-- replacing the unavailable hosted workflow with traditional local release runners;
-- adding regression tests for the validator;
-- strengthening cross-document provenance checks;
-- indexing the 53-image gallery with explicit evidence descriptions.
-
-## Latest immutable release
-
-`v1.0.1-showcase` points to:
-
-`53aa79d5124902fc689c4f7b121c7d4b1fdccdc9`
-
-That tag remains immutable. It records the prior evidence-hardening baseline and must not be moved or silently rewritten.
-
-`v1.0.2-showcase` is the appropriate correction release because the changes affect documentation, validation, packaging, and provenance rather than the canonical application implementation.
+- replacing the dynamic “latest immutable release” field with explicit current and previous release identities;
+- using neutral validator output that remains accurate before and after tagging;
+- recording exact SHA-256 approval for all 53 screenshots;
+- validating malformed manifest structures without tracebacks;
+- expanding validator regression coverage;
+- removing obsolete candidate-named release tooling.
 
 ## Versioning
 
@@ -42,6 +33,7 @@ Showcase releases use semantic identifiers:
 v1.0.0-showcase
 v1.0.1-showcase
 v1.0.2-showcase
+v1.0.3-showcase
 v1.1.0-showcase
 ```
 
@@ -55,7 +47,7 @@ Public evidence is immutable by convention. Material changes belong to a new sem
 
 Every release records:
 
-- showcase release identifier;
+- current and previous showcase release identifiers;
 - frontend repository, ref, and commit;
 - backend repository, ref, and commit;
 - Alembic head;
@@ -63,6 +55,7 @@ Every release records:
 - runtime and dependency versions;
 - included and omitted artifacts;
 - validation mode and executed commands;
+- exact screenshot inventory and SHA-256 approvals;
 - known provider and production limitations.
 
 The authoritative human-readable record is the [Build Manifest](BUILD_MANIFEST.md). The authoritative machine-readable record is [`release/evidence-manifest.json`](release/evidence-manifest.json).
@@ -71,14 +64,10 @@ The authoritative human-readable record is the [Build Manifest](BUILD_MANIFEST.m
 
 This showcase release line uses traditional local validation rather than GitHub Actions.
 
-The release gate is:
-
 ```powershell
 .\scripts\validate_release.ps1
 .\scripts\validate_release.ps1 -Release
 ```
-
-or:
 
 ```bash
 bash scripts/validate_release.sh
@@ -89,12 +78,13 @@ The local gate runs:
 
 - validator unit tests;
 - required-file and tracked-file safety checks;
-- local Markdown link validation;
+- local Markdown link validation and repository-root containment;
 - public wording and stale-release checks;
-- screenshot inventory, format, dimension, orientation, and uniqueness checks;
-- rejected-media and exact approved-media checks;
+- screenshot inventory, format, dimension, orientation, uniqueness, and exact hash checks;
+- permanently blocked rejected-media checks;
 - canonical source-provenance checks;
-- optional release-tag and clean-worktree verification.
+- previous-tag immutability verification;
+- optional current-tag and clean-worktree verification.
 
 No successful hosted execution is claimed. Local evidence is recorded explicitly and **no green hosted-CI claim** is made.
 
@@ -109,7 +99,7 @@ No successful hosted execution is claimed. Local evidence is recorded explicitly
 | Engineering | 10 |
 | **Total** | **53** |
 
-A release requires all 53 declared paths and 53 unique content hashes. High-risk reviewed media is pinned to exact SHA-256 values, and known rejected media hashes are permanently blocked.
+A release requires all 53 declared paths, 53 unique content hashes, and 53 exact SHA-256 approvals. Known rejected-media hashes remain permanently blocked.
 
 The gallery is documented in the [GymFlow Visual Gallery](screenshots/README.md).
 
@@ -133,7 +123,7 @@ The showcase does not collapse those responsibilities into an unsupported claim 
 
 ## Video and installable artifacts
 
-No current walkthrough video or installable binary is part of the `v1.0.2-showcase` evidence contract.
+No current walkthrough video or installable binary is part of the `v1.0.3-showcase` evidence contract.
 
 Historical media attached to an older non-showcase release is not evidence for the current source snapshot. A future media release would record exact source provenance, duration, captions status, integrity hashes, and platform requirements.
 
@@ -141,4 +131,4 @@ Historical media attached to an older non-showcase release is not evidence for t
 
 Broken links, leaked information, misleading claims, duplicate or mislabeled artifacts, stale application captures, incorrect source revisions, validator defects, and release-tag inconsistencies are release defects.
 
-Active exposure is removed promptly, credentials are revoked when relevant, corrections are documented, and a new patch release is used for material evidence changes.
+Active exposure is removed promptly, credentials are revoked when relevant, corrections are documented, and a new patch release is used for material evidence changes. Existing release tags are never moved or silently rewritten.

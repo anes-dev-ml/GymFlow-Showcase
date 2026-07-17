@@ -10,14 +10,14 @@ GymFlow connects public product discovery, staff operations, and private client 
 
 | Record | Value |
 |---|---|
-| Current `main` line | `v1.0.2-showcase` tag-bound release record |
-| Latest immutable showcase tag | `v1.0.1-showcase` |
+| Current release record | `v1.0.3-showcase` |
+| Previous immutable release | `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f` |
 | Frontend revision | `b73a623c3985e4bc458d04b4b484887ada593fa5` |
 | Backend revision | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` |
-| Evidence model | 53 unique screenshots across five galleries |
+| Evidence model | 53 screenshots with 53 exact SHA-256 approvals |
 | Validation | Local release validation; no green hosted-CI claim |
 
-`v1.0.2-showcase` is an evidence-integrity correction line. The record remains accurate on `main` before tagging and becomes immutable when the target tag points to the reviewed commit. It keeps the same canonical application revisions while strengthening release truth, tracked-file validation, local tooling, regression tests, and the machine-readable evidence record.
+`v1.0.3-showcase` is the final public-release integrity record. It preserves the canonical application snapshots and the reviewed gallery while replacing the ambiguous “latest immutable release” model with explicit current and previous release identities. Record mode validates the repository before tagging; release mode additionally requires the current tag to point to the clean reviewed `HEAD`.
 
 ## Product surfaces
 
@@ -68,7 +68,7 @@ The complete evidence index is available in the [GymFlow Visual Gallery](screens
 | Presence | Heartbeats, recent activity, multiple-device aggregation, and role-aware visibility |
 | Reliability | Transactions, advisory locks, idempotency, readiness checks, and neutral public responses |
 | Internationalization | English, French, Arabic, RTL, and responsive layout tiers |
-| Release engineering | Deterministic demo data, exact source provenance, rejected-media hashes, and tag validation |
+| Release engineering | Deterministic demo data, exact source provenance, rejected-media hashes, full evidence hashes, and tag validation |
 
 ## Architecture
 
@@ -129,7 +129,7 @@ bash scripts/validate_release.sh
 bash scripts/validate_release.sh --release
 ```
 
-The local gate runs validator unit tests, repository and media checks, provenance checks, and optional release-tag verification. It inspects tracked Git content rather than failing on unrelated local cache files.
+The gate runs validator unit tests, tracked-file and Markdown checks, complete screenshot inventory and SHA-256 verification, source-provenance checks, and optional release-tag verification. It inspects tracked Git content rather than failing on unrelated local cache files.
 
 The machine-readable release record is [release/evidence-manifest.json](release/evidence-manifest.json).
 
@@ -141,7 +141,7 @@ This repository intentionally contains no:
 - environment files or production credentials;
 - real client, staff, payment, or message data;
 - installable application binary;
-- provenance-bound walkthrough video for the current release line.
+- provenance-bound walkthrough video for the current release.
 
 Provider-dependent production operation—including live Stripe, verified email, OAuth deployment configuration, hosting, monitoring, backups, restore drills, and legal ownership—remains environment-specific.
 
@@ -160,7 +160,7 @@ Provider-dependent production operation—including live Stripe, verified email,
 | [Demo](DEMO.md) | Deterministic scenario and destructive-operation safeguards |
 | [Release integrity](RELEASES.md) | Versioning, validation policy, and correction rules |
 | [Roadmap](ROADMAP.md) | Product evolution and production-operation work |
-| [Build manifest](BUILD_MANIFEST.md) | Canonical revisions and candidate artifact record |
+| [Build manifest](BUILD_MANIFEST.md) | Canonical revisions and release artifact record |
 | [Evidence manifest](release/evidence-manifest.json) | Machine-readable release and gallery contract |
 
 ## Project ownership

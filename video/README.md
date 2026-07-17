@@ -1,8 +1,8 @@
 # GymFlow Walkthrough Status
 
-**Current media status:** Not included in `v1.0.2-showcase`.
+**Current media status:** Not included in `v1.0.3-showcase`.
 
-The tag-bound `v1.0.2-showcase` release record does **not include** a public walkthrough video, thumbnail, captions file, or downloadable video asset as part of its provenance-bound release contract.
+The `v1.0.3-showcase` provenance-bound release record does **not include** a public walkthrough video, thumbnail, captions file, or downloadable video asset.
 
 The current evidence is provided through:
 
@@ -11,9 +11,9 @@ The current evidence is provided through:
 - the exact source provenance in the [Build Manifest](../BUILD_MANIFEST.md);
 - the machine-readable [`release/evidence-manifest.json`](../release/evidence-manifest.json).
 
-`v1.0.1-showcase` is the latest immutable gallery release. It also does not claim a current provenance-bound walkthrough.
+The previous immutable release is `v1.0.2-showcase`. It also does not claim a current provenance-bound walkthrough.
 
-An older standalone GitHub release associated with a non-showcase `v1.0.0` tag may contain a walkthrough asset. That asset is **historical media**. It predates the canonical source snapshot used by the current release line and is not part of the current record.
+An older standalone GitHub release associated with a non-showcase `v1.0.0` tag may contain a walkthrough asset. That asset is **historical media**. It predates the canonical source snapshot used by the current release and is not part of the current record.
 
 ## Intended walkthrough narrative
 

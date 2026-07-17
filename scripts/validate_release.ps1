@@ -10,6 +10,9 @@ $previousBytecode = $env:PYTHONDONTWRITEBYTECODE
 $env:PYTHONDONTWRITEBYTECODE = "1"
 
 try {
+    git diff --check
+    if ($LASTEXITCODE -ne 0) { throw "Git whitespace validation failed." }
+
     python -m unittest discover -s tests -p "test_*.py"
     if ($LASTEXITCODE -ne 0) { throw "Validator unit tests failed." }
 
@@ -17,11 +20,11 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Base showcase validation failed." }
 
     if ($Release) {
-        python scripts/check_release_candidate.py --release
+        python scripts/check_release.py --release
     } else {
-        python scripts/check_release_candidate.py
+        python scripts/check_release.py
     }
-    if ($LASTEXITCODE -ne 0) { throw "Release-candidate validation failed." }
+    if ($LASTEXITCODE -ne 0) { throw "Release validation failed." }
 
     Write-Host "GymFlow local release validation completed successfully."
 }
