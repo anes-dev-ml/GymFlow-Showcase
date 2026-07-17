@@ -1,25 +1,24 @@
 # GymFlow Roadmap
 
-GymFlow is complete as a controlled professional demonstration and is presented as a production-oriented SaaS architecture. The roadmap separates release-integrity work, product evolution, provider verification, and production operations.
+GymFlow is complete as a controlled professional demonstration and is presented as a production-oriented SaaS architecture. The roadmap separates release maintenance, product evolution, provider verification, and production operations.
 
 ## Current release baseline
 
-The latest immutable showcase tag is `v1.0.1-showcase`.
+The current release record is `v1.0.3-showcase`. The previous immutable release is `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`.
 
-`main` contains the tag-bound `v1.0.2-showcase` release record, a patch-level evidence and validation hardening line. It keeps the canonical application snapshots unchanged:
+The canonical application snapshots remain unchanged:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
 
-The release line focuses on:
+The final public-release correction focuses on:
 
-- accurate release-state documentation;
-- centralized machine-readable provenance;
-- tracked-file validation;
-- traditional local release runners;
-- validator regression tests;
-- stronger gallery evidence indexing;
-- removal of the unusable hosted workflow;
+- durable current and previous release identities;
+- exact SHA-256 approval for all 53 screenshots;
+- neutral record and release validation modes;
+- defensive manifest validation;
+- expanded validator regression coverage;
+- removal of obsolete candidate terminology;
 - no green hosted-CI claim.
 
 ## Implemented product scope
@@ -43,18 +42,19 @@ The release line focuses on:
 | Internationalization | English, French, Arabic, RTL presentation |
 | Platforms | Flutter Web, Android, Windows targets |
 
-## Release completion
+## Release procedure
 
-Before tagging `v1.0.2-showcase`:
+For a showcase release record:
 
-1. run `.\scripts\validate_release.ps1` or `bash scripts/validate_release.sh`;
-2. complete the final privacy and visual review;
-3. commit any resulting corrections;
-4. confirm the working tree is clean;
-5. create the tag on the reviewed commit;
-6. run the release form of the local validator.
+1. refresh the complete evidence hashes;
+2. run the local validation gate;
+3. complete privacy and visual review;
+4. commit any resulting correction;
+5. confirm the working tree is clean;
+6. create the immutable tag on the reviewed commit;
+7. run release-mode validation.
 
-No application feature work or screenshot recapture is currently required by the release contract unless the final human review discovers a real defect.
+No application feature work or screenshot recapture is required for `v1.0.3-showcase` unless final review discovers a real defect.
 
 ## Product evolution
 
