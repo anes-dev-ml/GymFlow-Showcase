@@ -1,15 +1,13 @@
 # Security Policy
 
-GymFlow is a private-source product showcase. This repository contains
-engineering documentation and demonstration assets rather than application source
-code or production credentials.
+GymFlow is a private-source product showcase. This repository contains engineering documentation and demonstration assets rather than application source code or production credentials.
 
 ## Supported versions
 
 | Version | Supported |
 |---|---|
 | Latest tagged showcase release | Yes |
-| Current release candidate on `main` | Yes |
+| Current reviewed release record on `main` | Yes |
 | Active temporary hosted review | Yes, during the stated review window |
 | Older screenshots, binaries, or archived releases | Best effort |
 | Unofficial copies or modified artifacts | No |
@@ -23,9 +21,7 @@ Use GitHub's private vulnerability-reporting flow when it is available:
 3. select **Report a vulnerability**;
 4. submit the report privately rather than opening a public issue.
 
-If that control is unavailable, contact the repository owner through the GitHub
-profile and ask for a private reporting channel. Do not post exploit details,
-credentials, tokens, personal information, or payment data publicly.
+If that control is unavailable, contact the repository owner through the GitHub profile and ask for a private reporting channel. Do not post exploit details, credentials, tokens, personal information, or payment data publicly.
 
 A useful report includes:
 
@@ -39,8 +35,7 @@ A useful report includes:
 
 ## Coordinated disclosure
 
-Please allow reasonable time to investigate and address a confirmed issue before
-publishing details. The project owner will aim to:
+Please allow reasonable time to investigate and address a confirmed issue before publishing details. The project owner will aim to:
 
 1. acknowledge a complete report within five business days;
 2. confirm whether the issue can be reproduced;
@@ -89,6 +84,4 @@ Out-of-scope examples include:
 
 ## Secret exposure
 
-If a credential is accidentally published, do not reuse or test it. Report the
-exact file, commit, release asset, or image privately so it can be revoked and
-removed from active use.
+If a credential is accidentally published, do not reuse or test it. Report the exact file, commit, release asset, or image privately so it can be revoked and removed from active use.

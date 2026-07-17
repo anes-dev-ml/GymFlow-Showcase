@@ -1,24 +1,26 @@
 # GymFlow Roadmap
 
-GymFlow is complete as a controlled professional demonstration and is presented
-as a production-oriented SaaS architecture. The roadmap separates product
-evolution from provider, infrastructure, and operating work required for a live
-commercial service.
+GymFlow is complete as a controlled professional demonstration and is presented as a production-oriented SaaS architecture. The roadmap separates release-integrity work, product evolution, provider verification, and production operations.
 
-## Current release candidate
+## Current release baseline
 
-`main` is preparing `v1.0.1-showcase`. The candidate includes:
+The latest immutable showcase tag is `v1.0.1-showcase`.
 
-- public product, architecture, engineering, security, quality, operations, and demo case studies;
-- exact frontend and backend source provenance;
-- the guarded Northline Performance Club deterministic demo contract;
-- 53 stable screenshot paths across desktop, portal, mobile, localization, and engineering galleries;
-- documented local validation and the hosted-runner limitation;
-- stricter duplicate, dimension, rejected-media, and release-evidence checks;
-- no public walkthrough video or installable binary.
+`main` contains the tag-bound `v1.0.2-showcase` release record, a patch-level evidence and validation hardening line. It keeps the canonical application snapshots unchanged:
 
-The final tag is blocked until every reviewed replacement image is committed and
-the showcase validator passes on that exact commit.
+- frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
+- backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
+
+The release line focuses on:
+
+- accurate release-state documentation;
+- centralized machine-readable provenance;
+- tracked-file validation;
+- traditional local release runners;
+- validator regression tests;
+- stronger gallery evidence indexing;
+- removal of the unusable hosted workflow;
+- no green hosted-CI claim.
 
 ## Implemented product scope
 
@@ -41,17 +43,18 @@ the showcase validator passes on that exact commit.
 | Internationalization | English, French, Arabic, RTL presentation |
 | Platforms | Flutter Web, Android, Windows targets |
 
-## Immediate evidence gate
+## Release completion
 
-Before `v1.0.1-showcase` is tagged:
+Before tagging `v1.0.2-showcase`:
 
-- replace every duplicate engineering image with distinct evidence;
-- replace any QR capture that contains a generated credential;
-- remove browser overlays, local paths, failed-CI captures, and misleading empty states;
-- recapture the remaining mobile and portal views identified by the validator;
-- run `python scripts/check_showcase.py` on the final commit;
-- review the same commit for privacy, localization, and release wording;
-- create the tag only after those checks pass.
+1. run `.\scripts\validate_release.ps1` or `bash scripts/validate_release.sh`;
+2. complete the final privacy and visual review;
+3. commit any resulting corrections;
+4. confirm the working tree is clean;
+5. create the tag on the reviewed commit;
+6. run the release form of the local validator.
+
+No application feature work or screenshot recapture is currently required by the release contract unless the final human review discovers a real defect.
 
 ## Product evolution
 
@@ -67,8 +70,7 @@ Possible future product work includes:
 - controlled file and media storage;
 - audit retention, export, and archival policies.
 
-These ideas are not required to demonstrate the current system. They represent
-possible growth after the release baseline is preserved.
+These ideas are not required to demonstrate the current system. They represent possible growth after the release baseline is preserved.
 
 ## Provider verification
 
@@ -109,18 +111,10 @@ Commercial operation would add:
 
 ## Visual and review experience
 
-A future release may add an edited product or engineering walkthrough. Any media
-release will use a new semantic identifier and record its exact source snapshot,
-duration, captions status, and integrity metadata rather than silently changing
-an existing evidence set.
+A future release may add an edited product or engineering walkthrough. Any media release will use a new semantic identifier and record its exact source snapshot, duration, captions status, and integrity metadata rather than silently changing an existing evidence set.
 
 ## Production claim boundary
 
-GymFlow may be described as **production-oriented** because it implements strict
-configuration, tenant and credential boundaries, migrations, Docker packaging,
-health checks, observability foundations, and release validation.
+GymFlow may be described as **production-oriented** because it implements strict configuration, tenant and credential boundaries, migrations, Docker packaging, health checks, observability foundations, and release validation.
 
-It should be described as **production-operated** only after provider flows,
-deployed isolation, managed infrastructure, monitoring, backup and restore,
-security controls, and legal and operational responsibilities are verified in
-the target environment.
+It should be described as **production-operated** only after provider flows, deployed isolation, managed infrastructure, monitoring, backup and restore, security controls, and legal and operational responsibilities are verified in the target environment.

@@ -1,50 +1,33 @@
 # GymFlow
 
-**A multi-tenant gym operations SaaS built with Flutter, FastAPI, PostgreSQL,
-Redis, Stripe, and Docker.**
+**A multi-tenant gym operations SaaS built with Flutter, FastAPI, PostgreSQL, Redis, Stripe, and Docker.**
 
-GymFlow combines a public product site, a role-aware studio application, and a
-separate client portal. It connects client lifecycle management, memberships,
-services, bookings, attendance, payments, reporting, professional messaging,
-staff presence, localization, and release engineering.
+GymFlow connects public product discovery, staff operations, and private client self-service in one workspace-scoped system. It covers clients, memberships, services, bookings, attendance, payments, reporting, messaging, notifications, staff presence, localization, and SaaS billing.
 
-> This repository is the private-source project's public engineering case study.
-> It contains documentation and reviewed evidence rather than the frontend or
-> backend source code. `main` is preparing the `v1.0.1-showcase` evidence release;
-> the historical `v1.0.0-showcase` tag predates the current hardening pass.
+> This repository is the public engineering case study for a private-source application. It contains reviewed documentation and visual evidence rather than the frontend or backend source code.
 
-## At a glance
+## Release status
 
-| Area | Current implementation |
+| Record | Value |
 |---|---|
-| Product surfaces | Public website, owner/staff application, client portal |
-| Roles | Owner, manager, trainer, receptionist, client |
-| Core operations | Clients, plans, memberships, services, bookings, check-ins, payments, reports |
-| Collaboration | Professional messaging, notifications, activity logs, staff presence |
-| Platforms | Flutter Web, Android, Windows |
-| Languages | English, French, Arabic with RTL support |
-| Backend | FastAPI, SQLAlchemy, Alembic, PostgreSQL, Redis |
-| Integrations | Google OAuth, transactional email, Stripe Checkout, Billing, Connect-aware demo behavior, webhooks |
-| Delivery | Docker, separate migrations, health checks, validation workflows |
+| Current `main` line | `v1.0.2-showcase` tag-bound release record |
+| Latest immutable showcase tag | `v1.0.1-showcase` |
+| Frontend revision | `b73a623c3985e4bc458d04b4b484887ada593fa5` |
+| Backend revision | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` |
+| Evidence model | 53 unique screenshots across five galleries |
+| Validation | Local release validation; no green hosted-CI claim |
 
-## Product problem
+`v1.0.2-showcase` is an evidence-integrity correction line. The record remains accurate on `main` before tagging and becomes immutable when the target tag points to the reviewed commit. It keeps the same canonical application revisions while strengthening release truth, tracked-file validation, local tooling, regression tests, and the machine-readable evidence record.
 
-A gym is not only a subscription list. Daily operations connect staff, clients,
-memberships, schedules, attendance, payments, communication, and reporting.
-GymFlow models those workflows inside one workspace-scoped SaaS system rather
-than presenting disconnected CRUD pages.
+## Product surfaces
 
-- Owners need business visibility and workspace administration.
-- Managers need broad operational control without ownership-only billing access.
-- Trainers need availability, assigned bookings, attendance, and permitted communication.
-- Reception staff need fast client, booking, payment, and check-in workflows.
-- Clients need private self-service without staff or administrative access.
+| Surface | Primary users | Responsibility |
+|---|---|---|
+| Public website | Prospective studios and visitors | Product discovery, pricing, security, contact, and legal information |
+| Studio application | Owner, manager, trainer, receptionist | Daily business and operational workflows |
+| Client portal | Gym clients | Private self-service outside the staff trust domain |
 
-## Selected product views
-
-### Public experience
-
-![GymFlow public home](screenshots/desktop/01-public-home.png)
+## Selected evidence
 
 ### Owner command center
 
@@ -54,60 +37,40 @@ than presenting disconnected CRUD pages.
 
 ![GymFlow client command center](screenshots/desktop/03-client-command-center.png)
 
-### Scheduling and member self-service
+### Professional communication
+
+![GymFlow professional messaging](screenshots/desktop/07-professional-messaging.png)
+
+### Client scheduling
 
 ![GymFlow client portal bookings](screenshots/portal/02-bookings.png)
 
-### Client portal
+### Mobile member experience
 
-![GymFlow client portal home](screenshots/portal/01-portal-home.png)
+![GymFlow mobile portal](screenshots/mobile/01-portal-home.png)
 
-### Responsive and RTL presentation
+### Arabic and RTL presentation
 
-| Mobile portal | Arabic RTL |
+![GymFlow Arabic RTL interface](screenshots/localization/01-arabic-rtl.png)
+
+The complete evidence index is available in the [GymFlow Visual Gallery](screenshots/README.md).
+
+## Engineering highlights
+
+| Area | Evidence |
 |---|---|
-| ![GymFlow mobile portal](screenshots/mobile/01-portal-home.png) | ![GymFlow Arabic RTL interface](screenshots/localization/01-arabic-rtl.png) |
+| Multi-tenancy | Workspace membership boundary and workspace-scoped queries |
+| Authorization | Role, credential type, membership status, resource scope, and audience checks |
+| Portal isolation | Separate portal token and client-scoped response surfaces |
+| Scheduling | Service duration, trainer availability, conflicts, recurrence, cancellation, and no-show states |
+| Payments | Manual collection, Stripe test flows, webhook verification, duplicate protection, and receipts |
+| Messaging | Assignment queue, priorities, internal notes, cursor pagination, retry-safe sends, and optimistic conflicts |
+| Presence | Heartbeats, recent activity, multiple-device aggregation, and role-aware visibility |
+| Reliability | Transactions, advisory locks, idempotency, readiness checks, and neutral public responses |
+| Internationalization | English, French, Arabic, RTL, and responsive layout tiers |
+| Release engineering | Deterministic demo data, exact source provenance, rejected-media hashes, and tag validation |
 
-The complete evidence inventory is available in the
-[GymFlow Visual Gallery](screenshots/README.md).
-
-## Strongest workflows
-
-### Studio command center
-
-The dashboard connects operational totals, revenue and booking signals, recent
-activity, workspace readiness, and direct navigation to areas that need action.
-
-### Client lifecycle
-
-One client context brings together identity, membership history, bookings,
-check-ins, payments, portal access, and operational notes.
-
-### Scheduling and attendance
-
-Bookings account for service duration, trainer requirements and availability,
-recurring series, cancellation, completion, and no-show states. Attendance is
-modeled separately through daily-sheet and front-desk check-in/out workflows.
-
-### Payments and SaaS billing
-
-GymFlow separates client-to-studio payments from the studio's subscription to
-GymFlow. It models manual collection, Stripe test checkout, receipts, lifecycle
-states, billing configuration, webhook verification, and duplicate-event safety.
-
-### Secure communication
-
-Messaging supports role-scoped participants, staff assignment, queue workflow,
-priorities, client-visible replies, staff-only notes, cursor pagination,
-retry-safe sends, and optimistic conflict handling.
-
-### Presence and client isolation
-
-Staff presence combines connection heartbeats, recent activity, multiple-device
-aggregation, and role-aware visibility. The client portal uses a distinct token
-and route surface; portal credentials are not staff credentials.
-
-## Architecture preview
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -138,87 +101,72 @@ The main boundaries are:
 
 1. **Workspace isolation** — business records belong to one studio workspace.
 2. **Backend authorization** — frontend permissions improve UX; backend checks remain authoritative.
-3. **Separate trust domains** — staff JWTs and portal tokens are intentionally different.
-4. **Provider boundaries** — Stripe, email, and OAuth require explicit configuration.
-5. **Environment boundaries** — development, test, demo, and production have different safety contracts.
+3. **Separate trust domains** — staff JWTs and client portal tokens are intentionally different.
+4. **Provider boundaries** — Stripe, email, and OAuth require explicit environment configuration.
+5. **Environment boundaries** — development, test, demo, and production use different safety contracts.
 
 Read the full [architecture case study](ARCHITECTURE.md).
 
-## Engineering evidence
-
-| Competency | Evidence |
-|---|---|
-| System design | Multi-tenant workspace model, trust boundaries, deployment model |
-| Frontend architecture | Feature-oriented Flutter modules, repositories, controllers, route guards |
-| Backend architecture | Versioned FastAPI routes, typed schemas, service/query boundaries |
-| Relational modeling | SQLAlchemy relationships, constraints, indexes, Alembic history |
-| Security | Credential separation, tenant scope, role/resource checks, rate and body limits |
-| Reliability | Transactions, idempotency, optimistic concurrency, readiness checks |
-| Observability | Request IDs, structured logs, liveness/readiness, provider diagnostics |
-| Internationalization | English, French, Arabic, RTL, localized domain values |
-| Release engineering | Guarded deterministic data, exact source manifest, media validation |
-
 ## Deterministic professional demo
 
-The Northline Performance Club scenario is fictional and reproducible. A guarded
-transaction builds connected staff, client, membership, booking, attendance,
-payment, messaging, notification, report, and portal stories, validates them,
-and commits only after every check succeeds.
+The fictional **Northline Performance Club** scenario is rebuilt transactionally and validated before commit. It includes connected staff, clients, plans, memberships, services, bookings, check-ins, payments, reports, notifications, presence, messaging, and portal stories.
 
-The reset refuses unsafe environments, arbitrary or remote databases, live
-Stripe configuration, unknown application tables, and missing destructive
-confirmation. It never drops schemas or modifies `alembic_version`.
+The destructive rebuild refuses unsafe environments, arbitrary or remote databases, live Stripe configuration, unknown application tables, and missing confirmation. It never drops schemas or modifies `alembic_version`.
 
 See the [Demo Environment](DEMO.md) and [Build Manifest](BUILD_MANIFEST.md).
 
-## Quality and release evidence
+## Local release validation
 
-The private source repositories define frontend and backend validation across
-PostgreSQL and Redis integration, authorization, migrations, localization,
-route synchronization, application behavior, and release builds.
+The showcase deliberately uses a traditional local release gate while hosted Actions are unavailable. The validation entry points are:
 
-GitHub-hosted jobs for this release line were blocked before checkout by an
-account-level spending policy. This repository **does not claim green hosted CI**
-for checks that did not run. The final frontend release-quality commands must be
-rerun on the canonical frontend revision, and both showcase validators must pass
-on the exact commit selected for the next tag.
+```powershell
+.\scripts\validate_release.ps1
+.\scripts\validate_release.ps1 -Release
+```
 
-The current candidate includes no provenance-bound public video, APK, Windows
-archive, or other installable binary. Older standalone media is historical and
-is not evidence for the current candidate.
+```bash
+bash scripts/validate_release.sh
+bash scripts/validate_release.sh --release
+```
+
+The local gate runs validator unit tests, repository and media checks, provenance checks, and optional release-tag verification. It inspects tracked Git content rather than failing on unrelated local cache files.
+
+The machine-readable release record is [release/evidence-manifest.json](release/evidence-manifest.json).
+
+## Evidence boundary
+
+This repository intentionally contains no:
+
+- application source code;
+- environment files or production credentials;
+- real client, staff, payment, or message data;
+- installable application binary;
+- provenance-bound walkthrough video for the current release line.
+
+Provider-dependent production operation—including live Stripe, verified email, OAuth deployment configuration, hosting, monitoring, backups, restore drills, and legal ownership—remains environment-specific.
 
 ## Documentation map
 
 | Document | Purpose |
 |---|---|
 | [Product](docs/PRODUCT.md) | Users, product areas, and connected workflows |
-| [Architecture](ARCHITECTURE.md) | Runtime, trust boundaries, data model, deployment, decisions |
-| [Engineering](docs/ENGINEERING.md) | Implementation depth, reliability patterns, trade-offs |
+| [Architecture](ARCHITECTURE.md) | Runtime, trust boundaries, data model, deployment, and decisions |
+| [Engineering](docs/ENGINEERING.md) | Implementation depth, failure handling, and trade-offs |
 | [Security policy](SECURITY.md) | Private vulnerability reporting |
 | [Security overview](docs/SECURITY_OVERVIEW.md) | Implemented controls and privacy boundaries |
-| [Threat model](docs/THREAT_MODEL.md) | Threats, mitigations, residual verification |
-| [Quality](docs/QUALITY.md) | Risk-to-evidence strategy and validation gates |
-| [Operations](docs/OPERATIONS.md) | Configuration, migrations, observability, backup, deployment |
+| [Threat model](docs/THREAT_MODEL.md) | Threats, mitigations, and residual verification |
+| [Quality](docs/QUALITY.md) | Risk-to-evidence strategy and release gates |
+| [Operations](docs/OPERATIONS.md) | Configuration, migrations, observability, backup, and deployment |
 | [Demo](DEMO.md) | Deterministic scenario and destructive-operation safeguards |
-| [Release integrity](RELEASES.md) | Versioning, evidence immutability, corrections |
+| [Release integrity](RELEASES.md) | Versioning, validation policy, and correction rules |
 | [Roadmap](ROADMAP.md) | Product evolution and production-operation work |
 | [Build manifest](BUILD_MANIFEST.md) | Canonical revisions and candidate artifact record |
+| [Evidence manifest](release/evidence-manifest.json) | Machine-readable release and gallery contract |
 
 ## Project ownership
 
-GymFlow was designed and implemented end to end by **Anes** as a demonstration
-of full-stack product and software-engineering capability.
-
-## Public repository boundary
-
-This repository intentionally contains no application source, environment file,
-credential, real client/staff/payment data, production secret, or installable
-binary. Demo identities are fictional and payments remain manual, simulated, or
-Stripe test-mode only.
+GymFlow was designed and implemented end to end by **Anes** as a demonstration of full-stack product and software-engineering capability.
 
 ## License
 
-The documentation, branding, screenshots, diagrams, and approved artifacts are
-protected by the repository's [license](LICENSE). Viewing and linking are
-permitted; reuse or redistribution requires permission unless an artifact states
-otherwise.
+The documentation, branding, screenshots, diagrams, and approved artifacts are protected by the repository's [license](LICENSE). Viewing and linking are permitted; reuse or redistribution requires permission unless an artifact states otherwise.

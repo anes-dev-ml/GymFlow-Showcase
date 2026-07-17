@@ -1,93 +1,85 @@
 # Changelog
 
-All notable changes to the GymFlow showcase are documented here. The application
-source repositories maintain their own histories; this changelog tracks the case
-study, diagrams, screenshots, manifests, validation contracts, and release
-artifacts.
+All notable changes to the GymFlow showcase are documented here. The private application repositories maintain their own histories; this changelog tracks the public case study, diagrams, screenshots, manifests, validation contracts, and release artifacts.
 
-## Unreleased — `v1.0.1-showcase` candidate
+## v1.0.2-showcase — evidence date 2026-07-17
+
+### Added
+
+- Machine-readable release and evidence record at `release/evidence-manifest.json`.
+- Traditional local release runners for PowerShell and POSIX shells.
+- Validator regression tests covering tracked-file discovery, stale release wording, manifest drift, historical-tag integrity, target-tag alignment, and clean-worktree enforcement.
+- Explicit evidence descriptions for all 53 gallery images.
+- Professional release notes for `v1.0.2-showcase`.
 
 ### Changed
 
-- Updated the canonical frontend provenance to
-  `b73a623c3985e4bc458d04b4b484887ada593fa5`, which includes the final mobile
-  dashboard, professional messaging, zoom-responsive, payment-copy, attendance,
-  portal-architecture, and regression-suite hardening.
-- Reconciled obsolete source-string tests with the final frontend architecture,
-  replacing superseded portal guards with consolidated current contracts rather
-  than retaining assumptions about removed classes and implementation files.
-- Updated the evidence date to 2026-07-16 and separated the historical
-  `v1.0.0-showcase` tag from the current release candidate.
-- Replaced the rejected mobile dashboard with the compact four-metric layout and
-  workspace-readiness evidence.
-- Replaced the empty desktop portal-bookings capture with populated upcoming
-  sessions and schedule evidence.
-- Defined distinct replacement evidence for duplicate client, messaging, and
-  payment engineering images.
-- Replaced raw IDE, Docker, and source-history captures with curated engineering
-  summaries that are explicitly distinguished from raw command output.
-- Added a safe static-QR requirement that rejects the previously published
-  token-bearing check-in image.
-- Strengthened the screenshot validator to enforce exact filenames, unique image
-  hashes, valid dimensions, rejected-media hashes, and release-candidate values.
-- Clarified that deterministic validator output is authoritative for exact counts;
-  screenshots provide representative fictional product evidence.
-- Added a concrete GitHub private-vulnerability-reporting path to the security policy.
-- Clarified that an older standalone walkthrough release is historical media and
-  is not evidence for the current provenance-bound candidate.
+- Kept the canonical frontend revision at `b73a623c3985e4bc458d04b4b484887ada593fa5`.
+- Kept the canonical backend revision at `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
+- Reframed `v1.0.1-showcase` as the latest immutable historical release rather than an unfinished candidate.
+- Reorganized the README around product evidence, engineering decisions, release status, and review boundaries.
+- Centralized release constants so the validators no longer duplicate source, gallery, and artifact facts.
+- Changed file safety validation to inspect tracked Git content instead of unrelated local cache files.
+- Strengthened cross-document release-state and provenance checks.
+- Replaced hosted Actions as release evidence with a documented local validation policy.
+- Reduced duplicated documentation and clarified recruiter-facing evidence.
 
-### Remaining release gates
+### Fixed
 
-The candidate must not be tagged until the following evidence is aligned with the
-canonical frontend revision:
+- Removed obsolete references to a superseded intermediate frontend revision.
+- Removed statements claiming that `v1.0.1-showcase` had not yet been tagged.
+- Removed completed screenshot replacements from “remaining gates.”
+- Prevented validator self-detection of its own blocked strings.
+- Prevented generated `__pycache__` directories from causing false release failures when they are untracked.
+- Added Python cache rules to `.gitignore`.
+- Removed the broken hosted workflow whose compile step created files forbidden by the following validation step.
 
-- `screenshots/desktop/07-professional-messaging.png` — recapture the final
-  dedicated communication workspace rather than the previous metric-heavy page;
-- `screenshots/engineering/15-frontend-commit-history.png` — regenerate the
-  curated provenance image with frontend revision
-  `b73a623c3985e4bc458d04b4b484887ada593fa5`;
-- `screenshots/mobile/04-check-in-pass.png` — commit the reviewed full-height pass
-  containing only a deliberately invalid static demo QR payload and no raw token;
-- `screenshots/mobile/02-portal-bookings.png` — commit the refreshed populated
-  mobile bookings capture;
-- run the full frontend release-quality commands on the canonical frontend SHA;
-- run `python scripts/check_showcase.py` on the exact final showcase commit;
-- complete a final privacy and visual review, then create `v1.0.1-showcase` on
-  that exact commit.
+### Release rule
 
-The existing `v1.0.0-showcase` tag remains historical and must not be moved.
+This record becomes immutable when `v1.0.2-showcase` points to the reviewed commit and the release-form local validator passes.
 
-## 1.0.0-showcase — 2026-07-15
+## `v1.0.1-showcase` — 2026-07-16
+
+### Added
+
+- Provenance-bound final-candidate validator.
+- Exact canonical frontend and backend revision checks.
+- Approved hashes for high-risk QR, mobile dashboard, portal booking, and frontend-history evidence.
+- Rejected hashes for stale, empty, cropped, duplicated, and credential-bearing media.
+- Historical-media and no-video release boundaries.
+
+### Changed
+
+- Updated the canonical frontend provenance to `b73a623c3985e4bc458d04b4b484887ada593fa5`.
+- Aligned the 53-image gallery with the final application snapshot.
+- Replaced stale professional-messaging, mobile dashboard, portal-bookings, QR-pass, and frontend-history evidence.
+- Clarified that deterministic validation is authoritative for exact seeded counts.
+- Recorded the hosted-runner restriction without claiming successful hosted CI.
+
+### Release record
+
+- Showcase commit: `53aa79d5124902fc689c4f7b121c7d4b1fdccdc9`
+- Frontend commit: `b73a623c3985e4bc458d04b4b484887ada593fa5`
+- Backend commit: `2234af20d1d9dd143bcac22edc699d3ee7fe515f`
+- Gallery: 53 unique screenshots across five galleries
+
+## `v1.0.0-showcase` — 2026-07-15
 
 ### Added
 
 - Product case study covering users, product surfaces, and connected workflows.
-- Architecture case study with system context, trust boundaries, domain model,
-  deployment, and sequence diagrams.
-- Engineering document covering frontend, backend, database, security,
-  reliability, messaging, presence, testing, and environment decisions.
-- Root vulnerability disclosure policy, security overview, and threat model.
-- Quality strategy with risk-to-evidence mapping.
-- Operations runbook for Docker, deployment, migrations, observability,
-  incidents, backups, and scaling.
-- Engineering journey, product roadmap, build manifest, and release policy.
-- Showcase validation workflow and protected-content license.
-- A structured 53-file gallery covering desktop, portal, mobile, localization,
-  and engineering evidence.
+- Architecture case study with system context, trust boundaries, domain model, deployment, and sequence diagrams.
+- Engineering, quality, operations, security-overview, and threat-model documentation.
+- Guarded Northline Performance Club deterministic demo contract.
+- Release policy, build manifest, roadmap, changelog, security policy, and protected-content license.
+- Structured 53-file gallery covering desktop, portal, mobile, localization, and engineering evidence.
 
 ### Changed
 
 - Rebuilt the README as a visual engineering landing page.
 - Replaced stale demo credentials with password-at-rebuild guidance.
-- Updated the demo scenario to Northline Performance Club.
-- Recorded exact source revisions, validation scope, provider status, and
-  artifact boundaries.
-- Reframed production claims as production-oriented architecture plus
-  deployment-specific operational verification.
-- Added professional messaging, staff presence, portal settings, real-time
-  behavior, and guarded demo infrastructure to the public system description.
-- Recorded the hosted-runner restriction without claiming green CI that did not execute.
-- Replaced the obsolete 19-image gallery with the structured 53-file gallery.
+- Reframed production claims as production-oriented architecture plus deployment-specific operational verification.
+- Added professional messaging, staff presence, portal settings, real-time behavior, and guarded demo infrastructure to the public system description.
 
 ### Removed
 
@@ -95,9 +87,9 @@ The existing `v1.0.0-showcase` tag remains historical and must not be moved.
 - Repetitive feature inventories that did not explain decisions or evidence.
 - Unsupported live-provider and production-operation claims.
 - Editor-specific configuration and internal capture instructions.
-- The obsolete empty video placeholder.
+- The obsolete 19-image gallery.
 
-## 0.1.0 — 2026-07-05
+## `0.1.0` — 2026-07-05
 
 ### Added
 

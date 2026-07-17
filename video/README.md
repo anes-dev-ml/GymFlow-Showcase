@@ -1,26 +1,23 @@
 # GymFlow Walkthrough Status
 
-The current `v1.0.1-showcase` candidate does not include a public walkthrough video, thumbnail, captions file, or downloadable video asset as part of its provenance-bound evidence contract.
+**Current media status:** Not included in `v1.0.2-showcase`.
 
-The current evidence is provided through the
-[53-image visual gallery](../screenshots/README.md), the engineering case study,
-and the exact source provenance recorded in the
-[build manifest](../BUILD_MANIFEST.md).
+The tag-bound `v1.0.2-showcase` release record does **not include** a public walkthrough video, thumbnail, captions file, or downloadable video asset as part of its provenance-bound release contract.
 
-An older standalone GitHub release associated with a non-showcase `v1.0.0` tag
-may contain a walkthrough asset. That asset is historical media: it predates the
-canonical frontend snapshot recorded for `v1.0.1-showcase`, is not part of the
-current candidate, and must not be described as evidence for the final release
-unless it is revalidated and republished under a new provenance-bound tag.
+The current evidence is provided through:
 
-The historical `v1.0.0-showcase` tag remains the earlier documentation and
-screenshot baseline. Existing historical tags are not moved or silently
-retargeted.
+- the [53-image visual gallery](../screenshots/README.md);
+- the engineering case study;
+- the exact source provenance in the [Build Manifest](../BUILD_MANIFEST.md);
+- the machine-readable [`release/evidence-manifest.json`](../release/evidence-manifest.json).
+
+`v1.0.1-showcase` is the latest immutable gallery release. It also does not claim a current provenance-bound walkthrough.
+
+An older standalone GitHub release associated with a non-showcase `v1.0.0` tag may contain a walkthrough asset. That asset is **historical media**. It predates the canonical source snapshot used by the current release line and is not part of the current record.
 
 ## Intended walkthrough narrative
 
-A future GymFlow walkthrough would present one connected product story rather
-than a page-by-page feature list.
+A future GymFlow walkthrough would present one connected product story rather than a page-by-page feature list.
 
 | Chapter | Product or engineering evidence |
 |---|---|
@@ -37,8 +34,7 @@ than a page-by-page feature list.
 
 ## Engineering themes
 
-A technical walkthrough would emphasize the decisions that distinguish GymFlow
-from a visual prototype:
+A technical walkthrough would emphasize:
 
 - workspace-scoped multi-tenancy;
 - staff JWT and client portal token separation;
@@ -53,16 +49,18 @@ from a visual prototype:
 
 ## Data and provider boundary
 
-Any public walkthrough associated with GymFlow represents fictional identities
-and business records. Payment demonstrations remain in manual, simulated, or
-Stripe test-mode state and do not process real money.
+Any future public walkthrough must use fictional identities and business records. Payment demonstrations remain manual, simulated, or Stripe test-mode only and do not process real money.
 
-Provider-dependent capabilities such as live Stripe configuration, verified
-email delivery, Google OAuth redirects, and production infrastructure are not
-presented as verified unless the corresponding release records that evidence.
+Provider-dependent capabilities such as live Stripe configuration, verified email delivery, Google OAuth redirects, and production infrastructure are not presented as verified without corresponding release evidence.
 
 ## Future media releases
 
-A later release may add a public product or engineering walkthrough. That media
-would be published under its own semantic release with an updated source
-snapshot, manifest entry, duration, captions status, and integrity metadata.
+A later video will be published under a new provenance-bound release. Its record will include:
+
+- exact frontend, backend, and showcase source snapshots;
+- duration;
+- captions status;
+- file size and format;
+- SHA-256 checksum;
+- platform and provider boundaries;
+- explicit included and omitted evidence.
