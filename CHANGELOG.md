@@ -1,60 +1,63 @@
 # Changelog
 
-All notable changes to the GymFlow showcase are documented here. The private application repositories maintain their own histories; this changelog tracks the public case study, diagrams, screenshots, manifests, validation contracts, and release artifacts.
+All notable changes to the GymFlow showcase are documented here. The private application repositories maintain their own histories; this file tracks the public case study, visual evidence, manifests, validation contracts, and release artifacts.
 
-## v1.0.2-showcase — evidence date 2026-07-17
+## v1.0.3-showcase — 2026-07-17
 
 ### Added
 
-- Machine-readable release and evidence record at `release/evidence-manifest.json`.
-- Traditional local release runners for PowerShell and POSIX shells.
-- Validator regression tests covering tracked-file discovery, stale release wording, manifest drift, historical-tag integrity, target-tag alignment, and clean-worktree enforcement.
-- Explicit evidence descriptions for all 53 gallery images.
-- Professional release notes for `v1.0.2-showcase`.
+- Schema version 2 for `release/evidence-manifest.json`, with explicit current and previous release identities.
+- Exact SHA-256 approval for all 53 screenshots.
+- `scripts/refresh_evidence_hashes.py` for deterministic evidence-hash maintenance.
+- Neutral `scripts/check_release.py` validation for record and release modes.
+- Regression coverage for malformed manifests, complete hash coverage, historical wording, tag alignment, and the complete repository gate.
+- Final public-release notes for `v1.0.3-showcase`.
 
 ### Changed
 
-- Kept the canonical frontend revision at `b73a623c3985e4bc458d04b4b484887ada593fa5`.
-- Kept the canonical backend revision at `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
-- Reframed `v1.0.1-showcase` as the latest immutable historical release rather than an unfinished candidate.
+- Preserved frontend revision `b73a623c3985e4bc458d04b4b484887ada593fa5`.
+- Preserved backend revision `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
+- Recorded `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f` as the previous immutable release.
+- Replaced dynamic “latest immutable release” wording with stable current and previous release semantics.
+- Strengthened local-link containment and nested manifest validation.
+- Updated active release documentation and tooling to `v1.0.3-showcase`.
+
+### Removed
+
+- Obsolete `scripts/check_release_candidate.py` naming and candidate-oriented output.
+- Pre-tag instructions that remained visible after `v1.0.2-showcase` existed.
+- The rule that incorrectly required `v1.0.1-showcase` to remain the latest immutable release.
+
+## `v1.0.2-showcase` — 2026-07-17
+
+### Added
+
+- Machine-readable release evidence at `release/evidence-manifest.json`.
+- Traditional PowerShell and POSIX release runners.
+- Initial validator regression tests.
+- Evidence descriptions for all 53 gallery images.
+
+### Changed
+
 - Reorganized the README around product evidence, engineering decisions, release status, and review boundaries.
-- Centralized release constants so the validators no longer duplicate source, gallery, and artifact facts.
-- Changed file safety validation to inspect tracked Git content instead of unrelated local cache files.
-- Strengthened cross-document release-state and provenance checks.
-- Replaced hosted Actions as release evidence with a documented local validation policy.
-- Reduced duplicated documentation and clarified recruiter-facing evidence.
+- Changed file-safety validation to inspect tracked Git content.
+- Replaced unavailable hosted execution with a documented local validation policy.
 
-### Fixed
+### Release record
 
-- Removed obsolete references to a superseded intermediate frontend revision.
-- Removed statements claiming that `v1.0.1-showcase` had not yet been tagged.
-- Removed completed screenshot replacements from “remaining gates.”
-- Prevented validator self-detection of its own blocked strings.
-- Prevented generated `__pycache__` directories from causing false release failures when they are untracked.
-- Added Python cache rules to `.gitignore`.
-- Removed the broken hosted workflow whose compile step created files forbidden by the following validation step.
-
-### Release rule
-
-This record becomes immutable when `v1.0.2-showcase` points to the reviewed commit and the release-form local validator passes.
+- Showcase commit: `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`
+- Frontend commit: `b73a623c3985e4bc458d04b4b484887ada593fa5`
+- Backend commit: `2234af20d1d9dd143bcac22edc699d3ee7fe515f`
+- Gallery: 53 unique screenshots across five galleries
 
 ## `v1.0.1-showcase` — 2026-07-16
 
 ### Added
 
-- Provenance-bound final-candidate validator.
+- Provenance-bound release validation.
 - Exact canonical frontend and backend revision checks.
-- Approved hashes for high-risk QR, mobile dashboard, portal booking, and frontend-history evidence.
-- Rejected hashes for stale, empty, cropped, duplicated, and credential-bearing media.
-- Historical-media and no-video release boundaries.
-
-### Changed
-
-- Updated the canonical frontend provenance to `b73a623c3985e4bc458d04b4b484887ada593fa5`.
-- Aligned the 53-image gallery with the final application snapshot.
-- Replaced stale professional-messaging, mobile dashboard, portal-bookings, QR-pass, and frontend-history evidence.
-- Clarified that deterministic validation is authoritative for exact seeded counts.
-- Recorded the hosted-runner restriction without claiming successful hosted CI.
+- Approved hashes for high-risk evidence and permanently blocked rejected media.
+- Historical-media and no-video boundaries.
 
 ### Release record
 
@@ -67,27 +70,9 @@ This record becomes immutable when `v1.0.2-showcase` points to the reviewed comm
 
 ### Added
 
-- Product case study covering users, product surfaces, and connected workflows.
-- Architecture case study with system context, trust boundaries, domain model, deployment, and sequence diagrams.
-- Engineering, quality, operations, security-overview, and threat-model documentation.
+- Product, architecture, engineering, quality, operations, security, and threat-model case studies.
 - Guarded Northline Performance Club deterministic demo contract.
-- Release policy, build manifest, roadmap, changelog, security policy, and protected-content license.
-- Structured 53-file gallery covering desktop, portal, mobile, localization, and engineering evidence.
-
-### Changed
-
-- Rebuilt the README as a visual engineering landing page.
-- Replaced stale demo credentials with password-at-rebuild guidance.
-- Reframed production claims as production-oriented architecture plus deployment-specific operational verification.
-- Added professional messaging, staff presence, portal settings, real-time behavior, and guarded demo infrastructure to the public system description.
-
-### Removed
-
-- Stale status tables and old demo account values.
-- Repetitive feature inventories that did not explain decisions or evidence.
-- Unsupported live-provider and production-operation claims.
-- Editor-specific configuration and internal capture instructions.
-- The obsolete 19-image gallery.
+- Release policy, build manifest, roadmap, changelog, security policy, protected-content license, and structured gallery.
 
 ## `0.1.0` — 2026-07-05
 
