@@ -10,9 +10,12 @@ artifacts.
 ### Changed
 
 - Updated the canonical frontend provenance to
-  `8242f24fb05f0918393e439b5e0f1cc2e5f3086d`, which includes the final mobile
-  dashboard, professional messaging, zoom-responsive, payment-copy, and
-  attendance hardening.
+  `b73a623c3985e4bc458d04b4b484887ada593fa5`, which includes the final mobile
+  dashboard, professional messaging, zoom-responsive, payment-copy, attendance,
+  portal-architecture, and regression-suite hardening.
+- Reconciled obsolete source-string tests with the final frontend architecture,
+  replacing superseded portal guards with consolidated current contracts rather
+  than retaining assumptions about removed classes and implementation files.
 - Updated the evidence date to 2026-07-16 and separated the historical
   `v1.0.0-showcase` tag from the current release candidate.
 - Replaced the rejected mobile dashboard with the compact four-metric layout and
@@ -42,7 +45,7 @@ canonical frontend revision:
   dedicated communication workspace rather than the previous metric-heavy page;
 - `screenshots/engineering/15-frontend-commit-history.png` — regenerate the
   curated provenance image with frontend revision
-  `8242f24fb05f0918393e439b5e0f1cc2e5f3086d`;
+  `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - `screenshots/mobile/04-check-in-pass.png` — commit the reviewed full-height pass
   containing only a deliberately invalid static demo QR payload and no raw token;
 - `screenshots/mobile/02-portal-bookings.png` — commit the refreshed populated
@@ -98,11 +101,4 @@ The existing `v1.0.0-showcase` tag remains historical and must not be moved.
 
 ### Added
 
-- Initial public showcase structure.
-- Product, architecture, security, demo, and release documentation.
-- Nineteen screenshots representing the earlier product generation.
-
-### Known limitation
-
-This release predated the dashboard redesign, professional messaging, hardened
-staff presence, guarded deterministic demo environment, and current portal architecture.
+- Initial public portfolio showcase structure.
