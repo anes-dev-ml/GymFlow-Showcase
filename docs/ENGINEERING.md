@@ -261,13 +261,13 @@ The application and showcase use layered evidence:
 The showcase uses traditional local release validation:
 
 ```powershell
-./scripts/validate_release.ps1
+.\scripts\validate_release.ps1
 ```
 
 or:
 
 ```bash
-./scripts/validate_release.sh
+bash scripts/validate_release.sh
 ```
 
 The tooling inspects tracked Git content, runs its own regression tests, validates the 53-image contract, verifies canonical source revisions, and optionally confirms the release tag on a clean working tree.
@@ -276,7 +276,7 @@ No successful hosted execution is claimed for this release line.
 
 ## 15. Release engineering
 
-The `v1.0.2-showcase` candidate centralizes release facts in [`release/evidence-manifest.json`](../release/evidence-manifest.json).
+The tag-bound `v1.0.2-showcase` release record centralizes release facts in [`release/evidence-manifest.json`](../release/evidence-manifest.json).
 
 The record includes:
 
