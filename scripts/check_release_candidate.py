@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
+
 import check_showcase
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -114,8 +116,16 @@ def check_final_media(errors: list[str]) -> None:
 
 
 def check_release_wording(errors: list[str]) -> None:
-    video_status = (ROOT / "video/README.md").read_text(encoding="utf-8-sig").lower()
-    manifest = (ROOT / "BUILD_MANIFEST.md").read_text(encoding="utf-8-sig").lower()
+    video_status = re.sub(
+        r"\s+",
+        " ",
+        (ROOT / "video/README.md").read_text(encoding="utf-8-sig").lower(),
+    )
+    manifest = re.sub(
+        r"\s+",
+        " ",
+        (ROOT / "BUILD_MANIFEST.md").read_text(encoding="utf-8-sig").lower(),
+    )
 
     for phrase in {
         "historical media",

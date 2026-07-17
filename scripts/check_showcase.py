@@ -16,18 +16,19 @@ REQUIRED_FILES = {
     "BUILD_MANIFEST.md",
     "CHANGELOG.md",
     "DEMO.md",
-    "ENGINEERING.md",
-    "JOURNEY.md",
+    "docs/ENGINEERING.md",
     "LICENSE",
-    "OPERATIONS.md",
-    "QUALITY.md",
+    "docs/OPERATIONS.md",
+    "docs/QUALITY.md",
     "RELEASES.md",
     "ROADMAP.md",
     "SECURITY.md",
-    "THREAT_MODEL.md",
+    "docs/THREAT_MODEL.md",
     "screenshots/README.md",
     "video/README.md",
     ".github/workflows/showcase-quality.yml",
+    "docs/PRODUCT.md",
+    "docs/SECURITY_OVERVIEW.md",
 }
 
 PUBLIC_PRESENTATION_FILES = {
@@ -36,16 +37,17 @@ PUBLIC_PRESENTATION_FILES = {
     "BUILD_MANIFEST.md",
     "CHANGELOG.md",
     "DEMO.md",
-    "ENGINEERING.md",
-    "JOURNEY.md",
-    "OPERATIONS.md",
-    "QUALITY.md",
+    "docs/ENGINEERING.md",
+    "docs/OPERATIONS.md",
+    "docs/QUALITY.md",
     "RELEASES.md",
     "ROADMAP.md",
     "SECURITY.md",
-    "THREAT_MODEL.md",
+    "docs/THREAT_MODEL.md",
     "screenshots/README.md",
     "video/README.md",
+    "docs/PRODUCT.md",
+    "docs/SECURITY_OVERVIEW.md",
 }
 
 INTERNAL_AUTHORING_PHRASES = {
@@ -270,7 +272,10 @@ def check_markdown_links(errors: list[str]) -> None:
 
 
 def check_text_safety(errors: list[str]) -> None:
+    validator_path = Path(__file__).resolve()
     for path in text_files():
+        if path.resolve() == validator_path:
+            continue
         try:
             content = path.read_text(encoding="utf-8-sig")
         except UnicodeDecodeError:
@@ -286,6 +291,8 @@ def check_text_safety(errors: list[str]) -> None:
 def check_public_tone(errors: list[str]) -> None:
     for name in sorted(PUBLIC_PRESENTATION_FILES):
         path = ROOT / name
+        if not path.is_file():
+            continue
         content = path.read_text(encoding="utf-8-sig").lower()
         for phrase in sorted(INTERNAL_AUTHORING_PHRASES):
             if phrase in content:

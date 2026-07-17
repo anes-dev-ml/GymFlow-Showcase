@@ -34,7 +34,7 @@ A validated rebuild produces the same connected business story:
 | Check-ins | 58 recent, including 4 today immediately after validation |
 | Revenue | Six months of non-flat history; 3,402.00 CAD current-month target |
 | Pending payments | 377.00 CAD target |
-| Notifications | Staff and client examples; 6 unread for the owner immediately after validation |
+| Notifications | Staff and client examples; 6 unread for workspace owners immediately after validation |
 | Messaging | One professional support workflow |
 | Canonical portal stories | Lena Martin and Amina Haddad |
 | Visual-review account | Noah Tremblay for neutral command-center and portal captures |
