@@ -4,7 +4,7 @@
 
 GymFlow connects public product discovery, staff operations, and private client self-service in one workspace-scoped system. It covers clients, memberships, services, bookings, attendance, payments, reporting, messaging, notifications, staff presence, localization, and SaaS billing.
 
-This repository presents GymFlow as a public engineering case study. The application implementation remains private, with selected read-only source access available for serious technical or recruitment review.
+This repository presents the product, architecture, engineering decisions, and reviewed visual gallery behind GymFlow.
 
 ## Product at a glance
 
