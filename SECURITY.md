@@ -1,13 +1,13 @@
 # Security Policy
 
-GymFlow is a private-source product showcase. This repository contains engineering documentation and demonstration assets rather than application source code or production credentials.
+GymFlow's implementation is private, while this repository publishes the product and engineering showcase. Security documentation, release assets, and demonstration material can still receive vulnerability reports when they expose a real issue in the represented system or public repository.
 
 ## Supported versions
 
 | Version | Supported |
 |---|---|
 | Latest tagged showcase release | Yes |
-| Current reviewed release record on `main` | Yes |
+| Current reviewed content on `main` | Yes |
 | Active temporary hosted review | Yes, during the stated review window |
 | Older screenshots, binaries, or archived releases | Best effort |
 | Unofficial copies or modified artifacts | No |
@@ -21,7 +21,7 @@ Use GitHub's private vulnerability-reporting flow when it is available:
 3. select **Report a vulnerability**;
 4. submit the report privately rather than opening a public issue.
 
-If that control is unavailable, contact the repository owner through the GitHub profile and ask for a private reporting channel. Do not post exploit details, credentials, tokens, personal information, or payment data publicly.
+If that control is unavailable, contact the repository owner through the GitHub profile and ask for a private reporting channel. Please keep exploit details, credentials, tokens, personal information, and payment data out of public issues.
 
 A useful report includes:
 
@@ -42,7 +42,7 @@ Please allow reasonable time to investigate and address a confirmed issue before
 3. communicate the expected remediation or documentation plan;
 4. credit the reporter when requested and appropriate.
 
-These are best-effort commitments for a portfolio project, not a commercial SLA.
+These response targets are provided for this independent project and are not a commercial SLA.
 
 ## Scope
 
@@ -57,14 +57,14 @@ In-scope concerns include:
 - payment or webhook state manipulation;
 - internal staff notes exposed to clients;
 - sensitive data in logs, health responses, or error payloads;
-- artifact tampering or misleading release provenance.
+- artifact tampering or incorrect release provenance.
 
 Out-of-scope examples include:
 
 - denial-of-service testing against infrastructure not explicitly authorized;
 - social engineering;
 - attacks against Stripe, Google, GitHub, email, or hosting providers themselves;
-- reports based only on missing production infrastructure in a local/demo release;
+- reports based only on infrastructure that has not been deployed for the portfolio environment;
 - vulnerabilities in modified third-party copies.
 
 ## Safe testing expectations
@@ -73,7 +73,7 @@ Out-of-scope examples include:
 - Do not attempt real payments or upload identity documents.
 - Do not access another person's account or data.
 - Stop when the vulnerability has been demonstrated.
-- Preserve request IDs and sanitized evidence rather than collecting unnecessary data.
+- Preserve request IDs and sanitized context rather than collecting unnecessary data.
 
 ## Application security documentation
 
