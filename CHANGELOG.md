@@ -1,6 +1,17 @@
 # Changelog
 
-All notable changes to the GymFlow showcase are documented here. The private application repositories maintain their own histories; this file tracks the public case study, visual evidence, manifests, validation contracts, and release artifacts.
+All notable changes to the GymFlow showcase are documented here. The private application repositories maintain their own histories; this file tracks the public case study, gallery, manifests, validation contracts, and release artifacts.
+
+## Unreleased — public narrative refresh
+
+### Changed
+
+- Refined the README around the product, connected workflows, architecture, and engineering story before release mechanics.
+- Reframed the visual gallery as a product tour while preserving its complete release-integrity record.
+- Reworked roadmap language around product evolution and the path from showcase to commercial operation.
+- Simplified private-source and source-review wording without changing access or licensing boundaries.
+- Reduced defensive “proof / no claim / evidence boundary” phrasing across public-facing documentation.
+- Kept technical provenance, hashes, validation, security, and release mechanics in the dedicated documents where they remain useful.
 
 ## v1.0.3-showcase — 2026-07-17
 
