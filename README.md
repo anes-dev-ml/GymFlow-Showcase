@@ -4,30 +4,17 @@
 
 GymFlow connects public product discovery, staff operations, and private client self-service in one workspace-scoped system. It covers clients, memberships, services, bookings, attendance, payments, reporting, messaging, notifications, staff presence, localization, and SaaS billing.
 
-> This repository is the public engineering case study for a private-source application. It contains reviewed documentation and visual evidence rather than the frontend or backend source code.
+This repository presents GymFlow as a public engineering case study. The application implementation remains private, with selected read-only source access available for serious technical or recruitment review.
 
-## Release status
+## Product at a glance
 
-| Record | Value |
-|---|---|
-| Current release record | `v1.0.3-showcase` |
-| Previous immutable release | `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f` |
-| Frontend revision | `b73a623c3985e4bc458d04b4b484887ada593fa5` |
-| Backend revision | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` |
-| Evidence model | 53 screenshots with 53 exact SHA-256 approvals |
-| Validation | Local release validation; no green hosted-CI claim |
-
-`v1.0.3-showcase` is the final public-release integrity record. It preserves the canonical application snapshots and the reviewed gallery while replacing the ambiguous “latest immutable release” model with explicit current and previous release identities. Record mode validates the repository before tagging; release mode additionally requires the current tag to point to the clean reviewed `HEAD`.
-
-## Product surfaces
-
-| Surface | Primary users | Responsibility |
+| Surface | Primary users | What it provides |
 |---|---|---|
 | Public website | Prospective studios and visitors | Product discovery, pricing, security, contact, and legal information |
 | Studio application | Owner, manager, trainer, receptionist | Daily business and operational workflows |
 | Client portal | Gym clients | Private self-service outside the staff trust domain |
 
-## Selected evidence
+## Product highlights
 
 ### Owner command center
 
@@ -53,11 +40,11 @@ GymFlow connects public product discovery, staff operations, and private client 
 
 ![GymFlow Arabic RTL interface](screenshots/localization/01-arabic-rtl.png)
 
-The complete evidence index is available in the [GymFlow Visual Gallery](screenshots/README.md).
+The complete product and engineering gallery is available in the [GymFlow Visual Gallery](screenshots/README.md).
 
 ## Engineering highlights
 
-| Area | Evidence |
+| Area | Implementation |
 |---|---|
 | Multi-tenancy | Workspace membership boundary and workspace-scoped queries |
 | Authorization | Role, credential type, membership status, resource scope, and audience checks |
@@ -68,7 +55,7 @@ The complete evidence index is available in the [GymFlow Visual Gallery](screens
 | Presence | Heartbeats, recent activity, multiple-device aggregation, and role-aware visibility |
 | Reliability | Transactions, advisory locks, idempotency, readiness checks, and neutral public responses |
 | Internationalization | English, French, Arabic, RTL, and responsive layout tiers |
-| Release engineering | Deterministic demo data, exact source provenance, rejected-media hashes, full evidence hashes, and tag validation |
+| Release engineering | Deterministic demo data, exact source provenance, gallery integrity, and tagged showcase records |
 
 ## Architecture
 
@@ -97,75 +84,72 @@ flowchart LR
     API --> Google
 ```
 
-The main boundaries are:
+The architecture is organized around five important boundaries:
 
 1. **Workspace isolation** — business records belong to one studio workspace.
 2. **Backend authorization** — frontend permissions improve UX; backend checks remain authoritative.
 3. **Separate trust domains** — staff JWTs and client portal tokens are intentionally different.
-4. **Provider boundaries** — Stripe, email, and OAuth require explicit environment configuration.
+4. **Provider boundaries** — Stripe, email, and OAuth are integrated through explicit environment configuration.
 5. **Environment boundaries** — development, test, demo, and production use different safety contracts.
 
-Read the full [architecture case study](ARCHITECTURE.md).
+Read the full [architecture case study](ARCHITECTURE.md) or the [engineering deep dive](docs/ENGINEERING.md).
+
+## A connected SaaS, not a collection of screens
+
+GymFlow is built around relationships between the product areas. A client can receive a membership, make payments, book a trainer-aware service, check in at the front desk, receive notifications, use a private portal, and participate in support conversations while the same records feed dashboards and reports.
+
+The workspace model keeps studio data scoped by tenant and role. The client portal uses a separate credential and response surface instead of treating clients as reduced-permission staff users. Messaging separates internal staff notes from client-visible replies, while booking and payment workflows preserve lifecycle and provider state across the frontend, API, and database.
+
+The [Product Model](docs/PRODUCT.md) walks through these workflows in detail, and the [Engineering Journey](docs/ENGINEERING_JOURNEY.md) explains how the architecture evolved as the project grew.
 
 ## Deterministic professional demo
 
-The fictional **Northline Performance Club** scenario is rebuilt transactionally and validated before commit. It includes connected staff, clients, plans, memberships, services, bookings, check-ins, payments, reports, notifications, presence, messaging, and portal stories.
+The fictional **Northline Performance Club** scenario creates a connected operating story with staff, clients, plans, memberships, services, bookings, check-ins, payments, reports, notifications, presence, messaging, and client-portal activity.
 
-The destructive rebuild refuses unsafe environments, arbitrary or remote databases, live Stripe configuration, unknown application tables, and missing confirmation. It never drops schemas or modifies `alembic_version`.
+The demo can be rebuilt transactionally and validates its relationships before commit. Guardrails keep the rebuild scoped to an approved demo environment and Stripe test behavior.
 
-See the [Demo Environment](DEMO.md) and [Build Manifest](BUILD_MANIFEST.md).
+See the [Demo Environment](DEMO.md) for the scenario and safeguards.
 
-## Local release validation
+## Showcase release
 
-The showcase deliberately uses a traditional local release gate while hosted Actions are unavailable. The validation entry points are:
+The latest tagged public snapshot is **`v1.0.3-showcase`**, representing:
 
-```powershell
-.\scripts\validate_release.ps1
-.\scripts\validate_release.ps1 -Release
-```
+- frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
+- backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
+- Alembic head `9e4f6a8c2d1b`;
+- 53 reviewed screenshots across desktop, client portal, mobile, localization, and engineering views.
 
-```bash
-bash scripts/validate_release.sh
-bash scripts/validate_release.sh --release
-```
+The release system records exact source revisions, gallery integrity, demo boundaries, and validation commands. Those details live in [Release Integrity](RELEASES.md), the [Build Manifest](BUILD_MANIFEST.md), and the machine-readable [`release/evidence-manifest.json`](release/evidence-manifest.json), keeping the landing page focused on the product itself.
 
-The gate runs validator unit tests, tracked-file and Markdown checks, complete screenshot inventory and SHA-256 verification, source-provenance checks, and optional release-tag verification. It inspects tracked Git content rather than failing on unrelated local cache files.
+## Source access
 
-The machine-readable release record is [release/evidence-manifest.json](release/evidence-manifest.json).
+GymFlow's frontend and backend repositories remain private. Selected read-only access may be considered case-by-case for technical review, recruitment, collaboration, or partnership discussions.
 
-## Evidence boundary
+Contact the project owner through the GitHub account [@anes-dev-ml](https://github.com/anes-dev-ml).
 
-This repository intentionally contains no:
+Source access is for review; reuse or redistribution requires separate permission.
 
-- application source code;
-- environment files or production credentials;
-- real client, staff, payment, or message data;
-- installable application binary;
-- provenance-bound walkthrough video for the current release.
-
-Provider-dependent production operation—including live Stripe, verified email, OAuth deployment configuration, hosting, monitoring, backups, restore drills, and legal ownership—remains environment-specific.
-
-## Documentation map
+## Documentation
 
 | Document | Purpose |
 |---|---|
 | [Product](docs/PRODUCT.md) | Users, product areas, and connected workflows |
 | [Architecture](ARCHITECTURE.md) | Runtime, trust boundaries, data model, deployment, and decisions |
 | [Engineering](docs/ENGINEERING.md) | Implementation depth, failure handling, and trade-offs |
-| [Security policy](SECURITY.md) | Private vulnerability reporting |
+| [Engineering journey](docs/ENGINEERING_JOURNEY.md) | How the system evolved and what the project taught |
 | [Security overview](docs/SECURITY_OVERVIEW.md) | Implemented controls and privacy boundaries |
 | [Threat model](docs/THREAT_MODEL.md) | Threats, mitigations, and residual verification |
-| [Quality](docs/QUALITY.md) | Risk-to-evidence strategy and release gates |
+| [Quality](docs/QUALITY.md) | Test strategy, manual review, and release gates |
 | [Operations](docs/OPERATIONS.md) | Configuration, migrations, observability, backup, and deployment |
 | [Demo](DEMO.md) | Deterministic scenario and destructive-operation safeguards |
-| [Release integrity](RELEASES.md) | Versioning, validation policy, and correction rules |
-| [Roadmap](ROADMAP.md) | Product evolution and production-operation work |
-| [Build manifest](BUILD_MANIFEST.md) | Canonical revisions and release artifact record |
-| [Evidence manifest](release/evidence-manifest.json) | Machine-readable release and gallery contract |
+| [Release integrity](RELEASES.md) | Versioning, validation policy, and provenance |
+| [Roadmap](ROADMAP.md) | Product evolution and path toward commercial operation |
+| [Build manifest](BUILD_MANIFEST.md) | Canonical application revisions and release record |
+| [Visual gallery](screenshots/README.md) | Complete screenshot and engineering-view collection |
 
 ## Project ownership
 
-GymFlow was designed and implemented end to end by **Anes** as a demonstration of full-stack product and software-engineering capability.
+GymFlow was designed and implemented end to end by **Anes** as a full-stack product and software-engineering project.
 
 ## License
 
