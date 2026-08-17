@@ -117,10 +117,11 @@ The deterministic demo validator defines exact post-seed counts and relationship
 
 ## Release integrity
 
-The latest tagged gallery release is `v1.0.3-showcase`, representing:
+The current gallery release record is `v1.0.4-showcase`, representing:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
-- backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
+- backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
+- the same reviewed 53-image gallery preserved from `v1.0.3-showcase`.
 
 The release tooling keeps the gallery reproducible through a declared file inventory, dimensions and format checks, unique content hashes, exact SHA-256 records, source-revision checks, and manual privacy/localization review.
 
