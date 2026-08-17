@@ -1,13 +1,13 @@
 {
   "schema_version": 2,
   "release": {
-    "tag": "v1.0.3-showcase",
+    "tag": "v1.0.4-showcase",
     "state": "release-record",
-    "evidence_date": "2026-07-17"
+    "evidence_date": "2026-08-16"
   },
   "previous_release": {
-    "tag": "v1.0.2-showcase",
-    "commit": "4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f"
+    "tag": "v1.0.3-showcase",
+    "commit": "7262227bdc925f236f2c1c4257c8630513931b64"
   },
   "source": {
     "frontend": {
@@ -33,7 +33,7 @@
       "python scripts/check_release.py",
       "python scripts/check_release.py --release"
     ],
-    "note": "The reviewed local gate is the release authority. GitHub-hosted execution is not claimed."
+    "note": "The local release gate validates repository integrity, source provenance, gallery records, and tag alignment."
   },
   "gallery": {
     "total": 53,
@@ -178,20 +178,20 @@
   "artifacts": {
     "walkthrough_video": {
       "status": "not-included",
-      "reason": "No current provenance-bound walkthrough is part of this release."
+      "reason": "The current release is centered on the reviewed visual gallery and engineering case study."
     },
     "installable_binary": {
       "status": "not-included",
-      "reason": "The repository is an engineering case study, not a binary distribution channel."
+      "reason": "Installable review artifacts are handled separately from the public showcase repository."
     },
     "application_source": {
       "status": "private",
-      "reason": "Frontend and backend source remain in private repositories."
+      "reason": "Frontend and backend source remain private, with selected read-only review available case-by-case."
     }
   },
   "boundaries": {
     "data": "Fictional deterministic demo data only",
     "payments": "Manual, simulated, or Stripe test-mode state only",
-    "production": "Production-oriented architecture; deployment-specific production operation is not claimed"
+    "production": "Production-oriented architecture with deployment-specific provider and operations setup"
   }
 }
