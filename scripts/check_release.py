@@ -9,7 +9,7 @@ from showcase_validation import ROOT, git_text, run_base_checks
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the provenance-bound GymFlow showcase release gate."
+        description="Run the GymFlow showcase release gate."
     )
     parser.add_argument(
         "--release",
@@ -99,18 +99,18 @@ def main() -> int:
     backend = manifest["source"]["backend"]["commit"]
 
     print("GymFlow release checks passed.")
-    print(f"Validated release record: {release_tag}.")
-    print(f"Validated frontend provenance: {frontend}.")
-    print(f"Validated backend provenance: {backend}.")
-    print("Validated local-only release evidence without a hosted-CI claim.")
+    print(f"Release record: {release_tag}.")
+    print(f"Frontend revision: {frontend}.")
+    print(f"Backend revision: {backend}.")
+    print("Local showcase integrity and provenance are consistent.")
     if args.release:
-        print(f"Validated release tag: {release_tag} points to reviewed HEAD.")
+        print(f"Release tag {release_tag} points to the reviewed HEAD.")
     else:
         current_target = resolve_tag(ROOT, release_tag)
         if current_target is None:
-            print("Validated the record before tag creation.")
+            print("Release record is ready for tag creation.")
         else:
-            print(f"Validated existing tag alignment for {release_tag}.")
+            print(f"Existing tag alignment is valid for {release_tag}.")
     return 0
 
 
