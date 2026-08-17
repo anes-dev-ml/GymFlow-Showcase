@@ -20,12 +20,12 @@ def main() -> int:
 
     print("GymFlow showcase checks passed.")
     print(
-        f"Validated {gallery_total} unique screenshots across "
-        f"{gallery_count} approved galleries."
+        f"Gallery: {gallery_total} unique screenshots across "
+        f"{gallery_count} galleries."
     )
-    print(f"Validated {approved_count} exact screenshot SHA-256 approvals.")
-    print(f"Validated {len(markdown_files(ROOT))} Markdown documents.")
-    print("Validated tracked-file hygiene, release truth, and local tooling contracts.")
+    print(f"Screenshot integrity records: {approved_count} SHA-256 entries.")
+    print(f"Markdown documents checked: {len(markdown_files(ROOT))}.")
+    print("Repository hygiene, release record, links, and local tooling are consistent.")
     return 0
 
 
