@@ -1,29 +1,20 @@
-# GymFlow Release Integrity
+# GymFlow Showcase Releases
 
-GymFlow showcase releases connect public claims and visual evidence to exact frontend, backend, schema, demo-state, and artifact records.
+GymFlow showcase releases connect each public case-study snapshot to exact frontend, backend, schema, demo-state, and gallery records. The goal is simple: make every tagged showcase easy to identify and reproduce without turning release mechanics into the product story itself.
 
-A reviewer should be able to determine what a release contains, which application snapshot it represents, which validations executed, and which provider or production responsibilities remain environment-specific.
+## Current release
 
-## Current release record
-
-The current release identifier is `v1.0.3-showcase`. The previous immutable release is `v1.0.2-showcase`, which points to:
-
-`4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`
-
-The current record preserves the canonical application revisions:
+The current release record is **`v1.0.4-showcase`**. It represents:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
-- Alembic head `9e4f6a8c2d1b`.
+- Alembic head `9e4f6a8c2d1b`;
+- the reviewed 53-image gallery;
+- the deterministic Northline Performance Club demo state.
 
-`v1.0.3-showcase` corrects the final release-model ambiguity by:
+The previous immutable release is `v1.0.3-showcase` at `7262227bdc925f236f2c1c4257c8630513931b64`.
 
-- replacing the dynamic “latest immutable release” field with explicit current and previous release identities;
-- using neutral validator output that remains accurate before and after tagging;
-- recording exact SHA-256 approval for all 53 screenshots;
-- validating malformed manifest structures without tracebacks;
-- expanding validator regression coverage;
-- removing obsolete candidate-named release tooling.
+`v1.0.4-showcase` is a documentation and presentation patch. It keeps the application and gallery snapshot unchanged while refining the public narrative, source-access wording, roadmap, gallery presentation, and supporting technical documentation.
 
 ## Versioning
 
@@ -34,6 +25,7 @@ v1.0.0-showcase
 v1.0.1-showcase
 v1.0.2-showcase
 v1.0.3-showcase
+v1.0.4-showcase
 v1.1.0-showcase
 ```
 
@@ -41,28 +33,28 @@ v1.1.0-showcase
 - **minor** identifies a substantial product capability or refreshed visual release;
 - **patch** identifies documentation, packaging, provenance, privacy, validation, or other non-breaking corrections.
 
-Public evidence is immutable by convention. Material changes belong to a new semantic release rather than a silent tag replacement.
+Tagged releases are immutable by convention. Material changes receive a new semantic release instead of moving an existing tag.
 
-## Canonical source record
+## Canonical release record
 
-Every release records:
+Each release can record:
 
-- current and previous showcase release identifiers;
+- showcase release identifiers;
 - frontend repository, ref, and commit;
 - backend repository, ref, and commit;
 - Alembic head;
-- evidence date and deterministic targets;
+- release/demo date and deterministic targets;
 - runtime and dependency versions;
-- included and omitted artifacts;
-- validation mode and executed commands;
-- exact screenshot inventory and SHA-256 approvals;
-- known provider and production limitations.
+- included artifacts;
+- validation mode and commands;
+- screenshot inventory and SHA-256 records;
+- provider and deployment context.
 
-The authoritative human-readable record is the [Build Manifest](BUILD_MANIFEST.md). The authoritative machine-readable record is [`release/evidence-manifest.json`](release/evidence-manifest.json).
+The human-readable source record is the [Build Manifest](BUILD_MANIFEST.md). The machine-readable record is [`release/evidence-manifest.json`](release/evidence-manifest.json).
 
-## Local validation policy
+## Local release gate
 
-This showcase release line uses traditional local validation rather than GitHub Actions.
+This showcase release line uses a local validation gate:
 
 ```powershell
 .\scripts\validate_release.ps1
@@ -74,21 +66,11 @@ bash scripts/validate_release.sh
 bash scripts/validate_release.sh --release
 ```
 
-The local gate runs:
+The gate covers validator regression tests, tracked-file safety, Markdown links, gallery inventory and hashes, source provenance, release identifiers, and optional tag/clean-worktree verification.
 
-- validator unit tests;
-- required-file and tracked-file safety checks;
-- local Markdown link validation and repository-root containment;
-- public wording and stale-release checks;
-- screenshot inventory, format, dimension, orientation, uniqueness, and exact hash checks;
-- permanently blocked rejected-media checks;
-- canonical source-provenance checks;
-- previous-tag immutability verification;
-- optional current-tag and clean-worktree verification.
+GitHub Actions are not part of this release line; the local gate is the release mechanism recorded by the showcase.
 
-No successful hosted execution is claimed. Local evidence is recorded explicitly and **no green hosted-CI claim** is made.
-
-## Screenshot evidence
+## Gallery integrity
 
 | Gallery | Count |
 |---|---:|
@@ -99,36 +81,28 @@ No successful hosted execution is claimed. Local evidence is recorded explicitly
 | Engineering | 10 |
 | **Total** | **53** |
 
-A release requires all 53 declared paths, 53 unique content hashes, and 53 exact SHA-256 approvals. Known rejected-media hashes remain permanently blocked.
+The release record preserves the declared gallery paths and exact content hashes so a tagged visual snapshot remains tied to the application revisions it represents.
 
-The gallery is documented in the [GymFlow Visual Gallery](screenshots/README.md).
+Browse the gallery in [GymFlow Visual Gallery](screenshots/README.md).
 
-## Data and payment boundary
+## Demo data and payments
 
-The showcase uses:
+The public showcase uses fictional identities and business records, reserved `.test` or IANA example-domain addresses, and manual/simulated/Stripe test-mode payment states. Reusable credentials and live payment information are kept outside the public presentation.
 
-- fictional identities and business records;
-- reserved `.test` or IANA example-domain addresses;
-- Stripe test mode or explicitly simulated demo state;
-- no stored payment-card data;
-- no real charges;
-- no published permanent demo password;
-- no valid credential encoded in a public QR image.
+This keeps product review realistic while preserving a clear separation between demonstration data and any real deployment environment.
 
-## Provider and production boundary
+## Deployment context
 
-GymFlow implements production-oriented architecture and strict production configuration. A live commercial deployment still depends on target hosting, domains, managed PostgreSQL and Redis, provider credentials, webhook rehearsal, verified email, OAuth redirects, monitoring, alerts, backups, restore testing, security operations, and legal ownership.
+GymFlow's application architecture includes production-oriented configuration and provider boundaries. Operating it commercially would connect those boundaries to selected hosting, domains, managed PostgreSQL/Redis, Stripe, verified email, OAuth, monitoring, backups, restore procedures, and the legal/support processes of the deployment.
 
-The showcase does not collapse those responsibilities into an unsupported claim that the product is already production-operated.
+The [Roadmap](ROADMAP.md) describes that path separately from the tagged product showcase.
 
-## Video and installable artifacts
+## Release media
 
-No current walkthrough video or installable binary is part of the `v1.0.3-showcase` evidence contract.
-
-Historical media attached to an older non-showcase release is not evidence for the current source snapshot. A future media release would record exact source provenance, duration, captions status, integrity hashes, and platform requirements.
+`v1.0.4-showcase` is centered on documentation, diagrams, and the reviewed screenshot gallery. A future release can add an edited walkthrough or installable review artifact when it adds value, with its own versioned record.
 
 ## Correction policy
 
-Broken links, leaked information, misleading claims, duplicate or mislabeled artifacts, stale application captures, incorrect source revisions, validator defects, and release-tag inconsistencies are release defects.
+If a public release contains a broken link, exposed information, incorrect source revision, misleading artifact, stale capture, validator defect, or tag inconsistency, the active presentation is corrected and a new patch release is used when the change affects the tagged record.
 
-Active exposure is removed promptly, credentials are revoked when relevant, corrections are documented, and a new patch release is used for material evidence changes. Existing release tags are never moved or silently rewritten.
+Existing release tags remain immutable.

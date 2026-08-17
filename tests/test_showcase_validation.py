@@ -80,7 +80,7 @@ class ShowcaseValidationTests(unittest.TestCase):
 
     def test_historical_release_notes_may_preserve_historical_wording(self) -> None:
         root = self.make_repo()
-        path = root / "release" / "v1.0.2-release-notes.md"
+        path = root / "release" / "v1.0.3-release-notes.md"
         path.parent.mkdir()
         path.write_text(
             "Before tagging `v1.0.2-showcase`, run the release gate.\n",
@@ -142,16 +142,16 @@ class ShowcaseValidationTests(unittest.TestCase):
         root = self.make_repo()
         (root / "README.md").write_text("# Fixture\n", encoding="utf-8")
         previous_commit = self.commit_all(root, "previous")
-        run_git(root, "tag", "v1.0.2-showcase", previous_commit)
+        run_git(root, "tag", "v1.0.3-showcase", previous_commit)
 
         (root / "README.md").write_text("# Fixture\n\nCurrent\n", encoding="utf-8")
         current_commit = self.commit_all(root, "current")
-        run_git(root, "tag", "v1.0.3-showcase", current_commit)
+        run_git(root, "tag", "v1.0.4-showcase", current_commit)
 
         manifest = {
-            "release": {"tag": "v1.0.3-showcase"},
+            "release": {"tag": "v1.0.4-showcase"},
             "previous_release": {
-                "tag": "v1.0.2-showcase",
+                "tag": "v1.0.3-showcase",
                 "commit": previous_commit,
             },
         }
@@ -168,15 +168,15 @@ class ShowcaseValidationTests(unittest.TestCase):
         root = self.make_repo()
         (root / "README.md").write_text("# Fixture\n", encoding="utf-8")
         previous_commit = self.commit_all(root, "previous")
-        run_git(root, "tag", "v1.0.2-showcase", previous_commit)
+        run_git(root, "tag", "v1.0.3-showcase", previous_commit)
 
         (root / "README.md").write_text("# Fixture\n\nCurrent\n", encoding="utf-8")
         self.commit_all(root, "current")
 
         manifest = {
-            "release": {"tag": "v1.0.3-showcase"},
+            "release": {"tag": "v1.0.4-showcase"},
             "previous_release": {
-                "tag": "v1.0.2-showcase",
+                "tag": "v1.0.3-showcase",
                 "commit": previous_commit,
             },
         }

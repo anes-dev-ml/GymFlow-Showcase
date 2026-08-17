@@ -1,10 +1,10 @@
 # GymFlow Engineering
 
-This document explains the engineering depth behind GymFlow: system boundaries, implementation choices, failure handling, reliability patterns, and trade-offs that are easy to miss in a visual product demonstration.
+This document explains the engineering depth behind GymFlow: system boundaries, implementation choices, failure handling, reliability patterns, and trade-offs that are easy to miss in a visual product tour.
 
 ## Engineering scope
 
-GymFlow demonstrates work across:
+GymFlow brings together:
 
 - product and domain modeling;
 - Flutter application architecture;
@@ -58,7 +58,7 @@ These controls improve navigation and user experience. Backend authorization rem
 
 Pages account for loading, refresh, empty state, partial data, API failure, mutation progress, conflict or rate-limit feedback, and session expiry.
 
-The goal is to avoid the common portfolio pattern where only a single happy path exists.
+The application is designed around complete workflows rather than a single happy path.
 
 ### Localization and responsiveness
 
@@ -209,9 +209,9 @@ This turns demo preparation into a repeatable release process rather than manual
 
 ## 14. Validation strategy
 
-The application and showcase use layered evidence:
+The application uses several complementary quality layers:
 
-| Layer | Protection |
+| Layer | Purpose |
 |---|---|
 | Unit and model tests | Parsing, calculations, mappings, transitions |
 | API behavior tests | Contracts, business outcomes, and errors |
@@ -223,7 +223,7 @@ The application and showcase use layered evidence:
 | Demo validation | Deterministic counts, relationships, trends, and identities |
 | Showcase validation | Documentation, privacy, provenance, and media integrity |
 
-The showcase uses traditional local release validation:
+The public showcase has its own local release gate:
 
 ```powershell
 .\scripts\validate_release.ps1
@@ -233,30 +233,18 @@ The showcase uses traditional local release validation:
 bash scripts/validate_release.sh
 ```
 
-The tooling inspects tracked Git content, runs its own regression tests, validates the 53-image contract and all 53 exact SHA-256 approvals, verifies canonical source revisions, and optionally confirms the current release tag on a clean working tree.
-
-No successful hosted execution is claimed for this release line.
+That tooling checks tracked repository content, validator regression tests, the 53-image gallery contract, exact hashes, canonical source revisions, and optional release-tag alignment. GitHub Actions are not part of this showcase release line.
 
 ## 15. Release engineering
 
-The `v1.0.3-showcase` release record centralizes public release facts in [`release/evidence-manifest.json`](../release/evidence-manifest.json). The previous immutable release is `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`.
+The tagged `v1.0.3-showcase` snapshot centralizes release facts in [`release/evidence-manifest.json`](../release/evidence-manifest.json). It records the canonical application revisions, Alembic head, gallery inventory and hashes, demo context, and validation commands.
 
-The record includes:
-
-- explicit current and previous release identities;
-- frontend and backend commits;
-- Alembic head;
-- evidence date;
-- gallery paths, counts, and exact hashes;
-- blocked rejected-media hashes;
-- included and omitted artifacts;
-- validation commands;
-- product and production boundaries.
-
-The canonical application snapshots remain:
+Canonical application snapshots:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
+
+Release mechanics are documented separately in [Release Integrity](../RELEASES.md) so the main product presentation can stay focused on GymFlow itself.
 
 ## 16. Key decisions and trade-offs
 
@@ -269,11 +257,13 @@ The canonical application snapshots remain:
 | Separate portal token | Least privilege and safer client UX | Two session models must be maintained |
 | Separate migration job | Predictable deployment and explicit schema changes | Deployment has an additional step |
 | Redis-backed production limits | Shared abuse-control state across instances | Production requires another managed service |
-| Deterministic demo rebuild | Repeatable review and release evidence | Seed contracts evolve with the product |
+| Deterministic demo rebuild | Repeatable review and release preparation | Seed contracts evolve with the product |
 | Internal-note separation | Protects client-facing audiences | Messaging schemas and tests are more complex |
-| Local release validation | Reproducible gate without false hosted claims | Reviewers do not receive a green hosted badge |
-| Full screenshot hash approval | Exact visual evidence integrity | Any legitimate recapture requires a new release record |
+| Local release validation | Reproducible release gate independent of hosted runners | Release checks are executed locally |
+| Full screenshot hash record | Stable tagged visual snapshots | A recapture belongs to a new release record |
 
-## Production boundary
+## Deployment path
 
-The architecture is production-oriented, but a live commercial launch still requires deployment-specific verification of hosting, managed PostgreSQL and Redis, Stripe and OAuth callbacks, verified email delivery, monitoring, alerting, backups, restore drills, vulnerability scanning, and operational ownership.
+GymFlow's architecture is production-oriented. A commercial deployment would connect it to selected hosting, managed PostgreSQL and Redis, production Stripe/email/OAuth configuration, monitoring, alerting, backups, restore procedures, vulnerability management, and operational ownership.
+
+Those steps extend the existing environment and provider boundaries rather than changing the core application architecture.

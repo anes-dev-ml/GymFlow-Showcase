@@ -12,9 +12,9 @@ from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = Path("release/evidence-manifest.json")
-CURRENT_RELEASE = "v1.0.3-showcase"
-PREVIOUS_RELEASE = "v1.0.2-showcase"
-PREVIOUS_RELEASE_COMMIT = "4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f"
+CURRENT_RELEASE = "v1.0.4-showcase"
+PREVIOUS_RELEASE = "v1.0.3-showcase"
+PREVIOUS_RELEASE_COMMIT = "7262227bdc925f236f2c1c4257c8630513931b64"
 FRONTEND_COMMIT = "b73a623c3985e4bc458d04b4b484887ada593fa5"
 BACKEND_COMMIT = "2234af20d1d9dd143bcac22edc699d3ee7fe515f"
 ALEMBIC_HEAD = "9e4f6a8c2d1b"
@@ -32,6 +32,7 @@ REQUIRED_FILES = {
     "ROADMAP.md",
     "SECURITY.md",
     "docs/ENGINEERING.md",
+    "docs/ENGINEERING_JOURNEY.md",
     "docs/OPERATIONS.md",
     "docs/PRODUCT.md",
     "docs/QUALITY.md",
@@ -40,6 +41,7 @@ REQUIRED_FILES = {
     "release/evidence-manifest.json",
     "release/v1.0.2-release-notes.md",
     "release/v1.0.3-release-notes.md",
+    "release/v1.0.4-release-notes.md",
     "screenshots/README.md",
     "scripts/check_release.py",
     "scripts/check_showcase.py",
@@ -62,17 +64,21 @@ PUBLIC_PRESENTATION_FILES = {
     "ROADMAP.md",
     "SECURITY.md",
     "docs/ENGINEERING.md",
+    "docs/ENGINEERING_JOURNEY.md",
     "docs/OPERATIONS.md",
     "docs/PRODUCT.md",
     "docs/QUALITY.md",
     "docs/SECURITY_OVERVIEW.md",
     "docs/THREAT_MODEL.md",
-    "release/v1.0.3-release-notes.md",
+    "release/v1.0.4-release-notes.md",
     "screenshots/README.md",
     "video/README.md",
 }
 
-HISTORICAL_RELEASE_DOCS = {"release/v1.0.2-release-notes.md"}
+HISTORICAL_RELEASE_DOCS = {
+    "release/v1.0.2-release-notes.md",
+    "release/v1.0.3-release-notes.md",
+}
 
 INTERNAL_AUTHORING_PHRASES = {
     "how to capture",
@@ -151,10 +157,7 @@ SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 def git_bytes(root: Path, *args: str) -> bytes | None:
     try:
         completed = subprocess.run(
-            ["git", *args],
-            cwd=root,
-            check=True,
-            capture_output=True,
+            ["git", *args], cwd=root, check=True, capture_output=True
         )
     except (FileNotFoundError, subprocess.CalledProcessError):
         return None
@@ -178,9 +181,7 @@ def tracked_relative_paths(root: Path = ROOT) -> list[Path]:
             if path.is_file() and not any(part in ignored for part in path.parts)
         )
     return sorted(
-        Path(item.decode("utf-8"))
-        for item in output.split(b"\0")
-        if item
+        Path(item.decode("utf-8")) for item in output.split(b"\0") if item
     )
 
 
@@ -431,12 +432,13 @@ def check_manifest_contract(errors: list[str], manifest: dict) -> None:
     if release.get("state") != "release-record":
         errors.append("release state must be release-record")
     evidence_date = release.get("evidence_date")
-    try:
-        date.fromisoformat(evidence_date) if isinstance(evidence_date, str) else None
-    except ValueError:
-        errors.append("release evidence_date must use YYYY-MM-DD")
     if not isinstance(evidence_date, str):
         errors.append("release evidence_date must use YYYY-MM-DD")
+    else:
+        try:
+            date.fromisoformat(evidence_date)
+        except ValueError:
+            errors.append("release evidence_date must use YYYY-MM-DD")
 
     previous = dictionary(manifest.get("previous_release"))
     if previous.get("tag") != PREVIOUS_RELEASE:
@@ -458,7 +460,7 @@ def check_manifest_contract(errors: list[str], manifest: dict) -> None:
     if validation.get("mode") != "local":
         errors.append("showcase validation mode must be local")
     if validation.get("hosted_ci_claim") is not False:
-        errors.append("evidence manifest must not claim hosted CI")
+        errors.append("evidence manifest hosted_ci_claim must be false for this release line")
     commands = set(string_list(validation.get("commands")))
     required_commands = {
         "python -m unittest discover -s tests -p test_*.py",
@@ -494,7 +496,11 @@ def check_manifest_contract(errors: list[str], manifest: dict) -> None:
     for path in sorted(approved_paths - expected_paths):
         errors.append(f"evidence manifest has unexpected approved SHA-256: {path}")
     for path, digest in sorted(approved.items()):
-        if not isinstance(path, str) or not isinstance(digest, str) or not SHA256_PATTERN.fullmatch(digest):
+        if (
+            not isinstance(path, str)
+            or not isinstance(digest, str)
+            or not SHA256_PATTERN.fullmatch(digest)
+        ):
             errors.append(f"invalid approved SHA-256 entry: {path}")
 
     blocked = dictionary(gallery.get("blocked_sha256"))
@@ -513,6 +519,12 @@ def check_manifest_contract(errors: list[str], manifest: dict) -> None:
         artifact = dictionary(artifacts.get(name))
         if artifact.get("status") != expected_status:
             errors.append(f"artifact status is incorrect for {name}")
+
+    boundaries = dictionary(manifest.get("boundaries"))
+    for name in {"data", "payments", "production"}:
+        value = boundaries.get(name)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"release boundary is missing: {name}")
 
 
 def check_screenshot_inventory(errors: list[str], manifest: dict, root: Path = ROOT) -> None:
@@ -571,7 +583,9 @@ def check_screenshot_inventory(errors: list[str], manifest: dict, root: Path = R
                 + f" (sha256 {digest[:12]}…)"
             )
     if len(hashes) != 53:
-        errors.append(f"screenshot uniqueness mismatch: expected 53 unique hashes, found {len(hashes)}")
+        errors.append(
+            f"screenshot uniqueness mismatch: expected 53 unique hashes, found {len(hashes)}"
+        )
 
 
 def check_video_inventory(errors: list[str], root: Path = ROOT) -> None:
@@ -606,8 +620,8 @@ def check_document_contracts(errors: list[str], manifest: dict, root: Path = ROO
     release = dictionary(manifest.get("release"))
     previous = dictionary(manifest.get("previous_release"))
     source = dictionary(manifest.get("source"))
-    frontend = dictionary(source.get("frontend")).get("commit", "")
-    backend = dictionary(source.get("backend")).get("commit", "")
+    frontend = str(dictionary(source.get("frontend")).get("commit", ""))
+    backend = str(dictionary(source.get("backend")).get("commit", ""))
     current_tag = str(release.get("tag", ""))
     previous_tag = str(previous.get("tag", ""))
     evidence_date = str(release.get("evidence_date", ""))
@@ -617,14 +631,14 @@ def check_document_contracts(errors: list[str], manifest: dict, root: Path = ROO
             "README.md",
             {
                 "multi-tenant",
-                "client portal",
-                "deterministic professional demo",
-                "local release validation",
-                current_tag,
-                previous_tag,
-                str(frontend),
-                str(backend),
+                "Product highlights",
+                "A connected SaaS",
+                "Deterministic professional demo",
+                "Source access",
                 "Project ownership",
+                current_tag,
+                frontend,
+                backend,
             },
             "README",
         ),
@@ -633,12 +647,11 @@ def check_document_contracts(errors: list[str], manifest: dict, root: Path = ROO
             {
                 current_tag,
                 previous_tag,
-                str(frontend),
-                str(backend),
-                "release record",
-                "local validation",
-                "53 exact SHA-256 approvals",
-                "No green hosted-CI claim",
+                frontend,
+                backend,
+                "Local release validation",
+                "Source access",
+                "53",
             },
             "Build manifest",
         ),
@@ -647,9 +660,9 @@ def check_document_contracts(errors: list[str], manifest: dict, root: Path = ROO
             {
                 current_tag,
                 previous_tag,
-                str(frontend),
-                str(backend),
-                "Local validation policy",
+                frontend,
+                backend,
+                "Local release gate",
                 "Correction policy",
             },
             "Release policy",
@@ -659,8 +672,8 @@ def check_document_contracts(errors: list[str], manifest: dict, root: Path = ROO
             {
                 f"{current_tag} — {evidence_date}",
                 previous_tag,
-                str(frontend),
-                str(backend),
+                frontend,
+                backend,
             },
             "Changelog",
         ),
@@ -668,27 +681,22 @@ def check_document_contracts(errors: list[str], manifest: dict, root: Path = ROO
             "screenshots/README.md",
             {
                 "# GymFlow Visual Gallery",
-                "53 stable screenshot paths",
-                "53 exact SHA-256 approvals",
+                "53 reviewed images",
                 current_tag,
-                previous_tag,
-                str(frontend),
-                str(backend),
-                "Evidence index",
+                frontend,
+                backend,
+                "Capture and privacy standard",
             },
             "Screenshot gallery",
         ),
         (
             "video/README.md",
             {
-                "# GymFlow Walkthrough Status",
-                current_tag,
-                previous_tag,
-                "not included",
-                "historical media",
-                "provenance-bound release",
+                "# GymFlow Walkthrough",
+                "53-image visual gallery",
+                "Capture standard",
             },
-            "Walkthrough status",
+            "Walkthrough document",
         ),
         (
             "DEMO.md",
@@ -702,29 +710,31 @@ def check_document_contracts(errors: list[str], manifest: dict, root: Path = ROO
         ),
         (
             "SECURITY.md",
-            {"Report a vulnerability", "Advisories", "Do not post exploit details"},
+            {
+                "Report a vulnerability",
+                "Advisories",
+                "private reporting channel",
+            },
             "Security policy",
         ),
         (
             "ROADMAP.md",
             {
-                current_tag,
-                previous_tag,
                 "Product evolution",
-                "Production infrastructure",
-                "Production claim boundary",
+                "Commercial operations",
+                "Product stage",
             },
             "Roadmap",
         ),
         (
-            "release/v1.0.3-release-notes.md",
+            "release/v1.0.4-release-notes.md",
             {
                 current_tag,
                 previous_tag,
-                str(frontend),
-                str(backend),
-                "53 exact SHA-256 approvals",
-                "Evidence boundary",
+                frontend,
+                backend,
+                "Application snapshot",
+                "Release improvements",
             },
             "Release notes",
         ),

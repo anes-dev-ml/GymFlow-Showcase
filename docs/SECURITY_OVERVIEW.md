@@ -2,7 +2,7 @@
 
 GymFlow was designed around authentication, authorization, tenant isolation, portal separation, payment safety, abuse protection, provider boundaries, and environment-specific configuration.
 
-This document explains implemented security controls. It is not a compliance certification or a claim that every production environment is automatically secure without deployment-specific verification.
+This document describes the security controls implemented in the application architecture and the deployment controls expected around them. Formal security certification would be a separate assessment of a specific operated environment.
 
 ## Security objectives
 
@@ -190,7 +190,7 @@ Payment controls include:
 - demo refusal when live Stripe configuration or stored live events are detected;
 - separation between client payment records and SaaS billing state.
 
-Stripe Connect demo behavior exists to demonstrate account/payment architecture without asking a reviewer for real identity verification.
+Stripe Connect demo behavior uses test-mode architecture and fictional identities, keeping the provider workflow reviewable without involving real KYC or real money.
 
 ## Secret handling
 
@@ -274,11 +274,11 @@ The project uses relevant OWASP ASVS themes as a review framework for:
 - configuration;
 - business logic.
 
-This is an engineering-control mapping, not a formal ASVS assessment or certification.
+This is an engineering-control mapping. A formal ASVS assessment or certification would be a separate independent activity.
 
-## Remaining production responsibilities
+## Deployment security
 
-A real production release must still verify the deployed environment:
+A commercial deployment would verify and operate:
 
 - managed database and Redis security;
 - TLS and domain configuration;

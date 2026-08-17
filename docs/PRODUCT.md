@@ -1,6 +1,6 @@
 # GymFlow Product Model
 
-GymFlow is a gym and fitness-studio operations platform. It was designed as a connected SaaS product rather than a collection of unrelated CRUD pages.
+GymFlow is a gym and fitness-studio operations platform designed as one connected SaaS product rather than a collection of unrelated CRUD pages.
 
 ## Product surfaces
 
@@ -14,7 +14,7 @@ GymFlow is a gym and fitness-studio operations platform. It was designed as a co
 
 ### Owner
 
-The owner needs to:
+The owner can:
 
 - create and select workspaces;
 - understand business performance;
@@ -26,11 +26,11 @@ The owner needs to:
 
 ### Manager
 
-The manager needs broad studio control while remaining separate from account ownership and sensitive SaaS billing responsibilities.
+The manager has broad studio control while remaining separate from account ownership and sensitive SaaS billing responsibilities.
 
 ### Trainer
 
-The trainer needs to:
+The trainer can:
 
 - publish availability;
 - see assigned bookings;
@@ -40,7 +40,7 @@ The trainer needs to:
 
 ### Receptionist
 
-Reception staff need fast front-desk access to:
+Reception staff have fast front-desk access to:
 
 - clients;
 - bookings;
@@ -51,7 +51,7 @@ Reception staff need fast front-desk access to:
 
 ### Client
 
-The client needs a private experience for:
+The client receives a private experience for:
 
 - upcoming and historical bookings;
 - membership status and benefits;
@@ -259,7 +259,7 @@ Pending obligation
 
 The deterministic scenario is built around **Northline Performance Club**, a fictional Montréal gym.
 
-It deliberately includes positive and negative operational states so the product tells a real story:
+It includes a useful mix of everyday and edge-case operational states:
 
 - highly active and newly joined clients;
 - archived/inactive clients;
@@ -273,7 +273,7 @@ It deliberately includes positive and negative operational states so the product
 
 ### Lena Martin
 
-Lena demonstrates a healthy client relationship:
+Lena represents a healthy client relationship:
 
 - valid membership;
 - recent successful payments;
@@ -284,7 +284,7 @@ Lena demonstrates a healthy client relationship:
 
 ### Amina Haddad
 
-Amina demonstrates operational attention:
+Amina represents a client who needs operational attention:
 
 - expiring membership;
 - failed payment;
@@ -300,20 +300,20 @@ Dashboard cards and report charts are backed by seeded business records and API 
 
 ### Role-appropriate complexity
 
-Owners see broad administration. Trainers and receptionists see the workflows relevant to them. Clients never enter the staff dashboard.
+Owners see broad administration. Trainers and receptionists see the workflows relevant to them. Clients use a separate self-service portal rather than entering the staff application.
 
-### Honest provider boundaries
+### Clear provider boundaries
 
-A feature is described as implemented, provider-dependent, demo-simulated, or planned. Test payments are never presented as real commercial processing.
+Provider-dependent behavior is separated from core product logic. Test payments, demo state, and production provider configuration are represented distinctly so the same architecture can move between environments cleanly.
 
 ### Safe defaults
 
-Sensitive actions require explicit confirmation, protected routes fail closed, public identity flows avoid enumeration, and the demo rebuild refuses unsafe targets.
+Sensitive actions require explicit confirmation, protected routes fail closed, public identity flows avoid enumeration, and the demo rebuild stays within approved targets.
 
 ### International and responsive design
 
-The same product must remain understandable in English, French, and Arabic across desktop, tablet, and mobile layouts.
+The same product remains understandable in English, French, and Arabic across desktop, tablet, and mobile layouts.
 
-## Current product boundary
+## Product stage
 
-GymFlow is ready for controlled professional demonstration and has production-oriented configuration and deployment artifacts. A live commercial launch still requires environment-specific provider verification, hosting, monitoring, backup, restore, legal, and operational work documented in the roadmap.
+GymFlow is complete as a controlled professional demonstration and production-oriented SaaS implementation. Its product flows, architecture, configuration, and deployment artifacts are in place; commercial operation would add target hosting, verified provider accounts, monitoring, backup and restore processes, and the legal/support responsibilities of the chosen deployment.
