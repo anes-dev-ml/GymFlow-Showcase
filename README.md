@@ -112,14 +112,14 @@ See the [Demo Environment](DEMO.md) for the scenario and safeguards.
 
 ## Showcase release
 
-The latest tagged public snapshot is **`v1.0.3-showcase`**, representing:
+The current release record is **`v1.0.4-showcase`**, representing:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
 - Alembic head `9e4f6a8c2d1b`;
 - 53 reviewed screenshots across desktop, client portal, mobile, localization, and engineering views.
 
-The release system records exact source revisions, gallery integrity, demo boundaries, and validation commands. Those details live in [Release Integrity](RELEASES.md), the [Build Manifest](BUILD_MANIFEST.md), and the machine-readable [`release/evidence-manifest.json`](release/evidence-manifest.json), keeping the landing page focused on the product itself.
+`v1.0.4-showcase` keeps the application snapshot and gallery from `v1.0.3-showcase` while refining the public case-study narrative. The release system records exact source revisions, gallery integrity, demo boundaries, and validation commands in [Release Integrity](RELEASES.md), the [Build Manifest](BUILD_MANIFEST.md), and the machine-readable [`release/evidence-manifest.json`](release/evidence-manifest.json).
 
 ## Source access
 
