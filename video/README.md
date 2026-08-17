@@ -1,25 +1,14 @@
-# GymFlow Walkthrough Status
+# GymFlow Walkthrough
 
-**Current media status:** Not included in `v1.0.3-showcase`.
+The current GymFlow showcase is built around the reviewed **53-image visual gallery**, architecture documentation, engineering case studies, and exact application provenance. That format gives visitors both a quick product view and a deeper technical path without requiring a long walkthrough video.
 
-The `v1.0.3-showcase` provenance-bound release record does **not include** a public walkthrough video, thumbnail, captions file, or downloadable video asset.
+A future release can add a concise edited walkthrough when motion helps explain the connected workflows better than static captures.
 
-The current evidence is provided through:
+## Suggested walkthrough narrative
 
-- the [53-image visual gallery](../screenshots/README.md);
-- the engineering case study;
-- the exact source provenance in the [Build Manifest](../BUILD_MANIFEST.md);
-- the machine-readable [`release/evidence-manifest.json`](../release/evidence-manifest.json).
+Rather than moving page by page, a GymFlow walkthrough would follow one connected operating story:
 
-The previous immutable release is `v1.0.2-showcase`. It also does not claim a current provenance-bound walkthrough.
-
-An older standalone GitHub release associated with a non-showcase `v1.0.0` tag may contain a walkthrough asset. That asset is **historical media**. It predates the canonical source snapshot used by the current release and is not part of the current record.
-
-## Intended walkthrough narrative
-
-A future GymFlow walkthrough would present one connected product story rather than a page-by-page feature list.
-
-| Chapter | Product or engineering evidence |
+| Chapter | Story |
 |---|---|
 | Product context | Public website, target users, and the operational problem |
 | Studio overview | Owner dashboard, current activity, revenue, bookings, and attendance |
@@ -34,7 +23,7 @@ A future GymFlow walkthrough would present one connected product story rather th
 
 ## Engineering themes
 
-A technical walkthrough would emphasize:
+A technical walkthrough could highlight:
 
 - workspace-scoped multi-tenancy;
 - staff JWT and client portal token separation;
@@ -47,20 +36,16 @@ A technical walkthrough would emphasize:
 - request IDs, structured logs, liveness, and readiness;
 - deterministic demo rebuilding with destructive-operation guards.
 
-## Data and provider boundary
+## Capture standard
 
-Any future public walkthrough must use fictional identities and business records. Payment demonstrations remain manual, simulated, or Stripe test-mode only and do not process real money.
+Any public walkthrough follows the same presentation rules as the screenshot gallery:
 
-Provider-dependent capabilities such as live Stripe configuration, verified email delivery, Google OAuth redirects, and production infrastructure are not presented as verified without corresponding release evidence.
+- fictional identities and business records;
+- manual, simulated, or Stripe test-mode payment states;
+- no usable credentials or access codes;
+- no unrelated personal notifications or local-machine details;
+- the exact frontend, backend, and showcase revisions recorded with the media release.
 
-## Future media releases
+When a walkthrough is added, its release record can include duration, captions, format, checksum, and the application revisions it represents.
 
-A later video will be published under a new provenance-bound release. Its record will include:
-
-- exact frontend, backend, and showcase source snapshots;
-- duration;
-- captions status;
-- file size and format;
-- SHA-256 checksum;
-- platform and provider boundaries;
-- explicit included and omitted evidence.
+For the current product tour, see the [GymFlow Visual Gallery](../screenshots/README.md).
