@@ -2,9 +2,9 @@
 
 GymFlow showcase releases connect each public case-study snapshot to exact frontend, backend, schema, demo-state, and gallery records. The goal is simple: make every tagged showcase easy to identify and reproduce without turning release mechanics into the product story itself.
 
-## Latest tagged release
+## Current release
 
-The latest tagged release is **`v1.0.3-showcase`**. It represents:
+The current release record is **`v1.0.4-showcase`**. It represents:
 
 - frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
 - backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
@@ -12,9 +12,9 @@ The latest tagged release is **`v1.0.3-showcase`**. It represents:
 - the reviewed 53-image gallery;
 - the deterministic Northline Performance Club demo state.
 
-The previous tagged release is `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`.
+The previous immutable release is `v1.0.3-showcase` at `7262227bdc925f236f2c1c4257c8630513931b64`.
 
-`v1.0.3-showcase` refined the release model by introducing explicit current/previous release identities, complete gallery hashes, clearer validator modes, stronger malformed-manifest handling, and additional regression coverage.
+`v1.0.4-showcase` is a documentation and presentation patch. It keeps the application and gallery snapshot unchanged while refining the public narrative, source-access wording, roadmap, gallery presentation, and supporting technical documentation.
 
 ## Versioning
 
@@ -25,6 +25,7 @@ v1.0.0-showcase
 v1.0.1-showcase
 v1.0.2-showcase
 v1.0.3-showcase
+v1.0.4-showcase
 v1.1.0-showcase
 ```
 
@@ -42,7 +43,7 @@ Each release can record:
 - frontend repository, ref, and commit;
 - backend repository, ref, and commit;
 - Alembic head;
-- evidence/demo date and deterministic targets;
+- release/demo date and deterministic targets;
 - runtime and dependency versions;
 - included artifacts;
 - validation mode and commands;
@@ -86,7 +87,7 @@ Browse the gallery in [GymFlow Visual Gallery](screenshots/README.md).
 
 ## Demo data and payments
 
-The public showcase uses fictional identities and business records, reserved `.test` or IANA example-domain addresses, and manual/simulated/Stripe test-mode payment states. It does not publish reusable credentials or live payment information.
+The public showcase uses fictional identities and business records, reserved `.test` or IANA example-domain addresses, and manual/simulated/Stripe test-mode payment states. Reusable credentials and live payment information are kept outside the public presentation.
 
 This keeps product review realistic while preserving a clear separation between demonstration data and any real deployment environment.
 
@@ -98,7 +99,7 @@ The [Roadmap](ROADMAP.md) describes that path separately from the tagged product
 
 ## Release media
 
-`v1.0.3-showcase` is centered on documentation, diagrams, and the reviewed screenshot gallery. A future release can add an edited walkthrough or installable review artifact when it adds value, with its own versioned source and integrity record.
+`v1.0.4-showcase` is centered on documentation, diagrams, and the reviewed screenshot gallery. A future release can add an edited walkthrough or installable review artifact when it adds value, with its own versioned record.
 
 ## Correction policy
 
