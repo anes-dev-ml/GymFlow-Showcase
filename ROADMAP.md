@@ -1,29 +1,10 @@
 # GymFlow Roadmap
 
-GymFlow is complete as a controlled professional demonstration and is presented as a production-oriented SaaS architecture. The roadmap separates release maintenance, product evolution, provider verification, and production operations.
+GymFlow is complete as a professional product showcase and already covers the core operating loop of a modern gym or fitness studio. The roadmap focuses on where the product could grow next and what would be added for a live commercial deployment.
 
-## Current release baseline
+## Current product foundation
 
-The current release record is `v1.0.3-showcase`. The previous immutable release is `v1.0.2-showcase` at `4e6f10276a5d17a51f7ddad12d9f909fd6f0fd7f`.
-
-The canonical application snapshots remain unchanged:
-
-- frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
-- backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
-
-The final public-release correction focuses on:
-
-- durable current and previous release identities;
-- exact SHA-256 approval for all 53 screenshots;
-- neutral record and release validation modes;
-- defensive manifest validation;
-- expanded validator regression coverage;
-- removal of obsolete candidate terminology;
-- no green hosted-CI claim.
-
-## Implemented product scope
-
-| Area | Current state |
+| Area | Current implementation |
 |---|---|
 | Public product site | Localized product, pricing, security, contact, and legal surfaces |
 | Authentication | Password, verification, recovery, OAuth foundation, invitations |
@@ -42,23 +23,11 @@ The final public-release correction focuses on:
 | Internationalization | English, French, Arabic, RTL presentation |
 | Platforms | Flutter Web, Android, Windows targets |
 
-## Release procedure
-
-For a showcase release record:
-
-1. refresh the complete evidence hashes;
-2. run the local validation gate;
-3. complete privacy and visual review;
-4. commit any resulting correction;
-5. confirm the working tree is clean;
-6. create the immutable tag on the reviewed commit;
-7. run release-mode validation.
-
-No application feature work or screenshot recapture is required for `v1.0.3-showcase` unless final review discovers a real defect.
+The tagged showcase release and exact source revisions are maintained in [Release Integrity](RELEASES.md) and the [Build Manifest](BUILD_MANIFEST.md).
 
 ## Product evolution
 
-Possible future product work includes:
+Natural next steps for the product include:
 
 - structured workout programs and coach-assigned plans;
 - client goals, measurements, and richer progress history;
@@ -70,15 +39,15 @@ Possible future product work includes:
 - controlled file and media storage;
 - audit retention, export, and archival policies.
 
-These ideas are not required to demonstrate the current system. They represent possible growth after the release baseline is preserved.
+These ideas build on the existing domain model rather than replacing it. The current system already provides the tenant, role, client, booking, payment, communication, and portal foundations they would use.
 
-## Provider verification
+## Provider deployment
 
-A live deployment requires target-environment verification for:
+A live environment would connect the existing provider boundaries to production accounts and domains.
 
 ### Stripe
 
-- account mode, credentials, prices, and Connect model;
+- production account mode, credentials, prices, and Connect model;
 - checkout success and cancellation;
 - webhook delivery, signatures, duplicate handling, and refunds;
 - billing portal and KYC behavior where applicable.
@@ -95,9 +64,9 @@ A live deployment requires target-environment verification for:
 - Android package and signing fingerprints;
 - account linking, expiry, invalid handoffs, and replay behavior.
 
-## Production infrastructure
+## Commercial operations
 
-Commercial operation would add:
+Moving from a professional showcase to an operated SaaS service would add:
 
 - managed frontend and backend hosting;
 - managed PostgreSQL and Redis;
@@ -109,12 +78,14 @@ Commercial operation would add:
 - accessibility, browser, device, load, and performance verification;
 - privacy, terms, retention, support, and commercial operating policies.
 
-## Visual and review experience
+The application architecture already separates these environment-specific responsibilities from the core product code, which makes them deployment work rather than a redesign of the system.
 
-A future release may add an edited product or engineering walkthrough. Any media release will use a new semantic identifier and record its exact source snapshot, duration, captions status, and integrity metadata rather than silently changing an existing evidence set.
+## Presentation and review
 
-## Production claim boundary
+The current showcase uses a large reviewed screenshot gallery to cover the product across desktop, mobile, client portal, localization, and engineering views. A future release could add a concise edited walkthrough when it adds meaningful value to the presentation.
 
-GymFlow may be described as **production-oriented** because it implements strict configuration, tenant and credential boundaries, migrations, Docker packaging, health checks, observability foundations, and release validation.
+## Product stage
 
-It should be described as **production-operated** only after provider flows, deployed isolation, managed infrastructure, monitoring, backup and restore, security controls, and legal and operational responsibilities are verified in the target environment.
+GymFlow is best described as a **production-oriented SaaS implementation and professional engineering showcase**. It contains production-style configuration, tenant and credential boundaries, migrations, Docker packaging, health checks, observability foundations, provider integrations, deterministic demo tooling, and release validation.
+
+Operating it as a commercial SaaS would be the next stage: connecting verified providers and managed infrastructure, then adding the monitoring, backup, security, legal, and support processes required by the target deployment.
