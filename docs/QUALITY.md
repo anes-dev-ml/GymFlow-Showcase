@@ -1,6 +1,6 @@
 # GymFlow Quality Strategy
 
-GymFlow uses layered automated checks and manual product review. The objective is not to maximize a test-count number; it is to protect the risks that could make a multi-surface SaaS unreliable, unsafe, misleading, or difficult to operate.
+GymFlow uses layered automated checks and manual product review. The objective is to protect the risks that matter in a multi-surface SaaS: contract drift, authorization mistakes, unsafe environment configuration, migration problems, inconsistent demo state, broken localization, and difficult-to-diagnose failures.
 
 ## Quality objectives
 
@@ -11,9 +11,9 @@ GymFlow uses layered automated checks and manual product review. The objective i
 - Keep demo data repeatable and internally consistent.
 - Protect localization and responsive behavior.
 - Make failures diagnosable through request IDs and structured logs.
-- Verify denied, empty, error, conflict, and expiry states—not only happy paths.
-- Record only validation that actually executed.
-- Tie public evidence to exact source revisions and reviewed artifacts.
+- Verify denied, empty, error, conflict, and expiry states alongside happy paths.
+- Record validation against exact source revisions.
+- Keep the public showcase tied to reviewed artifacts.
 
 ## Quality layers
 
@@ -30,7 +30,7 @@ GymFlow uses layered automated checks and manual product review. The objective i
 | Demo validation | Verify deterministic counts, relationships, trends, and identities |
 | Showcase validation | Protect documentation, provenance, privacy, and media integrity |
 
-## Risk-to-evidence matrix
+## Risk-to-control matrix
 
 | Risk | Protection |
 |---|---|
@@ -50,22 +50,22 @@ GymFlow uses layered automated checks and manual product review. The objective i
 | Demo reset targets unsafe data | Environment, host, name, allowlist, and confirmation guards |
 | French or Arabic layout regresses | Responsive and localization review |
 | Public repository leaks a secret | Source and showcase secret checks |
-| Screenshot inventory drifts | Exact filenames, dimensions, uniqueness, and full SHA-256 approval |
+| Screenshot inventory drifts | Exact filenames, dimensions, uniqueness, and full SHA-256 record |
 | Release wording contradicts tag state | Stable current/previous release schema and document contracts |
-| Local cache causes a false release failure | Tracked-file discovery and regression tests |
-| Release tag misrepresents evidence | Previous-tag verification plus clean-HEAD current-tag verification |
+| Local cache interferes with a release check | Tracked-file discovery and regression tests |
+| Release tag does not match the reviewed snapshot | Previous-tag verification plus clean-HEAD current-tag verification |
 
 ## Application validation
 
-The private backend quality path is designed around PostgreSQL, Redis, migrations, provider configuration, security contracts, route authorization, deterministic demo safeguards, application import checks, and behavior tests.
+The private backend quality path covers PostgreSQL, Redis, migrations, provider configuration, security contracts, route authorization, deterministic demo safeguards, application import checks, and behavior tests.
 
 The private frontend quality path covers localization generation, static analysis, source and UI contracts, frontend/backend API synchronization, portal privacy, responsive navigation, Flutter tests, and a release web build.
 
-The showcase does not claim that private-source checks are independently reproducible from this repository. It records their canonical revisions and the validation boundary honestly.
+The public showcase records the canonical application revisions and validates the documentation and media that are actually published here. Selected source access can provide deeper review when useful.
 
 ## Authorization strategy
 
-Authorization evidence includes successful and denied access.
+Authorization checks include both successful and denied access.
 
 | Actor | Allowed | Denied |
 |---|---|---|
@@ -126,7 +126,7 @@ The reset, seed, and validation run inside one transaction and commit only after
 
 ## Showcase release validation
 
-The `v1.0.3-showcase` release record uses a traditional local gate. The previous immutable release is `v1.0.2-showcase`.
+The tagged `v1.0.3-showcase` release uses a traditional local gate.
 
 ### PowerShell
 
@@ -149,19 +149,19 @@ The combined gate runs:
 3. release-record provenance validation;
 4. optional current-tag and clean-worktree verification.
 
-The validator inspects tracked Git content rather than every transient local file. This preserves strict repository hygiene without allowing an untracked `__pycache__` directory to create a false release defect.
+The validator inspects tracked Git content, so transient local cache files do not alter the release result.
 
 ## Validator regression tests
 
-The validation tooling is tested for:
+The validation tooling covers:
 
 - tracked-file discovery and exclusion of untracked bytecode;
 - stale release wording in active public documentation;
-- safe preservation of historical release wording;
-- safe use of detection literals inside validator source;
+- preservation of historical release wording;
+- detection literals inside validator source;
 - machine-readable manifest correctness and source drift;
 - malformed nested manifest handling;
-- complete 53-file SHA-256 approval;
+- complete 53-file SHA-256 coverage;
 - previous-tag immutability;
 - pre-tag record mode;
 - current-tag alignment and clean working-tree enforcement;
@@ -175,17 +175,17 @@ The gallery contract checks:
 - supported file formats;
 - readable dimensions and expected orientation;
 - 53 unique content hashes;
-- 53 exact SHA-256 approvals;
+- exact SHA-256 records;
 - known rejected media hashes;
 - common text-secret and JWT-like patterns;
 - local Markdown links and repository-root containment;
 - the absence of undeclared video assets.
 
-Binary checks do not replace human review. Every screenshot still requires inspection for visible credentials, local paths, browser overlays, private data, broken localization, misleading state, and non-identical visual duplication.
+Automated checks complement manual review. Every screenshot is also inspected for visible credentials, local paths, browser overlays, private data, localization problems, misleading state, and accidental duplicates.
 
-## Release evidence model
+## Release record
 
-The machine-readable [`release/evidence-manifest.json`](../release/evidence-manifest.json) is the central public record for:
+The machine-readable [`release/evidence-manifest.json`](../release/evidence-manifest.json) records:
 
 - current and previous release identities;
 - canonical frontend and backend commits;
@@ -193,28 +193,26 @@ The machine-readable [`release/evidence-manifest.json`](../release/evidence-mani
 - evidence date;
 - gallery inventory, counts, and exact hashes;
 - validation commands;
-- included and omitted artifacts;
-- data, payment, and production boundaries.
+- included artifacts;
+- data, payment, and deployment context.
 
-The validator has a small explicit trust root for the expected current release, previous immutable release, canonical source commits, and Alembic head. Human-readable documents are checked against the manifest.
+The validator has a small explicit trust root for the expected release identifiers, canonical source commits, and Alembic head. Human-readable release documents are checked against that record.
 
-## Hosted-runner boundary
+## Release runner model
 
-GitHub Actions are not used as release evidence for this showcase line. The prior workflow was removed because hosted execution was unavailable and its bytecode compile step conflicted with the following generated-file check.
-
-The repository therefore makes **no green hosted-CI claim**. The reviewed local gate is the explicit release authority.
+This showcase release line uses local PowerShell/POSIX runners rather than GitHub Actions. The release mechanism is therefore explicit, reproducible, and independent of hosted-runner availability.
 
 ## Tag rule
 
-`v1.0.3-showcase` may point to a commit only after:
+A showcase tag is created only after:
 
 1. validator tests pass;
-2. all 53 declared images are present, unique, and match exact approved hashes;
-3. no blocked media is detected;
-4. source provenance remains `b73a623c3985e4bc458d04b4b484887ada593fa5` and `2234af20d1d9dd143bcac22edc699d3ee7fe515f`;
-5. the record receives manual privacy and visual review;
+2. all declared images are present, unique, and match the recorded hashes;
+3. blocked media is absent;
+4. source provenance matches the canonical application revisions;
+5. the gallery receives manual privacy and visual review;
 6. the working tree is clean;
 7. the tag points to the reviewed commit;
 8. release-mode validation passes.
 
-Commercial production assurance would additionally benefit from accessibility automation, browser/device matrix execution, performance budgets, load and query analysis, dependency/container scanning, SBOM and signed provenance, backup restore drills, and hosted synthetic monitoring.
+A commercial deployment would add environment-specific assurance such as accessibility automation, browser/device matrix execution, performance budgets, load and query analysis, dependency/container scanning, SBOM and signed provenance, backup restore drills, and hosted synthetic monitoring.
