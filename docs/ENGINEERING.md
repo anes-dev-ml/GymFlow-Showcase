@@ -1,269 +1,51 @@
-# GymFlow Engineering
+# Engineering implementation
 
-This document explains the engineering depth behind GymFlow: system boundaries, implementation choices, failure handling, reliability patterns, and trade-offs that are easy to miss in a visual product tour.
+This document examines the implementation patterns behind GymFlow: authorization, domain state, concurrent updates, and operational failure handling. System topology and the data model are documented in [Architecture](../ARCHITECTURE.md); major design choices are in [Architecture decisions](../architecture/DECISIONS.md).
 
-## Engineering scope
+## Application layers
 
-GymFlow brings together:
+The Flutter application is organized by feature. Each feature separates models and API repositories, state coordination, and presentation. The router manages navigation among public, staff, and member-portal surfaces, while the backend owns authorization decisions.
 
-- product and domain modeling;
-- Flutter application architecture;
-- FastAPI and typed API design;
-- PostgreSQL relational modeling;
-- schema migrations;
-- authentication and authorization;
-- provider integrations;
-- real-time messaging and presence;
-- reliability and idempotency;
-- security and observability;
-- testing and validation;
-- Docker and environment design;
-- deterministic demo and release engineering.
+FastAPI groups its routes under `/api/v1`. Pydantic schemas define request and response contracts; services coordinate business rules; repositories handle scoped persistence; SQLAlchemy models and Alembic govern relational state and schema changes.
 
-## 1. Product-to-system decomposition
+The intent is to make each operation traceable from UI action through validation, authorization, database state, and tests.
 
-The application is organized around vertical product areas rather than one technical layer with no business ownership.
+## Authorization and ownership
 
-Examples include clients, memberships, staff, bookings, check-ins, payments, reports, messaging, and the client portal. Each slice owns its data access, state coordination, presentation, and targeted verification.
+Workspaces define the tenant boundary. Requests must resolve the authenticated identity, active membership, role, and resource ownership before accessing business data.
 
-This makes a change such as “support no-show reporting” traceable from database state through API schema, aggregation, frontend parsing, and UI display.
+The member portal uses a distinct credential and route family rather than treating clients as staff members with fewer permissions. Portal schemas expose client-scoped information and omit internal staff metadata. Frontend route restrictions improve usability but do not substitute for backend authorization.
 
-## 2. Frontend architecture
+This design introduces two session lifecycles and additional test coverage in return for stronger separation between audiences.
 
-### Feature-oriented structure
+## Domain consistency
 
-| Layer | Responsibility |
-|---|---|
-| Data | Models, repositories, API payload parsing, persistence adapters |
-| State | Controllers or coordinators, loading state, mutation lifecycle |
-| Presentation | Pages, dialogs, responsive widgets, localized copy |
+### Scheduling and attendance
 
-HTTP behavior is isolated from widgets, and unrelated product areas are not forced through one global controller.
+Bookings combine service duration, trainer requirements, published availability, overlap checks, recurrence, and lifecycle state. Occurrences in a recurring series can be managed independently. Attendance and front-desk check-ins remain separate records from scheduled sessions.
 
-### Routing as a product boundary
+### Payments and billing
 
-The router handles:
+Client payments and a studio's subscription to GymFlow are different financial relationships. Stripe webhook processing verifies signatures, records provider event identifiers, and handles repeated delivery. Demonstration payments use manual, simulated, or test-mode states.
 
-- public and protected routes;
-- staff and portal session separation;
-- session-expired redirects;
-- safe redirect filtering;
-- role-aware route access;
-- billing-state gates;
-- portal preview and session resolution.
+### Messaging and presence
 
-These controls improve navigation and user experience. Backend authorization remains the final security authority.
+Conversation participants, assignment, priority, and workflow status are maintained explicitly. Client-visible replies and internal notes have different audiences. Retry identifiers prevent duplicate sends, while optimistic versions detect concurrent workflow updates.
 
-### State and failure handling
+Staff presence combines connection heartbeats and recent activity across devices rather than relying on one mutable online flag. The returned information is constrained by role and visibility policy.
 
-Pages account for loading, refresh, empty state, partial data, API failure, mutation progress, conflict or rate-limit feedback, and session expiry.
+## Operational behavior
 
-The application is designed around complete workflows rather than a single happy path.
+An `X-Request-ID` links frontend errors with structured backend diagnostics. Liveness checks distinguish an executing process from readiness checks that verify required dependencies.
 
-### Localization and responsiveness
+Alembic migrations are executed separately from production web startup. Configuration applies stricter validation in production for secrets, provider modes, network origins, and debug exposure.
 
-User-facing copy goes through generated localization or shared display helpers. Backend enum values are mapped into localized labels instead of being displayed raw.
+The deterministic Northline Performance Club demo is rebuilt under explicit database, environment, provider, confirmation, and schema-allowlist guards. Its records and aggregate values are checked before a transaction is committed.
 
-The interface is reviewed across large desktop, common laptop, compressed desktop/tablet, mobile widths, expanded French copy, and Arabic RTL.
+## Verification and trade-offs
 
-Dialogs, navigation, data cards, forms, timelines, and portal shells have explicit responsive behavior rather than relying on simple widget shrinking.
+The private repositories contain automated tests for API contracts, tenancy, denied operations, lifecycle conflicts, provider retries, routes, localization, and demo safeguards. The public [Quality](QUALITY.md) document explains these layers and their limits.
 
-## 3. Backend architecture
+The architecture prioritizes explicit business rules and separated trust domains. That choice increases the maintenance cost of dual credentials, platform-specific integrations, database migrations, and targeted regression tests. Production hosting, provider accounts, backups, and incident response are deployment concerns, not proven properties of the public showcase.
 
-FastAPI routes are grouped under `/api/v1` by business capability. Dependencies apply authentication, portal identity, workspace membership, role requirements, and rate limits near the HTTP boundary.
-
-| Layer | Responsibility |
-|---|---|
-| API routes | HTTP contract, dependency injection, authorization entry point |
-| Pydantic schemas | Typed validation and audience-safe response models |
-| Services | Business rules, lifecycle transitions, provider coordination, transactions |
-| Repositories and queries | Scoped database access |
-| SQLAlchemy models | Relationships, constraints, indexes, persistence |
-| Core and middleware | Settings, authentication, request IDs, headers, limits, logs |
-| Alembic | Published schema migration history |
-
-Business behavior stays outside route handlers when it involves multi-model validation, transactions, provider calls, idempotency, access rules, or reporting aggregation.
-
-## 4. Relational data design
-
-PostgreSQL fits the product because GymFlow contains strongly connected entities and transactional workflows.
-
-Examples:
-
-- bookings connect workspace, client, service, and optional trainer;
-- memberships connect clients and plans;
-- payments connect financial state with client and membership context;
-- messages belong to authorized conversations;
-- reports aggregate durable operational records.
-
-The model uses foreign keys, unique constraints, indexes, statuses, timestamps, and migration-managed schema evolution.
-
-## 5. Migration discipline
-
-Alembic migrations are treated as published history.
-
-Controls include:
-
-- migration-graph checks;
-- one-head expectations;
-- model and migration metadata contracts;
-- explicit production migration commands;
-- separation from web startup;
-- preservation of `alembic_version` during demo resets.
-
-The deployment path favors forward fixes over destructive rollback assumptions.
-
-## 6. Authentication and authorization
-
-GymFlow supports staff password login, verification, recovery, Google OAuth, staff invitations, and one-time client portal access.
-
-Authorization combines:
-
-- user or portal identity;
-- credential type;
-- active workspace membership;
-- role and membership status;
-- requested operation;
-- resource workspace;
-- client ownership;
-- message audience and participant rules.
-
-Frontend permissions answer whether an action should be offered. Backend permissions answer whether the operation is allowed. Both matter, but only the backend is the security boundary.
-
-## 7. Scheduling and attendance
-
-Booking logic handles service duration, optional or required trainers, trainer availability, overlapping bookings, staff versus portal permissions, recurring generation, future-series cancellation, lifecycle transitions, and no-show reporting.
-
-Recurring bookings are related records, allowing each occurrence to have its own lifecycle while preserving series-level operations.
-
-Attendance is stored separately from booking state so a physical visit does not have to be represented as the same event as a scheduled session.
-
-## 8. Payments and billing
-
-GymFlow separates two financial domains:
-
-1. **Client payments** between a client and studio.
-2. **SaaS billing** between a studio and GymFlow.
-
-Webhook handling verifies signatures, stores provider event identifiers, detects duplicate delivery, and applies idempotent state transitions.
-
-Studios can represent cash, terminal, bank transfer, or Stripe test checkout while preserving a shared payment lifecycle and method context.
-
-## 9. Messaging
-
-Messaging is a workflow system rather than a simple chat table.
-
-It supports:
-
-- authorized participants;
-- staff assignment and queue claiming;
-- priorities and statuses;
-- client-visible replies;
-- staff-only internal notes;
-- cursor pagination;
-- retry-safe send identifiers;
-- optimistic workflow versions;
-- lifecycle cleanup and abuse limits.
-
-Audience-specific response schemas prevent portal clients from receiving internal notes or operational metadata.
-
-## 10. Presence
-
-Presence is not a manually toggled boolean. The system combines authenticated connection heartbeat, recent user activity, multiple-device aggregation, online/away/offline derivation, visibility policy, and administrative reset.
-
-One closed browser tab therefore does not incorrectly force a multi-device user offline.
-
-## 11. Reliability and observability
-
-| Pattern | Example |
-|---|---|
-| Transaction | Demo reset, seed, validation, and commit as one unit |
-| Advisory lock | Prevent concurrent demo rebuilds |
-| Idempotency | Stripe webhook events and message sends |
-| Optimistic concurrency | Conversation workflow updates |
-| Expiring one-time credential | Portal access, recovery, and verification |
-| Neutral public response | Prevent identity enumeration |
-| Readiness checks | Reject traffic when required dependencies are unavailable |
-| Request correlation | Connect frontend failures with structured backend logs |
-
-Every request receives an `X-Request-ID`. Liveness and readiness remain separate because “the process is running” is different from “the service can safely receive traffic.”
-
-## 12. Environment design
-
-| Environment | Purpose |
-|---|---|
-| Development | Local iteration and diagnostics |
-| Test | Isolated and deterministic automated checks |
-| Demo | Guarded fictional scenario and repeatable presentation |
-| Production | Fail-closed configuration and provider verification |
-
-Demo mode is not an alias for development. It has its own database, identity, payment, and destructive-operation contract.
-
-## 13. Deterministic demo engineering
-
-The Northline Performance Club seed is not a random fixture generator. It has fixed identities, connected relationships, relative dates, lifecycle states, financial totals, portal stories, and report targets.
-
-The rebuild refuses production, arbitrary database names, remote database hosts, live Stripe configuration, stored live events, and unknown application tables. It preserves schema and migration history, deletes in reviewed dependency order, and validates before commit.
-
-This turns demo preparation into a repeatable release process rather than manual database editing.
-
-## 14. Validation strategy
-
-The application uses several complementary quality layers:
-
-| Layer | Purpose |
-|---|---|
-| Unit and model tests | Parsing, calculations, mappings, transitions |
-| API behavior tests | Contracts, business outcomes, and errors |
-| Authorization tests | Workspace, role, portal, and participant isolation |
-| Contract scripts | Required routes, settings, middleware, and migration structure |
-| API synchronization | Frontend and backend route or payload drift |
-| Static analysis | Dart and Python quality |
-| Manual QA | Responsive layout, localization, provider behavior, and visuals |
-| Demo validation | Deterministic counts, relationships, trends, and identities |
-| Showcase validation | Documentation, privacy, provenance, and media integrity |
-
-The public showcase has its own local release gate:
-
-```powershell
-.\scripts\validate_release.ps1
-```
-
-```bash
-bash scripts/validate_release.sh
-```
-
-That tooling checks tracked repository content, validator regression tests, the 53-image gallery contract, exact hashes, canonical source revisions, and optional release-tag alignment. GitHub Actions are not part of this showcase release line.
-
-## 15. Release engineering
-
-The tagged `v1.0.3-showcase` snapshot centralizes release facts in [`release/evidence-manifest.json`](../release/evidence-manifest.json). It records the canonical application revisions, Alembic head, gallery inventory and hashes, demo context, and validation commands.
-
-Canonical application snapshots:
-
-- frontend `b73a623c3985e4bc458d04b4b484887ada593fa5`;
-- backend `2234af20d1d9dd143bcac22edc699d3ee7fe515f`.
-
-Release mechanics are documented separately in [Release Integrity](../RELEASES.md) so the main product presentation can stay focused on GymFlow itself.
-
-## 16. Key decisions and trade-offs
-
-| Decision | Benefit | Trade-off |
-|---|---|---|
-| Flutter across client targets | Shared product logic and consistent design | Platform integrations still need adapters |
-| FastAPI and Pydantic | Typed contracts and clear validation | Route and service boundaries require discipline |
-| PostgreSQL relational model | Strong relationships and transactional rules | Schema changes require migrations |
-| Workspace membership boundary | Multi-workspace users and scoped roles | Every business query must preserve scope |
-| Separate portal token | Least privilege and safer client UX | Two session models must be maintained |
-| Separate migration job | Predictable deployment and explicit schema changes | Deployment has an additional step |
-| Redis-backed production limits | Shared abuse-control state across instances | Production requires another managed service |
-| Deterministic demo rebuild | Repeatable review and release preparation | Seed contracts evolve with the product |
-| Internal-note separation | Protects client-facing audiences | Messaging schemas and tests are more complex |
-| Local release validation | Reproducible release gate independent of hosted runners | Release checks are executed locally |
-| Full screenshot hash record | Stable tagged visual snapshots | A recapture belongs to a new release record |
-
-## Deployment path
-
-GymFlow's architecture is production-oriented. A commercial deployment would connect it to selected hosting, managed PostgreSQL and Redis, production Stripe/email/OAuth configuration, monitoring, alerting, backups, restore procedures, vulnerability management, and operational ownership.
-
-Those steps extend the existing environment and provider boundaries rather than changing the core application architecture.
+[Security design](SECURITY_OVERVIEW.md) · [Operations](OPERATIONS.md)
