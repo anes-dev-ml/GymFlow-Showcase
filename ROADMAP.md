@@ -8,7 +8,7 @@ Potential extensions include structured training programs, deeper progress track
 
 These capabilities would build on the existing workspace, scheduling, membership, payments, and portal model. Each should be evaluated against demand and operational complexity before implementation.
 
-## Commercial deployment
+## Commercial operations
 
 A live service requires more than application code. Before customer operation, the deployment must have:
 
@@ -20,7 +20,7 @@ A live service requires more than application code. Before customer operation, t
 
 These are deployment gates, not assurances already established by the public Showcase. The backend's production completion checklist contains actionable technical checks.
 
-## Release direction
+## Product stage and release direction
 
 The existing `v1.0.4-showcase` tag identifies the reviewed historical application and image snapshot. New public versions should tie changes in capabilities or evidence to exact source revisions without moving prior tags.
 
