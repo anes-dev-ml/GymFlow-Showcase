@@ -1,218 +1,70 @@
-# GymFlow Quality Strategy
+# Quality and verification
 
-GymFlow uses layered automated checks and manual product review. The objective is to protect the risks that matter in a multi-surface SaaS: contract drift, authorization mistakes, unsafe environment configuration, migration problems, inconsistent demo state, broken localization, and difficult-to-diagnose failures.
+GymFlow is tested at the Flutter, API, database, and release boundaries. Automated checks cover repeatable failure modes; manual review is still required for interface quality, external providers, and operating environments.
 
-## Quality objectives
+## Application checks
 
-- Keep frontend and backend contracts synchronized.
-- Prevent authorization and tenant-isolation regressions.
-- Protect migration history and database metadata.
-- Reject unsafe environment and provider configuration.
-- Keep demo data repeatable and internally consistent.
-- Protect localization and responsive behavior.
-- Make failures diagnosable through request IDs and structured logs.
-- Verify denied, empty, error, conflict, and expiry states alongside happy paths.
-- Record validation against exact source revisions.
-- Keep the public showcase tied to reviewed artifacts.
+| Layer | Validation |
+| --- | --- |
+| Flutter | Format and static analysis, localization, route contracts, widget and controller tests, Web build |
+| FastAPI | Python tests, typed API contracts, authorization, rate limits, errors, and service behavior |
+| Database | PostgreSQL/Redis integration, migration graph, schema contracts, isolation checks |
+| Providers | Configuration and callback contracts, webhook signatures, duplicate-state handling |
+| Demo | Protected seed/reset commands, relational and financial invariants |
 
-## Quality layers
+The private code repositories contain these checks and their CI configurations.
 
-| Layer | Purpose |
-|---|---|
-| Static analysis | Catch language, type, lint, and source-structure problems |
-| Unit/model tests | Validate parsing, calculations, mapping, and lifecycle transitions |
-| API behavior tests | Verify contracts, business outcomes, and errors |
-| Authorization tests | Protect workspace, role, portal, resource, and participant boundaries |
-| Contract scripts | Enforce architectural and release requirements quickly |
-| Integration checks | Exercise PostgreSQL, Redis, migrations, and route registration |
-| API synchronization | Detect frontend/backend route and payload drift |
-| Manual product review | Validate visuals, responsiveness, localization, and provider flows |
-| Demo validation | Verify deterministic counts, relationships, trends, and identities |
-| Showcase validation | Protect documentation, provenance, privacy, and media integrity |
+**Backend (from the Backend checkout)**
 
-## Risk-to-control matrix
-
-| Risk | Protection |
-|---|---|
-| Frontend calls a removed endpoint | API-sync and route-contract checks |
-| Raw backend enum reaches UI | Localization/display contracts plus language review |
-| Workspace A accesses Workspace B | Scope dependencies, query review, isolation tests |
-| Portal credential accesses staff data | Separate token dependencies and denied-access tests |
-| Role sees a forbidden action | Backend permission tests and frontend guards |
-| Migration graph diverges | Alembic graph, one-head, and metadata checks |
-| Production starts with weak settings | Fail-fast production configuration tests |
-| Public auth is brute-forced or oversized | Redis-backed rate limits and pre-parse body limits |
-| Stripe webhook is replayed | Signature checks, stored event IDs, idempotent transitions |
-| Message retry creates a duplicate | Retry-safe identifiers |
-| Internal note reaches a client | Audience-specific schemas and participant tests |
-| Concurrent workflow update is lost | Optimistic version conflicts |
-| Presence is incorrect across devices | Heartbeat and activity aggregation tests |
-| Demo reset targets unsafe data | Environment, host, name, allowlist, and confirmation guards |
-| French or Arabic layout regresses | Responsive and localization review |
-| Public repository leaks a secret | Source and showcase secret checks |
-| Screenshot inventory drifts | Exact filenames, dimensions, uniqueness, and full SHA-256 record |
-| Release wording contradicts tag state | Stable current/previous release schema and document contracts |
-| Local cache interferes with a release check | Tracked-file discovery and regression tests |
-| Release tag does not match the reviewed snapshot | Previous-tag verification plus clean-HEAD current-tag verification |
-
-## Application validation
-
-The private backend quality path covers PostgreSQL, Redis, migrations, provider configuration, security contracts, route authorization, deterministic demo safeguards, application import checks, and behavior tests.
-
-The private frontend quality path covers localization generation, static analysis, source and UI contracts, frontend/backend API synchronization, portal privacy, responsive navigation, Flutter tests, and a release web build.
-
-The public showcase records the canonical application revisions and validates the documentation and media that are actually published here. Selected source access can provide deeper review when useful.
-
-## Authorization strategy
-
-Authorization checks include both successful and denied access.
-
-| Actor | Allowed | Denied |
-|---|---|---|
-| Owner | Full workspace operations | Another workspace without membership |
-| Manager | Broad operations | Owner-only billing and ownership controls |
-| Trainer | Assigned or permitted schedules and clients | Unrelated conversations and administration |
-| Receptionist | Front desk, bookings, check-ins, supported payments | Sensitive owner-only operations |
-| Portal client | Own portal-safe data | Other clients and every staff route |
-| Public visitor | Public routes | Protected staff and portal data |
-
-## Deterministic demo validation
-
-The demo validator checks more than row counts:
-
-- workspace identity and user/role relationships;
-- active and archived clients;
-- plan, membership, and service states;
-- booking lifecycle counts and recurrence context;
-- check-in history;
-- monthly revenue and pending-payment totals;
-- notification and presence state;
-- portal settings and access records;
-- payment-identifier safety;
-- non-flat reporting history.
-
-The reset, seed, and validation run inside one transaction and commit only after every invariant passes.
-
-## Manual product review
-
-### Workflows
-
-- registration, verification, login, recovery, and logout;
-- workspace creation and selection;
-- client, plan, membership, and service lifecycle;
-- invitations, trainer availability, and staff presence;
-- booking creation, recurrence, cancellation, completion, and no-show behavior;
-- daily attendance and front-desk check-in/out;
-- payment collection, cancellation, refund, receipt, and reporting;
-- notifications, audit history, messaging, and portal access.
-
-### Viewports and languages
-
-- 1440 and 1280 desktop;
-- 1024 compressed desktop;
-- tablet portrait and landscape;
-- 430, 390, 375, and 360 mobile widths;
-- English, expanded French copy, and Arabic RTL.
-
-### Failure states
-
-- backend unavailable;
-- unauthorized or forbidden;
-- expired sessions and portal codes;
-- empty workspace or data;
-- invalid forms and rate limits;
-- provider cancellation or error;
-- stale messaging workflow version.
-
-## Showcase release validation
-
-The tagged `v1.0.3-showcase` release uses a traditional local gate.
-
-### PowerShell
-
-```powershell
-.\scripts\validate_release.ps1
-.\scripts\validate_release.ps1 -Release
+```sh
+python scripts/run_backend_quality_checks.py
 ```
 
-### POSIX shell
+**Frontend (from the Frontend checkout)**
 
-```bash
-bash scripts/validate_release.sh
-bash scripts/validate_release.sh --release
+```sh
+python tool/run_frontend_quality_checks.py
+python tool/run_frontend_api_sync_tests.py
+python tool/run_portal_quality_checks.py
+python tool/run_frontend_all_tests.py
+flutter analyze
+flutter test
 ```
 
-The combined gate runs:
+A passing source test does not establish hosted reliability or provider behavior in a different environment.
 
-1. validator regression tests;
-2. base repository and media validation;
-3. release-record provenance validation;
-4. optional current-tag and clean-worktree verification.
+## High-risk regression areas
 
-The validator inspects tracked Git content, so transient local cache files do not alter the release result.
+- Tenant isolation and workspace membership must be enforced on server-side queries.
+- Staff and client-portal credentials must not be interchangeable.
+- Role permissions must reject unauthorized operations even if a UI control is visible.
+- Bookings must respect availability, duration, recurrence, and lifecycle rules.
+- Payment and messaging retries must not duplicate state transitions.
+- Staff-only notes must not enter client-visible responses.
+- Demo reset commands must refuse live or non-demo data targets.
 
-## Validator regression tests
+Tests include both permitted operations and denied, expired, duplicate, and conflicting requests.
 
-The validation tooling covers:
+## Manual acceptance
 
-- tracked-file discovery and exclusion of untracked bytecode;
-- stale release wording in active public documentation;
-- preservation of historical release wording;
-- detection literals inside validator source;
-- machine-readable manifest correctness and source drift;
-- malformed nested manifest handling;
-- complete 53-file SHA-256 coverage;
-- previous-tag immutability;
-- pre-tag record mode;
-- current-tag alignment and clean working-tree enforcement;
-- full repository base validation.
+Review authentication and session expiry, staff workflows, scheduling and attendance, finance, messaging, and client self-service across relevant devices. Verify desktop and narrow layouts, French text expansion, and Arabic right-to-left behavior. Include empty, error, and provider-cancellation states.
 
-## Media validation
+## Showcase checks
 
-The gallery contract checks:
+The public repository validates documentation links, tracked-file safety, tagged source provenance, and the approved media inventory.
 
-- the exact 53 approved paths;
-- supported file formats;
-- readable dimensions and expected orientation;
-- 53 unique content hashes;
-- exact SHA-256 records;
-- known rejected media hashes;
-- common text-secret and JWT-like patterns;
-- local Markdown links and repository-root containment;
-- the absence of undeclared video assets.
+```sh
+python -m unittest discover -s tests -p "test_*.py"
+python scripts/check_showcase.py
+python scripts/check_release.py
+```
 
-Automated checks complement manual review. Every screenshot is also inspected for visible credentials, local paths, browser overlays, private data, localization problems, misleading state, and accidental duplicates.
+The strict release gate (`python scripts/check_release.py --release`) is intended for a clean checkout of the matching release tag; subsequent documentation commits on `main` do not redefine that tag.
 
-## Release record
+The canonical source revisions and 53 screenshot hashes are recorded in the [Build Manifest](../BUILD_MANIFEST.md) and [evidence manifest](../release/evidence-manifest.json).
 
-The machine-readable [`release/evidence-manifest.json`](../release/evidence-manifest.json) records:
+## Outside the demonstrated scope
 
-- current and previous release identities;
-- canonical frontend and backend commits;
-- Alembic head;
-- evidence date;
-- gallery inventory, counts, and exact hashes;
-- validation commands;
-- included artifacts;
-- data, payment, and deployment context.
+Live Stripe, OAuth and email configuration, backups and restore tests, production monitoring, external security assessments, load testing, and jurisdiction-specific policies require deployment-specific verification.
 
-The validator has a small explicit trust root for the expected release identifiers, canonical source commits, and Alembic head. Human-readable release documents are checked against that record.
-
-## Release runner model
-
-This showcase release line uses local PowerShell/POSIX runners rather than GitHub Actions. The release mechanism is therefore explicit, reproducible, and independent of hosted-runner availability.
-
-## Tag rule
-
-A showcase tag is created only after:
-
-1. validator tests pass;
-2. all declared images are present, unique, and match the recorded hashes;
-3. blocked media is absent;
-4. source provenance matches the canonical application revisions;
-5. the gallery receives manual privacy and visual review;
-6. the working tree is clean;
-7. the tag points to the reviewed commit;
-8. release-mode validation passes.
-
-A commercial deployment would add environment-specific assurance such as accessibility automation, browser/device matrix execution, performance budgets, load and query analysis, dependency/container scanning, SBOM and signed provenance, backup restore drills, and hosted synthetic monitoring.
+See [Operations](OPERATIONS.md) and [Releases](../RELEASES.md).

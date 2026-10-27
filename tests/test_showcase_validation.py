@@ -184,6 +184,34 @@ class ShowcaseValidationTests(unittest.TestCase):
         check_release_state(errors, manifest, False, root)
         self.assertEqual(errors, [])
 
+    def test_record_mode_accepts_commits_after_existing_release_tag(self) -> None:
+        root = self.make_repo()
+        (root / "README.md").write_text("# Fixture\n", encoding="utf-8")
+        previous_commit = self.commit_all(root, "previous")
+        run_git(root, "tag", "v1.0.3-showcase", previous_commit)
+
+        (root / "README.md").write_text("# Tagged release\n", encoding="utf-8")
+        released_commit = self.commit_all(root, "tagged")
+        run_git(root, "tag", "v1.0.4-showcase", released_commit)
+
+        (root / "README.md").write_text("# Updated documentation\n", encoding="utf-8")
+        self.commit_all(root, "documentation update")
+
+        manifest = {
+            "release": {"tag": "v1.0.4-showcase"},
+            "previous_release": {
+                "tag": "v1.0.3-showcase",
+                "commit": previous_commit,
+            },
+        }
+        errors: list[str] = []
+        check_release_state(errors, manifest, False, root)
+        self.assertEqual(errors, [])
+
+        errors = []
+        check_release_state(errors, manifest, True, root)
+        self.assertTrue(any("expected reviewed HEAD" in error for error in errors), errors)
+
     def test_current_repository_base_checks_pass(self) -> None:
         errors, manifest = validation.run_base_checks(Path(__file__).resolve().parents[1])
         self.assertIsNotNone(manifest)

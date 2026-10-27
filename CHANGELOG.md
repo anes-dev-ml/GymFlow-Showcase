@@ -2,6 +2,14 @@
 
 All notable changes to the GymFlow showcase are documented here. The private application repositories maintain their own histories; this file tracks the public case study, gallery, manifests, validation contracts, and release artifacts.
 
+## Unreleased
+
+### Documentation
+
+- Reorganized the public README around product capabilities, architecture, and the frozen demonstration.
+- Consolidated product workflows, engineering development, roadmap, and quality documentation.
+- Updated the release checker to accept documentation commits after the immutable tagged snapshot.
+
 ## v1.0.4-showcase — 2026-08-16
 
 ### Changed

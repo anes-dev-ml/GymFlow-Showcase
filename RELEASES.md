@@ -68,7 +68,13 @@ bash scripts/validate_release.sh --release
 
 The gate covers validator regression tests, tracked-file safety, Markdown links, gallery inventory and hashes, source provenance, release identifiers, and optional tag/clean-worktree verification.
 
-GitHub Actions are not part of this release line; the local gate is the release mechanism recorded by the showcase.
+The release gate is designed for a checkout of the **tagged release**. The
+`--release` option requires a clean working tree at that tag. Record mode on
+`main` also permits documentation-only commits descended from the tagged
+snapshot; it does not move or recreate an existing release tag.
+
+GitHub Actions are not the authoritative release gate for this historical
+showcase line. Application CI is maintained in the private repositories.
 
 ## Gallery integrity
 

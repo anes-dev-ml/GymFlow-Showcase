@@ -1,91 +1,27 @@
-# GymFlow Roadmap
+# Roadmap
 
-GymFlow is complete as a professional product showcase and already covers the core operating loop of a modern gym or fitness studio. The roadmap focuses on where the product could grow next and what would be added for a live commercial deployment.
-
-## Current product foundation
-
-| Area | Current implementation |
-|---|---|
-| Public product site | Localized product, pricing, security, contact, and legal surfaces |
-| Authentication | Password, verification, recovery, OAuth foundation, invitations |
-| Workspaces and roles | Owner, manager, trainer, receptionist |
-| Clients and memberships | Connected lifecycle, history, and detail views |
-| Services and availability | Trainer-aware scheduling inputs |
-| Bookings | Duration, availability, recurrence, cancellation, completion, no-show states |
-| Attendance | Daily sheet plus front-desk check-in and check-out |
-| Client payments | Manual and Stripe-oriented test/demo lifecycle |
-| SaaS billing | Subscription and provider-boundary architecture |
-| Reports | Seeded revenue, client, booking, and attendance trends |
-| Notifications and audit | Read state, grouping, and operational history |
-| Professional messaging | Assignment, priorities, internal notes, idempotency, pagination |
-| Staff presence | Connection, activity, multi-device aggregation, visibility |
-| Client portal | Separate access, bookings, membership, payments, progress, messages, settings |
-| Internationalization | English, French, Arabic, RTL presentation |
-| Platforms | Flutter Web, Android, Windows targets |
-
-The tagged showcase release and exact source revisions are maintained in [Release Integrity](RELEASES.md) and the [Build Manifest](BUILD_MANIFEST.md).
+GymFlow's current showcase records an integrated gym-operations application, not a commercially operated service. The priorities below are proposed next steps; they are not features claimed for the tagged snapshot.
 
 ## Product evolution
 
-Natural next steps for the product include:
+Potential extensions include structured training programs, deeper progress tracking, class capacity and waitlists, recurring membership renewals, staff shift scheduling, advanced reporting, and multi-location management.
 
-- structured workout programs and coach-assigned plans;
-- client goals, measurements, and richer progress history;
-- class capacity, waitlists, and automated promotion;
-- recurring membership renewals and dunning workflows;
-- staff shifts and schedule planning;
-- deeper report drill-downs and saved report views;
-- multi-location organization management;
-- controlled file and media storage;
-- audit retention, export, and archival policies.
+These capabilities would build on the existing workspace, scheduling, membership, payments, and portal model. Each should be evaluated against demand and operational complexity before implementation.
 
-These ideas build on the existing domain model rather than replacing it. The current system already provides the tenant, role, client, booking, payment, communication, and portal foundations they would use.
+## Commercial deployment
 
-## Provider deployment
+A live service requires more than application code. Before customer operation, the deployment must have:
 
-A live environment would connect the existing provider boundaries to production accounts and domains.
+- verified hosting, domains, TLS, managed PostgreSQL/Redis, and secret management;
+- correctly configured Stripe, email, and OAuth accounts, with end-to-end provider testing;
+- backups, restore exercises, monitoring, alerting, and incident procedures;
+- security and dependency reviews, load/performance checks, and cross-device acceptance;
+- privacy, accessibility, retention, legal, and support processes appropriate to its market.
 
-### Stripe
+These are deployment gates, not assurances already established by the public Showcase. The backend's production completion checklist contains actionable technical checks.
 
-- production account mode, credentials, prices, and Connect model;
-- checkout success and cancellation;
-- webhook delivery, signatures, duplicate handling, and refunds;
-- billing portal and KYC behavior where applicable.
+## Release direction
 
-### Email
+The existing `v1.0.4-showcase` tag identifies the reviewed historical application and image snapshot. New public versions should tie changes in capabilities or evidence to exact source revisions without moving prior tags.
 
-- verified sender domain;
-- verification, recovery, invitation, and portal-access delivery;
-- bounce, complaint, and sender-reputation handling.
-
-### Google OAuth
-
-- production clients and redirect configuration;
-- Android package and signing fingerprints;
-- account linking, expiry, invalid handoffs, and replay behavior.
-
-## Commercial operations
-
-Moving from a professional showcase to an operated SaaS service would add:
-
-- managed frontend and backend hosting;
-- managed PostgreSQL and Redis;
-- domains, TLS, networking, and secret management;
-- staging migrations and deployed isolation testing;
-- centralized logs, uptime checks, latency and error alerts;
-- backup retention, recovery objectives, and restore drills;
-- dependency automation, static analysis, image scanning, SBOM, and provenance;
-- accessibility, browser, device, load, and performance verification;
-- privacy, terms, retention, support, and commercial operating policies.
-
-The application architecture already separates these environment-specific responsibilities from the core product code, which makes them deployment work rather than a redesign of the system.
-
-## Presentation and review
-
-The current showcase uses a large reviewed screenshot gallery to cover the product across desktop, mobile, client portal, localization, and engineering views. A future release could add a concise edited walkthrough when it adds meaningful value to the presentation.
-
-## Product stage
-
-GymFlow is best described as a **production-oriented SaaS implementation and professional engineering showcase**. It contains production-style configuration, tenant and credential boundaries, migrations, Docker packaging, health checks, observability foundations, provider integrations, deterministic demo tooling, and release validation.
-
-Operating it as a commercial SaaS would be the next stage: connecting verified providers and managed infrastructure, then adding the monitoring, backup, security, legal, and support processes required by the target deployment.
+See [Release process](RELEASES.md), [Operations](docs/OPERATIONS.md), and [Build manifest](BUILD_MANIFEST.md).

@@ -27,7 +27,10 @@ The machine-readable authority is [`release/evidence-manifest.json`](release/evi
 | Backend | `anes-dev-ml/Gymflow-Backend` / `main` | `2234af20d1d9dd143bcac22edc699d3ee7fe515f` | API, data, security, demo, and operational snapshot |
 | Showcase | `anes-dev-ml/GymFlow-Showcase` / `main` | Current reviewed record `HEAD` | Public case study, gallery, architecture, and release record |
 
-The showcase commit is identified by its release tag after publication. A file inside a commit does not attempt to contain its own commit SHA.
+The `v1.0.4-showcase` tag identifies the frozen showcase snapshot.
+Later documentation changes on `main` do not modify that tag, its source revisions,
+or the 53-image evidence set. To validate the tagged release, check out the tag
+and run the strict release gate.
 
 ## Application and schema versions
 

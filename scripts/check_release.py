@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from showcase_validation import ROOT, git_text, run_base_checks
+from showcase_validation import ROOT, git_bytes, git_text, run_base_checks
 
 
 def parse_args() -> argparse.Namespace:
@@ -75,9 +75,12 @@ def check_release_state(
         elif status:
             errors.append("release validation requires a clean working tree")
     elif current_target is not None and current_target != head:
-        errors.append(
-            f"existing tag {current_tag} points to {current_target}, not current HEAD {head}"
-        )
+        # A tagged release remains immutable while main can receive subsequent
+        # documentation fixes. Record mode accepts forward commits only.
+        if git_bytes(root, "merge-base", "--is-ancestor", current_target, head) is None:
+            errors.append(
+                f"current HEAD {head} does not descend from tagged release {current_tag} ({current_target})"
+            )
 
 
 def main() -> int:
